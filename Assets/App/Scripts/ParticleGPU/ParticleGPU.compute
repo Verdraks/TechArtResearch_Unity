@@ -1,0 +1,36 @@
+#pragma kernel UpdatePhysicParticles
+#pragma kernel UpdateParticleMatrix
+
+struct ParticleData
+{
+    float3 position;
+};
+
+RWStructuredBuffer<ParticleData> particles_data;
+
+RWStructuredBuffer<float4x4> particles_matrix;
+
+[numthreads(16,1,1)]
+void UpdatePhysicParticles (uint3 id : SV_DispatchThreadID)
+{
+    ParticleData particle_data = particles_data[id.x];
+    particle_data.position += float3(0.0f, 0.1f, 0.0f);
+    particles_data[id.x] = particle_data;
+}
+
+[numthreads(16,1,1)]
+void UpdateParticleMatrix (uint3 id : SV_DispatchThreadID)
+{
+
+    ParticleData particle_data = particles_data[id.x];
+    
+    half4x4 translation_matrix = half4x4(1.0f, 0.0f, 0.0f, particle_data.position.x,
+                                                0.0f, 1.0f, 0.0f, particle_data.position.y,
+                                                0.0f, 0.0f, 1.0f, particle_data.position.z,
+                                                0,0,0, 1.0f);
+
+    particles_matrix[id.x] = translation_matrix;
+    
+}
+
+

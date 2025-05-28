@@ -1,0 +1,25 @@
+#pragma kernel GenerateBladesMesh
+#pragma kernel UpdateBladesMesh
+
+struct BladeData
+{
+    half3 verticesWS;
+};
+
+Buffer<half3> BladesOriginWSBuffer; 
+
+AppendStructuredBuffer<BladeData> BladesMeshBuffer;
+
+[numthreads(8,1,1)]
+void GenerateBladesMesh (uint3 id : SV_DispatchThreadID)
+{
+    BladeData bladeData;
+    bladeData.verticesWS = BladesOriginWSBuffer.Load(id.x);
+    BladesMeshBuffer.Append(bladeData);
+}
+
+[numthreads(8,8,1)]
+void  UpdateBladesMesh(uint3 id : SV_DispatchThreadID)
+{
+    
+}

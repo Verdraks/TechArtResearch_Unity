@@ -1,0 +1,64 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+
+float waveHeightBufferSize;
+float time;
+
+RWStructuredBuffer<float4x4> waveHeightBuffer;
+
+[numthreads(8,1,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    uint gridSize = ceil(sqrt(waveHeightBufferSize));
+    
+    half xpos = id.x % gridSize;
+    half zpos = id.x / gridSize;
+
+    half offset = xpos + zpos;
+    
+    half yPos = (cos(time + offset) +1) / 2;
+
+    half3 scale = half3(1, 1, 1) * yPos;
+
+
+    half4x4 rotationMatrixX = half4x4(
+        1,0,0,0,
+        0,cos(0),-sin(0),0,
+        0,sin(0),cos(0),0,
+        0,0,0,1
+    );
+
+    half4x4 rotationMatrixY = half4x4(
+        cos(time- offset),0,sin(time - offset),0,
+        0,1,0,0,
+        -sin(time - offset),0,cos(time- offset),0,
+        0,0,0,1
+    );
+
+    half4x4 rotationMatrixZ = half4x4(
+        cos(0),-sin(0),0,0,
+        sin(0),cos(0),0,0,
+        0,0,1,0,
+        0,0,0,1
+    );
+
+
+    half4x4 rotationMatrix = mul(mul(rotationMatrixX, rotationMatrixY) ,rotationMatrixZ);
+
+    half4x4 scaleMatrix = half4x4(
+        scale.x,0,0,0,
+        0,scale.y,0,0,
+        0,0,scale.z,0,
+        0,0,0,1
+    );
+    
+    half4x4 translationMatrix = half4x4(
+        1,0,0,xpos,
+        0,1,0,yPos,
+        0,0,1,zpos,
+        0,0,0,1
+    );
+    
+    
+    waveHeightBuffer[id.x] =  mul(mul(translationMatrix, rotationMatrix), scaleMatrix);
+}
