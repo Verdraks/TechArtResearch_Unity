@@ -24,15 +24,15 @@ namespace AmplifyShaderEditor
 		private SerializedObject m_so;
 
 		private SerializedProperty m_packageContentsOrigin;
-		private GUIContent m_packageContentsOriginLabel = new GUIContent("Main Content");
+		private GUIContent m_packageContentsOriginLabel = new GUIContent("Search Path");
 
 		private SerializedProperty m_allExtras;
 
 		private SerializedProperty m_packageTargetPath;
-		private GUIContent m_packageTargetPathLabel = new GUIContent( "Target Path" );
+		private GUIContent m_packageTargetPathLabel = new GUIContent( "Package Path" );
 
 		private SerializedProperty m_packageTargetName;
-		private GUIContent m_packageTargetNameLabel = new GUIContent( "Target Name" );
+		private GUIContent m_packageTargetNameLabel = new GUIContent( "Package Name" );
 
 		private SerializedProperty m_allShaders;
 
@@ -135,6 +135,8 @@ namespace AmplifyShaderEditor
 				if( updateProperty )
 					m_packageContentsOrigin.stringValue = path;
 
+				m_allShaders.ClearArray();
+
 				string[] pathArr = { path };
 				string[] shaderInDir = AssetDatabase.FindAssets( "t:Shader" , pathArr );
 				for( int shaderIdx = 0 ; shaderIdx < shaderInDir.Length ; shaderIdx++ )
@@ -234,6 +236,48 @@ namespace AmplifyShaderEditor
 
 			m_so.ApplyModifiedProperties();
 		}
+
+		public void PackageFreeGUI()
+		{
+			m_so.Update();
+			EditorGUILayout.Separator();
+
+			EditorGUILayout.BeginHorizontal();
+			{
+				if ( string.IsNullOrEmpty( m_packageContentsOrigin.stringValue ) )
+				{
+					m_packageContentsOrigin.stringValue = "Assets";
+				}
+				EditorGUILayout.PropertyField( m_packageContentsOrigin, m_packageContentsOriginLabel );
+				if ( GUILayout.Button( "Browse", GUILayout.MaxWidth( 55 ) ) )
+				{
+					m_packageContentsOrigin.stringValue = ASESaveBundleTool.FetchPath( "Folder Path", m_packageContentsOrigin.stringValue );
+				}
+				if ( GUILayout.Button( "Fetch", GUILayout.MaxWidth( 45 ) ) )
+				{
+					FetchValidShadersFromPath( m_packageContentsOrigin.stringValue, false );
+				}
+			}
+			EditorGUILayout.EndHorizontal();
+
+			if ( m_listExtras != null )
+				m_listExtras.DoLayoutList();
+
+			EditorGUILayout.Separator();
+			if ( GUILayout.Button( "Clear" ) )
+			{
+				m_allShaders.ClearArray();
+			}
+
+			if ( m_listShaders != null )
+				m_listShaders.DoLayoutList();
+
+			EditorGUILayout.Separator();
+
+			m_dragAndDropTool.TestDragAndDrop( new Rect( 0, 0, Screen.width, Screen.height ) );
+
+			m_so.ApplyModifiedProperties();
+		}
 	}
 
 	public class ASESaveBundleTool : EditorWindow
@@ -260,7 +304,7 @@ namespace AmplifyShaderEditor
 		[NonSerialized]
 		private GUIStyle m_titleStyle;
 
-		[MenuItem( "Window/Amplify Shader Editor/"+ Title , false , 1001 )]
+		[MenuItem( "Window/Amplify Shader Editor/" + Title, false, priority: 1100 )]
 		static void ShowWindow()
 		{
 			ASESaveBundleTool window = EditorWindow.GetWindow<ASESaveBundleTool>();
@@ -291,7 +335,7 @@ namespace AmplifyShaderEditor
 				DestroyImmediate( m_dummyAsset );
 		}
 
-		
+
 		public static string FetchPath( string title, string folderpath )
 		{
 			folderpath = EditorUtility.OpenFolderPanel( title , folderpath , "" );
@@ -322,7 +366,7 @@ namespace AmplifyShaderEditor
 						pathsList.Add( currentAsset.AllExtras[ i ].Substring( idx ) );
 					}
 				}
-				
+
 			}
 			AssetDatabase.ExportPackage( pathsList.ToArray() , currentAsset.PackageTargetPath + "/" + currentAsset.PackageTargetName + ".unitypackage" , ExportPackageOptions.Recurse | ExportPackageOptions.Interactive );
 		}

@@ -87,7 +87,7 @@ namespace AmplifyShaderEditor
 				Graphics.Blit( null , m_outputPorts[ 2 ].OutputPreviewTexture , PreviewMaterial , 1 );
 				RenderTexture.active = temp;
 			}
-			PreviewIsDirty = m_continuousPreviewRefresh;
+			PreviewIsDirty = ContinuousPreviewRefresh;
 		}
 	}
 }

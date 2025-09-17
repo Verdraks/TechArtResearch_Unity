@@ -15,7 +15,7 @@ namespace AmplifyShaderEditor
 	}
 
 	[Serializable]
-	[NodeAttributes( "View Dir", "Camera And Screen", "Normalized View Direction vector.", tags: "camera vector" )]	
+	[NodeAttributes( "View Direction", "Camera And Screen", "Normalized View Direction vector.", tags: "camera vector" )]
 	public sealed class ViewDirInputsCoordNode : SurfaceShaderINParentNode
 	{
 		private const string SpaceStr = "Space";
@@ -108,6 +108,7 @@ namespace AmplifyShaderEditor
 			{
 				if ( m_viewDirSpace == ViewSpace.Tangent )
 				{
+					dataCollector.ForceNormal = true;
 					string result = base.GenerateShaderForOutput( outputId, ref dataCollector, ignoreLocalVar );
 					if ( m_safeNormalize )
 					{
@@ -121,7 +122,7 @@ namespace AmplifyShaderEditor
 					string result = GeneratorUtils.GenerateViewDirection( ref dataCollector, UniqueId, m_safeNormalize ? NormalizeType.Safe : NormalizeType.Regular, space: m_viewDirSpace );
 					return GetOutputVectorItem( 0, outputId, result );
 				}
-				
+
 			}
 		}
 

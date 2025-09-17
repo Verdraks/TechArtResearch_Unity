@@ -507,6 +507,7 @@ namespace AmplifyShaderEditor
 					break;
 					default:
 					case WirePortDataType.OBJECT:
+					case WirePortDataType.FLOAT2x2:
 					case WirePortDataType.FLOAT3x3:
 					case WirePortDataType.FLOAT4x4:
 					m_outputPorts[ 0 ].ChangeProperties( "Out" , m_shaderProperties[ m_currentPropertyIdx ].PropertyDataType , false );

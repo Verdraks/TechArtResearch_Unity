@@ -218,6 +218,7 @@ namespace AmplifyShaderEditor
 			DrawPort( WirePortDataType.FLOAT4 );
 			DrawPort( WirePortDataType.COLOR );
 			DrawPort( WirePortDataType.SAMPLER2D );
+			DrawPort( WirePortDataType.FLOAT2x2 );
 			DrawPort( WirePortDataType.FLOAT3x3 );
 			DrawPort( WirePortDataType.FLOAT4x4 );
 

@@ -20,6 +20,7 @@ namespace AmplifyShaderEditor
 				WirePortDataType.FLOAT3,
 				WirePortDataType.FLOAT4,
 				WirePortDataType.COLOR,
+				WirePortDataType.FLOAT2x2,
 				WirePortDataType.FLOAT3x3,
 				WirePortDataType.FLOAT4x4,
 				WirePortDataType.INT
@@ -49,109 +50,181 @@ namespace AmplifyShaderEditor
 
 		public override string BuildResults( int outputId, ref MasterNodeDataCollector dataCollector, bool ignoreLocalvar )
 		{
-			if( m_inputPorts[ 0 ].DataType == WirePortDataType.FLOAT3x3 ||
-				m_inputPorts[ 0 ].DataType == WirePortDataType.FLOAT4x4 ||
-				m_inputPorts[ 1 ].DataType == WirePortDataType.FLOAT3x3 ||
-				m_inputPorts[ 1 ].DataType == WirePortDataType.FLOAT4x4 )
+			if ( m_inputPorts[ 0 ].DataTypeIsMatrix || m_inputPorts[ 1 ].DataTypeIsMatrix )
 			{
 				m_inputA = m_inputPorts[ 0 ].GeneratePortInstructions( ref dataCollector );
 				m_inputB = m_inputPorts[ 1 ].GeneratePortInstructions( ref dataCollector );
 
-
 				WirePortDataType autoCast = WirePortDataType.OBJECT;
-				// Check matrix on first input
-				if( m_inputPorts[ 0 ].DataType == WirePortDataType.FLOAT3x3 )
-				{
-					switch( m_inputPorts[ 1 ].DataType )
-					{
-						case WirePortDataType.OBJECT:
-						case WirePortDataType.FLOAT:
-						case WirePortDataType.INT:
-						case WirePortDataType.FLOAT2:
-						case WirePortDataType.FLOAT4:
-						case WirePortDataType.COLOR:
-						{
-							m_inputB = UIUtils.CastPortType( ref dataCollector, CurrentPrecisionType, m_inputB, m_inputPorts[ 1 ].DataType, WirePortDataType.FLOAT3, m_inputB );
-							autoCast = WirePortDataType.FLOAT3;
-						}
-						break;
-						case WirePortDataType.FLOAT4x4:
-						{
-							m_inputA = UIUtils.CastPortType( ref dataCollector, CurrentPrecisionType, m_inputA, m_inputPorts[ 0 ].DataType, WirePortDataType.FLOAT4x4, m_inputA );
-						}
-						break;
-						case WirePortDataType.FLOAT3:
-						case WirePortDataType.FLOAT3x3: break;
-					}
-				}
 
-				if( m_inputPorts[ 0 ].DataType == WirePortDataType.FLOAT4x4 )
+				// Check matrix on first input
+				if ( m_inputPorts[ 0 ].DataTypeIsMatrix )
 				{
-					switch( m_inputPorts[ 1 ].DataType )
+					if ( m_inputPorts[ 0 ].DataType == WirePortDataType.FLOAT2x2 )
 					{
-						case WirePortDataType.OBJECT:
-						case WirePortDataType.FLOAT:
-						case WirePortDataType.INT:
-						case WirePortDataType.FLOAT2:
-						case WirePortDataType.FLOAT3:
+						switch ( m_inputPorts[ 1 ].DataType )
 						{
-							m_inputB = UIUtils.CastPortType( ref dataCollector, CurrentPrecisionType, m_inputB, m_inputPorts[ 1 ].DataType, WirePortDataType.FLOAT4, m_inputB );
-							autoCast = WirePortDataType.FLOAT4;
+							case WirePortDataType.OBJECT:
+							case WirePortDataType.FLOAT:
+							case WirePortDataType.INT:
+							case WirePortDataType.FLOAT3:
+							case WirePortDataType.FLOAT4:
+							case WirePortDataType.COLOR:
+							{
+								m_inputB = UIUtils.CastPortType( ref dataCollector, CurrentPrecisionType, m_inputB, m_inputPorts[ 1 ].DataType, WirePortDataType.FLOAT2, m_inputB );
+								autoCast = WirePortDataType.FLOAT2;
+							}
+							break;
+							case WirePortDataType.FLOAT3x3:
+							{
+								m_inputA = UIUtils.CastPortType( ref dataCollector, CurrentPrecisionType, m_inputA, m_inputPorts[ 0 ].DataType, WirePortDataType.FLOAT3x3, m_inputA );
+							}
+							break;
+							case WirePortDataType.FLOAT4x4:
+							{
+								m_inputA = UIUtils.CastPortType( ref dataCollector, CurrentPrecisionType, m_inputA, m_inputPorts[ 0 ].DataType, WirePortDataType.FLOAT4x4, m_inputA );
+							}
+							break;
+
+							case WirePortDataType.FLOAT2x2:
+							case WirePortDataType.FLOAT2: break;
 						}
-						break;
-						case WirePortDataType.FLOAT3x3:
+					}
+
+					if ( m_inputPorts[ 0 ].DataType == WirePortDataType.FLOAT3x3 )
+					{
+						switch ( m_inputPorts[ 1 ].DataType )
 						{
-							m_inputB = UIUtils.CastPortType( ref dataCollector, CurrentPrecisionType, m_inputB, m_inputPorts[ 1 ].DataType, WirePortDataType.FLOAT4x4, m_inputB );
+							case WirePortDataType.OBJECT:
+							case WirePortDataType.FLOAT:
+							case WirePortDataType.INT:
+							case WirePortDataType.FLOAT2:
+							case WirePortDataType.FLOAT4:
+							case WirePortDataType.COLOR:
+							{
+								m_inputB = UIUtils.CastPortType( ref dataCollector, CurrentPrecisionType, m_inputB, m_inputPorts[ 1 ].DataType, WirePortDataType.FLOAT3, m_inputB );
+								autoCast = WirePortDataType.FLOAT3;
+							}
+							break;
+							case WirePortDataType.FLOAT2x2:
+							{
+								m_inputA = UIUtils.CastPortType( ref dataCollector, CurrentPrecisionType, m_inputA, m_inputPorts[ 0 ].DataType, WirePortDataType.FLOAT3x3, m_inputA );
+							}
+							break;
+							case WirePortDataType.FLOAT4x4:
+							{
+								m_inputA = UIUtils.CastPortType( ref dataCollector, CurrentPrecisionType, m_inputA, m_inputPorts[ 0 ].DataType, WirePortDataType.FLOAT4x4, m_inputA );
+							}
+							break;
+
+							case WirePortDataType.FLOAT3x3:
+							case WirePortDataType.FLOAT3: break;
 						}
-						break;
-						case WirePortDataType.FLOAT4x4:
-						case WirePortDataType.FLOAT4:
-						case WirePortDataType.COLOR: break;
+					}
+
+					if ( m_inputPorts[ 0 ].DataType == WirePortDataType.FLOAT4x4 )
+					{
+						switch ( m_inputPorts[ 1 ].DataType )
+						{
+							case WirePortDataType.OBJECT:
+							case WirePortDataType.FLOAT:
+							case WirePortDataType.INT:
+							case WirePortDataType.FLOAT2:
+							case WirePortDataType.FLOAT3:
+							{
+								m_inputB = UIUtils.CastPortType( ref dataCollector, CurrentPrecisionType, m_inputB, m_inputPorts[ 1 ].DataType, WirePortDataType.FLOAT4, m_inputB );
+								autoCast = WirePortDataType.FLOAT4;
+							}
+							break;
+							case WirePortDataType.FLOAT2x2:
+							{
+								m_inputB = UIUtils.CastPortType( ref dataCollector, CurrentPrecisionType, m_inputB, m_inputPorts[ 1 ].DataType, WirePortDataType.FLOAT4x4, m_inputB );
+							}
+							break;
+							case WirePortDataType.FLOAT3x3:
+							{
+								m_inputB = UIUtils.CastPortType( ref dataCollector, CurrentPrecisionType, m_inputB, m_inputPorts[ 1 ].DataType, WirePortDataType.FLOAT4x4, m_inputB );
+							}
+							break;
+
+							case WirePortDataType.FLOAT4x4:
+							case WirePortDataType.FLOAT4:
+							case WirePortDataType.COLOR: break;
+						}
 					}
 				}
 
 				// Check matrix on second input
-				if( m_inputPorts[ 1 ].DataType == WirePortDataType.FLOAT3x3 )
+				if ( m_inputPorts[ 1 ].DataTypeIsMatrix )
 				{
-					switch( m_inputPorts[ 0 ].DataType )
+					if ( m_inputPorts[ 1 ].DataType == WirePortDataType.FLOAT2x2 )
 					{
-						case WirePortDataType.OBJECT:
-						case WirePortDataType.FLOAT:
-						case WirePortDataType.INT:
-						case WirePortDataType.FLOAT2:
-						case WirePortDataType.FLOAT4:
-						case WirePortDataType.COLOR:
+						switch ( m_inputPorts[ 0 ].DataType )
 						{
-							m_inputA = UIUtils.CastPortType( ref dataCollector, CurrentPrecisionType, m_inputA, m_inputPorts[ 0 ].DataType, WirePortDataType.FLOAT3, m_inputA );
-							autoCast = WirePortDataType.FLOAT3;
+							case WirePortDataType.OBJECT:
+							case WirePortDataType.FLOAT:
+							case WirePortDataType.INT:
+							case WirePortDataType.FLOAT3:
+							case WirePortDataType.FLOAT4:
+							case WirePortDataType.COLOR:
+							{
+								m_inputA = UIUtils.CastPortType( ref dataCollector, CurrentPrecisionType, m_inputA, m_inputPorts[ 0 ].DataType, WirePortDataType.FLOAT2, m_inputA );
+								autoCast = WirePortDataType.FLOAT2;
+							}
+							break;
+
+							case WirePortDataType.FLOAT4x4:
+							case WirePortDataType.FLOAT3x3:
+							case WirePortDataType.FLOAT2x2:
+							case WirePortDataType.FLOAT2: break;
 						}
-						break;
-						case WirePortDataType.FLOAT4x4:
-						case WirePortDataType.FLOAT3:
-						case WirePortDataType.FLOAT3x3: break;
+					}
+
+					if ( m_inputPorts[ 1 ].DataType == WirePortDataType.FLOAT3x3 )
+					{
+						switch ( m_inputPorts[ 0 ].DataType )
+						{
+							case WirePortDataType.OBJECT:
+							case WirePortDataType.FLOAT:
+							case WirePortDataType.INT:
+							case WirePortDataType.FLOAT2:
+							case WirePortDataType.FLOAT4:
+							case WirePortDataType.COLOR:
+							{
+								m_inputA = UIUtils.CastPortType( ref dataCollector, CurrentPrecisionType, m_inputA, m_inputPorts[ 0 ].DataType, WirePortDataType.FLOAT3, m_inputA );
+								autoCast = WirePortDataType.FLOAT3;
+							}
+							break;
+							case WirePortDataType.FLOAT4x4:
+							case WirePortDataType.FLOAT3x3:
+							case WirePortDataType.FLOAT2x2:
+							case WirePortDataType.FLOAT3: break;
+						}
+					}
+
+					if ( m_inputPorts[ 1 ].DataType == WirePortDataType.FLOAT4x4 )
+					{
+						switch ( m_inputPorts[ 0 ].DataType )
+						{
+							case WirePortDataType.OBJECT:
+							case WirePortDataType.FLOAT:
+							case WirePortDataType.INT:
+							case WirePortDataType.FLOAT2:
+							case WirePortDataType.FLOAT3:
+							{
+								m_inputA = UIUtils.CastPortType( ref dataCollector, CurrentPrecisionType, m_inputA, m_inputPorts[ 0 ].DataType, WirePortDataType.FLOAT4, m_inputA );
+								autoCast = WirePortDataType.FLOAT4;
+							}
+							break;
+							case WirePortDataType.FLOAT4x4:
+							case WirePortDataType.FLOAT3x3:
+							case WirePortDataType.FLOAT2x2:
+							case WirePortDataType.FLOAT4:
+							case WirePortDataType.COLOR: break;
+						}
 					}
 				}
 
-				if( m_inputPorts[ 1 ].DataType == WirePortDataType.FLOAT4x4 )
-				{
-					switch( m_inputPorts[ 0 ].DataType )
-					{
-						case WirePortDataType.OBJECT:
-						case WirePortDataType.FLOAT:
-						case WirePortDataType.INT:
-						case WirePortDataType.FLOAT2:
-						case WirePortDataType.FLOAT3:
-						{
-							m_inputA = UIUtils.CastPortType( ref dataCollector, CurrentPrecisionType, m_inputA, m_inputPorts[ 0 ].DataType, WirePortDataType.FLOAT4, m_inputA );
-							autoCast = WirePortDataType.FLOAT4;
-						}
-						break;
-						case WirePortDataType.FLOAT3x3:
-						case WirePortDataType.FLOAT4x4:
-						case WirePortDataType.FLOAT4:
-						case WirePortDataType.COLOR: break;
-					}
-				}
 				string result = "mul( " + m_inputA + ", " + m_inputB + " )";
 				if( autoCast != WirePortDataType.OBJECT && autoCast != m_outputPorts[ 0 ].DataType )
 				{

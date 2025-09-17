@@ -9,7 +9,7 @@ using System.Collections.Generic;
 namespace AmplifyShaderEditor
 {
 	[Serializable]
-	[NodeAttributes( "Texture Coordinates", "UV Coordinates", "Texture UV coordinates set, if <b>Tex</b> is connected to a texture object it will use that texture scale factors, otherwise uses <b>Tilling</b> and <b>Offset</b> port values", null, KeyCode.U, tags: "uv" )]
+	[NodeAttributes( "Texture Coordinates", "UV Coordinates", "Texture UV coordinates set, if <b>Tex</b> is connected to a texture object it will use that texture scale factors, otherwise uses <b>Tilling</b> and <b>Offset</b> port values", null, KeyCode.U, tags: "uv texcoord" )]
 	public sealed class TextureCoordinatesNode : ParentNode
 	{
 
@@ -345,14 +345,19 @@ namespace AmplifyShaderEditor
 			}
 		}
 
+		public override void ReconnectClipboardReferences( Clipboard clipboard )
+		{
+			// validate node first
+			int newId = clipboard.GeNewNodeId( m_referenceNodeId );
+			if ( ContainerGraph.GetNode( newId ) != null )
+			{
+				m_referenceNodeId = newId;
+			}
+			RefreshExternalReferences();
+		}
+
 		public override void PropagateNodeData( NodeData nodeData, ref MasterNodeDataCollector dataCollector )
 		{
-			if( dataCollector != null && dataCollector.TesselationActive )
-			{
-				base.PropagateNodeData( nodeData, ref dataCollector );
-				return;
-			}
-
 			if( dataCollector.IsTemplate )
 			{
 				dataCollector.TemplateDataCollectorInstance.SetUVUsage( m_textureCoordChannel , m_texcoordSize );

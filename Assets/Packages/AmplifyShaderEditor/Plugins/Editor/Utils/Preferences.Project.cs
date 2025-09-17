@@ -29,7 +29,7 @@ namespace AmplifyShaderEditor
 				public const bool DefineSymbol         = true;
 				public const string TemplateExtensions = ".shader;.shader.template";
 			}
-		
+
 			[Serializable]
 			private struct Layout
 			{
@@ -60,11 +60,6 @@ namespace AmplifyShaderEditor
 					if ( e.GetType() == typeof( FileNotFoundException ) )
 					{
 						ResetSettings();
-
-						// @diogo: try to retrieve the old preferences if file does not exist yet
-						Values.AutoSRP      = EditorPrefs.GetBool( "ASEAutoSRP", Defaults.AutoSRP );
-						Values.DefineSymbol = EditorPrefs.GetBool( "ASEDefineSymbol", Defaults.DefineSymbol );
-
 						SaveSettings();
 					}
 					else

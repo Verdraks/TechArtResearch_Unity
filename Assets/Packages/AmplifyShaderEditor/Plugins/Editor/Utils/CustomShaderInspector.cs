@@ -236,10 +236,10 @@ namespace AmplifyShaderEditor
 
 		private static string GetPropertyType( Shader s, int index )
 		{
-			UnityEditor.ShaderUtil.ShaderPropertyType propertyType = UnityEditor.ShaderUtil.GetPropertyType( s, index );
-			if ( propertyType == UnityEditor.ShaderUtil.ShaderPropertyType.TexEnv )
+			UnityEngine.Rendering.ShaderPropertyType propertyType = s.GetPropertyType( index );
+			if ( propertyType == UnityEngine.Rendering.ShaderPropertyType.Texture )
 			{
-				return CustomShaderInspector.kTextureTypes[ ( int ) UnityEditor.ShaderUtil.GetTexDim( s, index ) ];
+				return CustomShaderInspector.kTextureTypes[ ( int ) s.GetPropertyTextureDimension( index ) ];
 			}
 			return CustomShaderInspector.kPropertyTypes[ ( int ) propertyType ];
 		}
@@ -305,7 +305,11 @@ namespace AmplifyShaderEditor
 				}
 				EditorGUILayout.LabelField( "Disable batching", label, new GUILayoutOption[ 0 ] );
 				ShowKeywords( shader );
-				srpCompatibilityCheckMaterial.SetPass( 0 );
+
+				if ( !AmplifyShaderEditorWindow.IsSavingToDisk )
+				{
+					srpCompatibilityCheckMaterial.SetPass( 0 );
+				}
 
 				int shaderActiveSubshaderIndex = ShaderUtilEx.GetShaderActiveSubshaderIndex( shader );
 				int sRPBatcherCompatibilityCode = ShaderUtilEx.GetSRPBatcherCompatibilityCode( shader, shaderActiveSubshaderIndex );
@@ -349,11 +353,11 @@ namespace AmplifyShaderEditor
 		{
 			GUILayout.Space( 5f );
 			GUILayout.Label( "Properties:", EditorStyles.boldLabel, new GUILayoutOption[ 0 ] );
-			int propertyCount = UnityEditor.ShaderUtil.GetPropertyCount( s );
+			int propertyCount = s.GetPropertyCount();
 			for ( int i = 0; i < propertyCount; i++ )
 			{
-				string propertyName = UnityEditor.ShaderUtil.GetPropertyName( s, i );
-				string label = CustomShaderInspector.GetPropertyType( s, i ) + UnityEditor.ShaderUtil.GetPropertyDescription( s, i );
+				string propertyName = s.GetPropertyName( i );
+				string label = CustomShaderInspector.GetPropertyType( s, i ) + s.GetPropertyDescription( i );
 				EditorGUILayout.LabelField( propertyName, label, new GUILayoutOption[ 0 ] );
 			}
 		}

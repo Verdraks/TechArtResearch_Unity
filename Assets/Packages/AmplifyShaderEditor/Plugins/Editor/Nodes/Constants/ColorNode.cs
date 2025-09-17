@@ -179,9 +179,9 @@ namespace AmplifyShaderEditor
 				m_requireMaterialUpdate = true;
 		}
 
-		public override void OnNodeLayout( DrawInfo drawInfo )
+		public override void OnNodeLayout( DrawInfo drawInfo, NodeUpdateCache cache )
 		{
-			base.OnNodeLayout( drawInfo );
+			base.OnNodeLayout( drawInfo, cache );
 
 			int maxWidth = 80;
 
@@ -304,13 +304,14 @@ namespace AmplifyShaderEditor
 				if( m_outputPorts[ 0 ].IsLocalValue( dataCollector.PortCategory ) )
 					return GetOutputColorItem( 0, outputId, m_outputPorts[ 0 ].LocalValue(dataCollector.PortCategory) );
 				
+
 				Color linear = m_defaultValue.linear;
 
-				string colorGamma = m_precisionString + "(" + m_defaultValue.r + "," + m_defaultValue.g + "," + m_defaultValue.b + 
-					( m_useAlpha ? "," + m_defaultValue.a : string.Empty ) + ")";
+				string colorGamma = m_precisionString + "( " + m_defaultValue.r + ", " + m_defaultValue.g + ", " + m_defaultValue.b +
+					( m_useAlpha ? ", " + m_defaultValue.a : string.Empty ) + " )";
 
-				string colorLinear = m_precisionString + "(" + linear.r + "," + linear.g + "," + linear.b + 
-					( m_useAlpha ? "," + m_defaultValue.a : string.Empty ) + ")";
+				string colorLinear = m_precisionString + "( " + linear.r + ", " + linear.g + ", " + linear.b +
+					( m_useAlpha ? ", " + m_defaultValue.a : string.Empty ) + " )";
 
 				string result = string.Format( AutoGammaToLinearConversion, colorGamma, colorLinear );
 				RegisterLocalVariable( 0, result, ref dataCollector, "color" + OutputId );
@@ -337,7 +338,7 @@ namespace AmplifyShaderEditor
 				{
 					case 0:
 					{
-						result = m_precisionString + "(" + color.r + "," + color.g + "," + color.b + ( m_useAlpha ? "," + color.a : string.Empty ) + ")";
+						result = m_precisionString + "( " + color.r + ", " + color.g + ", " + color.b + ( m_useAlpha ? ", " + color.a : string.Empty ) + " )";
 					}
 					break;
 
@@ -425,8 +426,8 @@ namespace AmplifyShaderEditor
 			string g = UIUtils.PropertyFloatToString( m_defaultValue.g );
 			string b = UIUtils.PropertyFloatToString( m_defaultValue.b );
 			string a = UIUtils.PropertyFloatToString( m_defaultValue.a );
-			return PropertyAttributes + m_propertyName + "(\"" + m_propertyInspectorName + "\", Color) = (" + r + "," + g + "," + b + 
-				( m_useAlpha ? "," + a : string.Empty ) + ")";
+			return PropertyAttributes + PropertyAttributesSeparator + m_propertyName + "( \"" + m_propertyInspectorName +
+				"\", Color ) = ( " + r + ", " + g + ", " + b + ( m_useAlpha ? ", " + a : string.Empty ) + " )";
 		}
 
 		public override void UpdateMaterial( Material mat )

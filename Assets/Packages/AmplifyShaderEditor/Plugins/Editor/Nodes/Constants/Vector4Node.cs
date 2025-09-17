@@ -8,7 +8,7 @@ using System;
 namespace AmplifyShaderEditor
 {
 	[Serializable]
-	[NodeAttributes( "Vector4", "Constants And Properties", "Vector4 property", null, KeyCode.Alpha4 )]
+	[NodeAttributes( "Vector4", "Constants And Properties", "Vector4 property", null, KeyCode.Alpha4, tags: "vec4 v4 4" )]
 	public sealed class Vector4Node : PropertyNode
 	{
 		[SerializeField]
@@ -24,7 +24,7 @@ namespace AmplifyShaderEditor
 		private bool m_isEditingFields;
 		private Vector4 m_previousValue = Vector4.zero;
 		private string[] m_fieldText = new string[] { "0", "0", "0", "0" };
-		
+
 		public Vector4Node() : base() { }
 		public Vector4Node( int uniqueId, float x, float y, float width, float height ) : base( uniqueId, x, y, width, height ) { }
 		protected override void CommonInit( int uniqueId )
@@ -64,7 +64,7 @@ namespace AmplifyShaderEditor
 		public override void SetPreviewInputs()
 		{
 			base.SetPreviewInputs();
-			
+
 			if ( m_cachedPropertyId == -1 )
 				m_cachedPropertyId = Shader.PropertyToID( "_InputVector" );
 
@@ -74,9 +74,9 @@ namespace AmplifyShaderEditor
 				PreviewMaterial.SetVector( m_cachedPropertyId, new Vector4( m_defaultValue[ 0 ], m_defaultValue[ 1 ], m_defaultValue[ 2 ], m_defaultValue[ 3 ] ) );
 		}
 
-		public override void OnNodeLayout( DrawInfo drawInfo )
+		public override void OnNodeLayout( DrawInfo drawInfo, NodeUpdateCache cache )
 		{
-			base.OnNodeLayout( drawInfo );
+			base.OnNodeLayout( drawInfo, cache );
 
 			m_propertyDrawPos = m_remainingBox;
 			m_propertyDrawPos.x = m_remainingBox.x - LabelWidth * drawInfo.InvertedZoom;
@@ -217,7 +217,7 @@ namespace AmplifyShaderEditor
 			{
 				case 0:
 				{
-					result = m_precisionString+"(" + value.x + "," + value.y + "," + value.z + "," + value.w + ")";
+					result = m_precisionString+"( " + value.x + ", " + value.y + ", " + value.z + ", " + value.w + " )";
 				}
 				break;
 
@@ -256,9 +256,10 @@ namespace AmplifyShaderEditor
 			string y = UIUtils.PropertyFloatToString( m_defaultValue.y );
 			string z = UIUtils.PropertyFloatToString( m_defaultValue.z );
 			string w = UIUtils.PropertyFloatToString( m_defaultValue.w );
-			return PropertyAttributes + m_propertyName + "(\"" + m_propertyInspectorName + "\", Vector) = (" + x + "," + y + "," + z + "," + w + ")";
+			return PropertyAttributes + PropertyAttributesSeparator + m_propertyName + "( \"" + m_propertyInspectorName +
+				"\", Vector ) = ( " + x + ", " + y + ", " + z + ", " + w + " )";
 		}
-		
+
 		public override void UpdateMaterial( Material mat )
 		{
 			base.UpdateMaterial( mat );

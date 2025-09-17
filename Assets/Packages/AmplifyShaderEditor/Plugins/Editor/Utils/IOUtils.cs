@@ -93,11 +93,11 @@ namespace AmplifyShaderEditor
 		{ 
 			get
 			{
-				if ( ASEPackageManagerHelper.PackageSRPVersion >= ( int )ASESRPBaseline.ASE_SRP_13 )
+				if ( ASEPackageManagerHelper.PackageSRPVersion >= ( int )ASESRPBaseline.ASE_SRP_13_X )
 				{
 					return "#define {1} UNITY_ACCESS_DOTS_INSTANCED_PROP_WITH_DEFAULT({0} , {1})";
 				}
-				else if ( ASEPackageManagerHelper.PackageSRPVersion >= ( int )ASESRPBaseline.ASE_SRP_12 )
+				else if ( ASEPackageManagerHelper.PackageSRPVersion >= ( int )ASESRPBaseline.ASE_SRP_12_X )
 				{
 					return "#define {1} UNITY_ACCESS_DOTS_INSTANCED_PROP_FROM_MACRO({0} , Metadata{1})";
 				}
@@ -826,16 +826,22 @@ namespace AmplifyShaderEditor
 			return data.r.ToString() + VECTOR_SEPARATOR + data.g.ToString() + VECTOR_SEPARATOR + data.b.ToString() + VECTOR_SEPARATOR + data.a.ToString();
 		}
 
+		public static string Matrix2x2ToString( Matrix4x4 matrix )
+		{
+			return  matrix[ 0, 0 ].ToString() + IOUtils.VECTOR_SEPARATOR + matrix[ 0, 1 ].ToString() + IOUtils.VECTOR_SEPARATOR +
+					matrix[ 1, 0 ].ToString() + IOUtils.VECTOR_SEPARATOR + matrix[ 1, 1 ].ToString();
+		}
+
 		public static string Matrix3x3ToString( Matrix4x4 matrix )
 		{
-			return matrix[ 0 , 0 ].ToString() + IOUtils.VECTOR_SEPARATOR + matrix[ 0 , 1 ].ToString() + IOUtils.VECTOR_SEPARATOR + matrix[ 0 , 2 ].ToString() + IOUtils.VECTOR_SEPARATOR +
+			return  matrix[ 0 , 0 ].ToString() + IOUtils.VECTOR_SEPARATOR + matrix[ 0 , 1 ].ToString() + IOUtils.VECTOR_SEPARATOR + matrix[ 0 , 2 ].ToString() + IOUtils.VECTOR_SEPARATOR +
 					matrix[ 1 , 0 ].ToString() + IOUtils.VECTOR_SEPARATOR + matrix[ 1 , 1 ].ToString() + IOUtils.VECTOR_SEPARATOR + matrix[ 1 , 2 ].ToString() + IOUtils.VECTOR_SEPARATOR +
 					matrix[ 2 , 0 ].ToString() + IOUtils.VECTOR_SEPARATOR + matrix[ 2 , 1 ].ToString() + IOUtils.VECTOR_SEPARATOR + matrix[ 2 , 2 ].ToString();
 		}
 
 		public static string Matrix4x4ToString( Matrix4x4 matrix )
 		{
-			return matrix[ 0 , 0 ].ToString() + IOUtils.VECTOR_SEPARATOR + matrix[ 0 , 1 ].ToString() + IOUtils.VECTOR_SEPARATOR + matrix[ 0 , 2 ].ToString() + IOUtils.VECTOR_SEPARATOR + matrix[ 0 , 3 ].ToString() + IOUtils.VECTOR_SEPARATOR +
+			return  matrix[ 0 , 0 ].ToString() + IOUtils.VECTOR_SEPARATOR + matrix[ 0 , 1 ].ToString() + IOUtils.VECTOR_SEPARATOR + matrix[ 0 , 2 ].ToString() + IOUtils.VECTOR_SEPARATOR + matrix[ 0 , 3 ].ToString() + IOUtils.VECTOR_SEPARATOR +
 					matrix[ 1 , 0 ].ToString() + IOUtils.VECTOR_SEPARATOR + matrix[ 1 , 1 ].ToString() + IOUtils.VECTOR_SEPARATOR + matrix[ 1 , 2 ].ToString() + IOUtils.VECTOR_SEPARATOR + matrix[ 1 , 3 ].ToString() + IOUtils.VECTOR_SEPARATOR +
 					matrix[ 2 , 0 ].ToString() + IOUtils.VECTOR_SEPARATOR + matrix[ 2 , 1 ].ToString() + IOUtils.VECTOR_SEPARATOR + matrix[ 2 , 2 ].ToString() + IOUtils.VECTOR_SEPARATOR + matrix[ 2 , 3 ].ToString() + IOUtils.VECTOR_SEPARATOR +
 					matrix[ 3 , 0 ].ToString() + IOUtils.VECTOR_SEPARATOR + matrix[ 3 , 1 ].ToString() + IOUtils.VECTOR_SEPARATOR + matrix[ 3 , 2 ].ToString() + IOUtils.VECTOR_SEPARATOR + matrix[ 3 , 3 ].ToString();
@@ -890,23 +896,37 @@ namespace AmplifyShaderEditor
 			return Color.white;
 		}
 
+		public static Matrix4x4 StringToMatrix2x2( string data )
+		{
+			string[] parsedData = data.Split( VECTOR_SEPARATOR );
+			if ( parsedData.Length == 4 )
+			{
+				Matrix4x4 matrix = Matrix4x4.identity;
+				matrix[ 0, 0 ] = Convert.ToSingle( parsedData[ 0 ] );
+				matrix[ 0, 1 ] = Convert.ToSingle( parsedData[ 1 ] );
+				matrix[ 1, 0 ] = Convert.ToSingle( parsedData[ 2 ] );
+				matrix[ 1, 1 ] = Convert.ToSingle( parsedData[ 3 ] );
+				matrix[ 1, 1 ] = Convert.ToSingle( parsedData[ 3 ] );
+				return matrix;
+			}
+			return Matrix4x4.identity;
+		}
+
 		public static Matrix4x4 StringToMatrix3x3( string data )
 		{
 			string[] parsedData = data.Split( VECTOR_SEPARATOR );
 			if( parsedData.Length == 9 )
 			{
-				Matrix4x4 matrix = new Matrix4x4();
-				matrix[ 0 , 0 ] = Convert.ToSingle( parsedData[ 0 ] );
-				matrix[ 0 , 1 ] = Convert.ToSingle( parsedData[ 1 ] );
-				matrix[ 0 , 2 ] = Convert.ToSingle( parsedData[ 2 ] );
-
-				matrix[ 1 , 0 ] = Convert.ToSingle( parsedData[ 3 ] );
-				matrix[ 1 , 1 ] = Convert.ToSingle( parsedData[ 4 ] );
-				matrix[ 1 , 2 ] = Convert.ToSingle( parsedData[ 5 ] );
-
-				matrix[ 2 , 0 ] = Convert.ToSingle( parsedData[ 6 ] );
-				matrix[ 2 , 1 ] = Convert.ToSingle( parsedData[ 7 ] );
-				matrix[ 2 , 2 ] = Convert.ToSingle( parsedData[ 8 ] );
+				Matrix4x4 matrix = Matrix4x4.identity;
+				matrix[ 0, 0 ] = Convert.ToSingle( parsedData[ 0 ] );
+				matrix[ 0, 1 ] = Convert.ToSingle( parsedData[ 1 ] );
+				matrix[ 0, 2 ] = Convert.ToSingle( parsedData[ 2 ] );
+				matrix[ 1, 0 ] = Convert.ToSingle( parsedData[ 3 ] );
+				matrix[ 1, 1 ] = Convert.ToSingle( parsedData[ 4 ] );
+				matrix[ 1, 2 ] = Convert.ToSingle( parsedData[ 5 ] );
+				matrix[ 2, 0 ] = Convert.ToSingle( parsedData[ 6 ] );
+				matrix[ 2, 1 ] = Convert.ToSingle( parsedData[ 7 ] );
+				matrix[ 2, 2 ] = Convert.ToSingle( parsedData[ 8 ] );
 				return matrix;
 			}
 			return Matrix4x4.identity;
@@ -918,25 +938,22 @@ namespace AmplifyShaderEditor
 			if( parsedData.Length == 16 )
 			{
 				Matrix4x4 matrix = new Matrix4x4();
-				matrix[ 0 , 0 ] = Convert.ToSingle( parsedData[ 0 ] );
-				matrix[ 0 , 1 ] = Convert.ToSingle( parsedData[ 1 ] );
-				matrix[ 0 , 2 ] = Convert.ToSingle( parsedData[ 2 ] );
-				matrix[ 0 , 3 ] = Convert.ToSingle( parsedData[ 3 ] );
-
-				matrix[ 1 , 0 ] = Convert.ToSingle( parsedData[ 4 ] );
-				matrix[ 1 , 1 ] = Convert.ToSingle( parsedData[ 5 ] );
-				matrix[ 1 , 2 ] = Convert.ToSingle( parsedData[ 6 ] );
-				matrix[ 1 , 3 ] = Convert.ToSingle( parsedData[ 7 ] );
-
-				matrix[ 2 , 0 ] = Convert.ToSingle( parsedData[ 8 ] );
-				matrix[ 2 , 1 ] = Convert.ToSingle( parsedData[ 9 ] );
-				matrix[ 2 , 2 ] = Convert.ToSingle( parsedData[ 10 ] );
-				matrix[ 2 , 3 ] = Convert.ToSingle( parsedData[ 11 ] );
-
-				matrix[ 3 , 0 ] = Convert.ToSingle( parsedData[ 12 ] );
-				matrix[ 3 , 1 ] = Convert.ToSingle( parsedData[ 13 ] );
-				matrix[ 3 , 2 ] = Convert.ToSingle( parsedData[ 14 ] );
-				matrix[ 3 , 3 ] = Convert.ToSingle( parsedData[ 15 ] );
+				matrix[ 0, 0 ] = Convert.ToSingle( parsedData[ 0 ] );
+				matrix[ 0, 1 ] = Convert.ToSingle( parsedData[ 1 ] );
+				matrix[ 0, 2 ] = Convert.ToSingle( parsedData[ 2 ] );
+				matrix[ 0, 3 ] = Convert.ToSingle( parsedData[ 3 ] );
+				matrix[ 1, 0 ] = Convert.ToSingle( parsedData[ 4 ] );
+				matrix[ 1, 1 ] = Convert.ToSingle( parsedData[ 5 ] );
+				matrix[ 1, 2 ] = Convert.ToSingle( parsedData[ 6 ] );
+				matrix[ 1, 3 ] = Convert.ToSingle( parsedData[ 7 ] );
+				matrix[ 2, 0 ] = Convert.ToSingle( parsedData[ 8 ] );
+				matrix[ 2, 1 ] = Convert.ToSingle( parsedData[ 9 ] );
+				matrix[ 2, 2 ] = Convert.ToSingle( parsedData[ 10 ] );
+				matrix[ 2, 3 ] = Convert.ToSingle( parsedData[ 11 ] );
+				matrix[ 3, 0 ] = Convert.ToSingle( parsedData[ 12 ] );
+				matrix[ 3, 1 ] = Convert.ToSingle( parsedData[ 13 ] );
+				matrix[ 3, 2 ] = Convert.ToSingle( parsedData[ 14 ] );
+				matrix[ 3, 3 ] = Convert.ToSingle( parsedData[ 15 ] );
 				return matrix;
 			}
 			return Matrix4x4.identity;

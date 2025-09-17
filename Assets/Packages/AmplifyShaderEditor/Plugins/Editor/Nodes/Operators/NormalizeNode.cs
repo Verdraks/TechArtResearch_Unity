@@ -73,6 +73,7 @@ namespace AmplifyShaderEditor
 				{
 					return m_inputPorts[ 0 ].GeneratePortInstructions( ref dataCollector );
 				}
+				case WirePortDataType.FLOAT2x2:
 				case WirePortDataType.FLOAT3x3:
 				case WirePortDataType.FLOAT4x4:
 				{

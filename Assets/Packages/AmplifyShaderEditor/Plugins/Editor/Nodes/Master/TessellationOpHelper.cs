@@ -64,11 +64,11 @@ namespace AmplifyShaderEditor
 
 		// Edge Length
 		private GUIContent EdgeLengthContent = new GUIContent( "Edge Length", "Tessellation levels ccomputed based on triangle edge length on the screen\nDefault: 4" );
-		private const string EdgeLengthTessProperty = "_EdgeLength ( \"Edge length\", Range( 2, 50 ) ) = {0}";
+		private const string EdgeLengthTessProperty = "_EdgeLength( \"Edge length\", Range( 2, 50 ) ) = {0}";
 		private const string EdgeLengthTessUniformName = "_EdgeLength";
 
-		private const string EdgeLengthTessFunctionBody = "\t\t\treturn UnityEdgeLengthBasedTess (v0.vertex, v1.vertex, v2.vertex, _EdgeLength);\n";
-		private const string EdgeLengthTessCullFunctionBody = "\t\t\treturn UnityEdgeLengthBasedTessCull (v0.vertex, v1.vertex, v2.vertex, _EdgeLength , _TessMaxDisp );\n";
+		private const string EdgeLengthTessFunctionBody = "\t\t\treturn UnityEdgeLengthBasedTess( v0.vertex, v1.vertex, v2.vertex, _EdgeLength );\n";
+		private const string EdgeLengthTessCullFunctionBody = "\t\t\treturn UnityEdgeLengthBasedTessCull( v0.vertex, v1.vertex, v2.vertex, _EdgeLength, _TessMaxDisp );\n";
 
 
 		private const string EdgeLengthTessMaxDispProperty = "_TessMaxDisp( \"Max Displacement\", Float ) = {0}";

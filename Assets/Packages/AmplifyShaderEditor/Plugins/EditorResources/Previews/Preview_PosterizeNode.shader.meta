@@ -11,6 +11,6 @@ AssetOrigin:
   serializedVersion: 1
   productId: 68570
   packageName: Amplify Shader Editor
-  packageVersion: 1.9.8.1
-  assetPath: Assets/AmplifyShaderEditor/Plugins/EditorResources/Previews/Preview_PosterizeNode.shader
-  uploadId: 723576
+  packageVersion: 1.9.9.4
+  assetPath: Assets/Packages/AmplifyShaderEditor/Plugins/EditorResources/Previews/Preview_PosterizeNode.shader
+  uploadId: 782635

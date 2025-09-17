@@ -74,9 +74,6 @@ namespace AmplifyShaderEditor
 			"#define ASE_TEXTURE2D_ARRAY_PARAMS(textureName) textureName, sampler##textureName\n"
 		};*/
 
-		public readonly static RenderTextureFormat PreviewFormat = RenderTextureFormat.ARGBFloat;
-		public readonly static int PreviewSize = 128;
-
 		public readonly static List<string> UnityNativeInspectors = new List<string>
 		{
 			"Rendering.HighDefinition.LightingShaderGraphGUI",
@@ -492,6 +489,7 @@ namespace AmplifyShaderEditor
 		public readonly static string SubTitleVarNameFormatStr = "Var( {0} )";
 		public readonly static string SubTitleRefNameFormatStr = "Ref( {0} )";
 		public readonly static string SubTitleCurrentFormatStr = "Current( {0} )";
+		public readonly static string SubTitleUVChannelFormatStr = "Channel( {0}, vec{1} )";
 
 		public readonly static string CodeWrapper = "( {0} )";
 		public readonly static string InlineCodeWrapper = "{{\n{0}\n}}";
@@ -562,9 +560,8 @@ namespace AmplifyShaderEditor
 		public readonly static string IncidentVecVertStr = VertexShaderOutputStr + "." + IncidentVecNameStr;
 		public readonly static string WorldNormalLocalDecStr = "WorldNormalVector( " + Constants.InputVarStr + " , {0}( 0,0,1 ))";
 
-		public readonly static string IsFrontFacingVariable = "ASEIsFrontFacing";
-		public readonly static string IsFrontFacingInput = "half ASEIsFrontFacing : SV_IsFrontFacing";
-		public readonly static string IsFrontFacingInputVFACE = "half ASEIsFrontFacing : VFACE";
+		public readonly static string IsFrontFaceVariable = "ASEIsFrontFace";
+		public readonly static string IsFrontFaceInput = "uint ASEIsFrontFace : SV_IsFrontFace";
 
 		public readonly static string ColorVariable = "vertexColor";
 		public readonly static string ColorInput = "float4 vertexColor : COLOR";

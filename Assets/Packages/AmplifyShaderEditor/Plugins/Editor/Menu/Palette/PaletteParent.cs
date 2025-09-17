@@ -37,7 +37,7 @@ namespace AmplifyShaderEditor
 		protected Dictionary<string, PaletteFilterData> m_currentCategories;
 		private bool m_forceUpdate = true;
 
-
+		protected bool m_usingSearchFilter = false;
 		protected string m_searchFilter = string.Empty;
 
 		private float m_searchLabelSize = -1;
@@ -78,6 +78,71 @@ namespace AmplifyShaderEditor
 			m_previousWindowIsFunction = ParentWindow.IsShaderFunctionWindow;
 
 			List<ContextMenuItem> allItems = ParentWindow.ContextMenuInstance.MenuItems;
+
+			if ( Event.current.type == EventType.Layout && m_forceUpdate )
+			{
+				m_forceUpdate = false;
+
+				//m_currentItems.Clear();
+				m_currentCategories.Clear();
+
+				if( m_usingSearchFilter )
+				{
+					for( int i = 0; i < allItems.Count; i++ )
+					{
+						//m_currentItems.Add( allItems[ i ] );
+						if( !m_currentCategories.ContainsKey( allItems[ i ].Category ) )
+						{
+							m_currentCategories.Add( allItems[ i ].Category, new PaletteFilterData( m_defaultCategoryVisible ) );
+							//m_currentCategories[ allItems[ i ].Category ].HasCommunityData = allItems[ i ].NodeAttributes.FromCommunity || m_currentCategories[ allItems[ i ].Category ].HasCommunityData;
+						}
+						m_currentCategories[ allItems[ i ].Category ].Contents.Add( allItems[ i ] );
+					}
+				}
+				else
+				{
+					for( int i = 0; i < allItems.Count; i++ )
+					{
+						var searchList = m_searchFilter.Trim( ' ' ).ToLower().Split(' ');
+
+						int matchesFound = 0;
+						for( int k = 0; k < searchList.Length; k++ )
+						{
+							MatchCollection wordmatch = Regex.Matches( allItems[ i ].Tags, "\\b"+searchList[ k ] );
+							if( wordmatch.Count > 0 )
+								matchesFound++;
+							else
+								break;
+						}
+
+						if( searchList.Length == matchesFound )
+						{
+							//m_currentItems.Add( allItems[ i ] );
+							if( !m_currentCategories.ContainsKey( allItems[ i ].Category ) )
+							{
+								m_currentCategories.Add( allItems[ i ].Category, new PaletteFilterData( m_defaultCategoryVisible ) );
+								//m_currentCategories[ allItems[ i ].Category ].HasCommunityData = allItems[ i ].NodeAttributes.FromCommunity || m_currentCategories[ allItems[ i ].Category ].HasCommunityData;
+							}
+							m_currentCategories[ allItems[ i ].Category ].Contents.Add( allItems[ i ] );
+						}
+					}
+				}
+				var categoryEnumerator = m_currentCategories.GetEnumerator();
+				while( categoryEnumerator.MoveNext() )
+				{
+					categoryEnumerator.Current.Value.Contents.Sort( ( x, y ) => x.CompareTo( y, m_usingSearchFilter ) );
+				}
+
+				//sort current list respecting categories
+				m_currentItems.Clear();
+				foreach( var item in m_currentCategories )
+				{
+					for( int i = 0; i < item.Value.Contents.Count; i++ )
+					{
+						m_currentItems.Add( item.Value.Contents[ i ] );
+					}
+				}
+			}
 
 			if( m_searchLabelSize < 0 )
 			{
@@ -164,71 +229,6 @@ namespace AmplifyShaderEditor
 				m_currScrollBarDims.y = m_transformedArea.height - 2 - 16 - 2 - 7 * m_initialSeparatorAmount - 2;
 				m_currentScrollPos = EditorGUILayout.BeginScrollView( m_currentScrollPos/*, GUILayout.Width( 242 ), GUILayout.Height( 250 - 2 - 16 - 2 - 7 - 2) */);
 				{
-					if( m_forceUpdate )
-					{
-						m_forceUpdate = false;
-
-						//m_currentItems.Clear();
-						m_currentCategories.Clear();
-
-						if( usingSearchFilter )
-						{
-							for( int i = 0; i < allItems.Count; i++ )
-							{
-								//m_currentItems.Add( allItems[ i ] );
-								if( !m_currentCategories.ContainsKey( allItems[ i ].Category ) )
-								{
-									m_currentCategories.Add( allItems[ i ].Category, new PaletteFilterData( m_defaultCategoryVisible ) );
-									//m_currentCategories[ allItems[ i ].Category ].HasCommunityData = allItems[ i ].NodeAttributes.FromCommunity || m_currentCategories[ allItems[ i ].Category ].HasCommunityData;
-								}
-								m_currentCategories[ allItems[ i ].Category ].Contents.Add( allItems[ i ] );
-							}
-						}
-						else
-						{
-							for( int i = 0; i < allItems.Count; i++ )
-							{
-								var searchList = m_searchFilter.Trim( ' ' ).ToLower().Split(' ');
-
-								int matchesFound = 0;
-								for( int k = 0; k < searchList.Length; k++ )
-								{
-									MatchCollection wordmatch = Regex.Matches( allItems[ i ].Tags, "\\b"+searchList[ k ] );
-									if( wordmatch.Count > 0 )
-										matchesFound++;
-									else
-										break;
-								}
-
-								if( searchList.Length == matchesFound )
-								{
-									//m_currentItems.Add( allItems[ i ] );
-									if( !m_currentCategories.ContainsKey( allItems[ i ].Category ) )
-									{
-										m_currentCategories.Add( allItems[ i ].Category, new PaletteFilterData( m_defaultCategoryVisible ) );
-										//m_currentCategories[ allItems[ i ].Category ].HasCommunityData = allItems[ i ].NodeAttributes.FromCommunity || m_currentCategories[ allItems[ i ].Category ].HasCommunityData;
-									}
-									m_currentCategories[ allItems[ i ].Category ].Contents.Add( allItems[ i ] );
-								}
-							}
-						}
-						var categoryEnumerator = m_currentCategories.GetEnumerator();
-						while( categoryEnumerator.MoveNext() )
-						{
-							categoryEnumerator.Current.Value.Contents.Sort( ( x, y ) => x.CompareTo( y, usingSearchFilter ) );
-						}
-
-						//sort current list respecting categories
-						m_currentItems.Clear();
-						foreach( var item in m_currentCategories )
-						{
-							for( int i = 0; i < item.Value.Contents.Count; i++ )
-							{
-								m_currentItems.Add( item.Value.Contents[ i ] );
-							}
-						}
-					}
-
 					string watching = string.Empty;
 
 					// unselect the main search field so it can focus list elements next

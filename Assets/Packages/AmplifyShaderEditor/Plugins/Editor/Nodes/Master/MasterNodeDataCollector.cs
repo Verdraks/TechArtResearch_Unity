@@ -254,6 +254,28 @@ namespace AmplifyShaderEditor
 		private List<string> m_vertexInterpDeclList;
 		private Dictionary<string, string> m_vertexInterpDeclDict;
 		private TemplateDataCollector m_templateDataCollector;
+		private Dictionary<MasterNodePortCategory, System.Collections.Generic.HashSet<ParentNode>> m_propagateNodeCache;
+
+		public bool Touch( MasterNodePortCategory category, ParentNode node )
+		{
+			if ( !m_propagateNodeCache.TryGetValue( category, out System.Collections.Generic.HashSet<ParentNode> propagateSet ) )
+			{
+				propagateSet = new System.Collections.Generic.HashSet<ParentNode>();
+				m_propagateNodeCache.Add( category, propagateSet );
+			}
+
+			if ( !propagateSet.Contains( node ) )
+			{
+				// @diogo: not touched yet; cache miss
+				propagateSet.Add( node );
+				return false;
+			}
+			else
+			{
+				// @diogo: already touched; cache hit
+				return true;
+			}
+		}
 
 		public MasterNodeDataCollector( MasterNode masterNode ) : this()
 		{
@@ -368,6 +390,8 @@ namespace AmplifyShaderEditor
 			m_vertexInterpDeclDict = new Dictionary<string, string>();
 
 			m_templateDataCollector = new TemplateDataCollector();
+
+			m_propagateNodeCache = new Dictionary<MasterNodePortCategory, System.Collections.Generic.HashSet<ParentNode>>();
 		}
 
 		public void CopyTextureChannelSizeFrom( ref MasterNodeDataCollector dataCollector )
@@ -576,7 +600,7 @@ namespace AmplifyShaderEditor
 		{
 			if( string.IsNullOrEmpty( value ) )
 				return;
-					
+
 			if( !m_inputDict.ContainsKey( value ) )
 			{
 				m_inputDict.Add( value, new PropertyDataCollector( nodeId, value ,-1, !addSemiColon) );
@@ -636,6 +660,7 @@ namespace AmplifyShaderEditor
 				case WirePortDataType.FLOAT3: return -3;
 				case WirePortDataType.COLOR:
 				case WirePortDataType.FLOAT4: return -4;
+				case WirePortDataType.FLOAT2x2: return -8;
 				case WirePortDataType.FLOAT3x3: return -9;
 				case WirePortDataType.FLOAT4x4: return -16;
 				default:
@@ -976,7 +1001,7 @@ namespace AmplifyShaderEditor
 
 			//Debug.Log( UsingMacrosMask );
 			AddToDirectives( Constants.CustomASEStandarSamplingMacrosHelper[ 0 ], 1 );
-			
+
 			if( ( Using2DMacrosMask & MacrosMask.AUTO ) == MacrosMask.AUTO )
 				AddToDirectives( Constants.CustomASEStandarSamplingMacrosRecent[ 0 ], 1 );
 			if( ( Using2DMacrosMask & MacrosMask.LOD ) == MacrosMask.LOD )
@@ -1214,7 +1239,7 @@ namespace AmplifyShaderEditor
 			if( !m_virtualCoordinatesDict.ContainsKey( coord ) )
 			{
 				m_virtualCoordinatesDict.Add( coord, nodeId );
-				AddLocalVariable( nodeId, "VirtualCoord " + Constants.VirtualCoordNameStr + nodeId + " = VTComputeVirtualCoord" + lodBias + "(" + coord + ");" );
+				AddLocalVariable( nodeId, "VirtualCoord " + Constants.VirtualCoordNameStr + nodeId + " = VTComputeVirtualCoord" + lodBias + "( " + coord + " );" );
 				return nodeId;
 			}
 			else
@@ -2111,6 +2136,8 @@ namespace AmplifyShaderEditor
 		public bool IsTemplate { get { return m_masterNodeCategory == AvailableShaderTypes.Template; } }
 
 		public bool IsSRP { get { return ( TemplateDataCollectorInstance.CurrentSRPType == TemplateSRPType.URP || TemplateDataCollectorInstance.CurrentSRPType == TemplateSRPType.HDRP ); } }
+		public bool IsURP { get { return ( TemplateDataCollectorInstance.CurrentSRPType == TemplateSRPType.URP ); } }
+		public bool IsHDRP { get { return ( TemplateDataCollectorInstance.CurrentSRPType == TemplateSRPType.HDRP ); } }
 
 		public AvailableShaderTypes MasterNodeCategory
 		{
@@ -2119,8 +2146,8 @@ namespace AmplifyShaderEditor
 		}
 
 		public string CurrentPassName
-		{ 
-			get 
+		{
+			get
 			{
 				var multiPassMasterNode = m_masterNode as TemplateMultiPassMasterNode;
 				return ( multiPassMasterNode != null ) ? multiPassMasterNode.PassName : string.Empty;
@@ -2361,6 +2388,7 @@ namespace AmplifyShaderEditor
 		public List<string> InterpolatorList { get { return m_interpolatorsList; } }
 		public List<string> VertexInterpDeclList { get { return m_vertexInterpDeclList; } }
 		public TemplateDataCollector TemplateDataCollectorInstance { get { return m_templateDataCollector; } }
+		public MasterNode MasterNode { get { return m_masterNode; } }
 		public RenderPath CurrentRenderPath
 		{
 			get { return m_renderPath; }

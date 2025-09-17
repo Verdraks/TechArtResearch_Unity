@@ -25,7 +25,7 @@ namespace AmplifyShaderEditor
 			ChangeOutputName( 4, "t" );
 			m_value = "_CosTime";
 			m_previewShaderGUID = "3093999b42c3c0940a71799511d7781c";
-			m_continuousPreviewRefresh = true;
+			ContinuousPreviewRefresh = true;
 		}
 
 		public override void RefreshExternalReferences()

@@ -30,7 +30,7 @@ namespace AmplifyShaderEditor
 		public override string GenerateShaderForOutput( int outputId, ref MasterNodeDataCollector dataCollector, bool ignoreLocalvar )
 		{
 			if ( dataCollector.IsTemplate )
-				return GetOutputVectorItem( 0, outputId, dataCollector.TemplateDataCollectorInstance.GetWorldBinormal( CurrentPrecisionType ) );
+				return GetOutputVectorItem( 0, outputId, dataCollector.TemplateDataCollectorInstance.GetWorldBitangent( CurrentPrecisionType ) );
 
 			if( dataCollector.PortCategory == MasterNodePortCategory.Fragment || dataCollector.PortCategory == MasterNodePortCategory.Debug )
 			{

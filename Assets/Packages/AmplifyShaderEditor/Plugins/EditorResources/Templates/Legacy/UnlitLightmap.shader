@@ -1,4 +1,4 @@
-Shader /*ase_name*/ "Hidden/Templates/Legacy/UnlitLightmap" /*end*/
+Shader /*ase_name*/ "Hidden/Built-In/UnlitLightmap" /*end*/
 {
 	Properties
 	{

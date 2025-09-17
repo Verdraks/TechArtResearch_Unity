@@ -859,6 +859,11 @@ namespace AmplifyShaderEditor
 			for( int i = 0; i < savedOptions; i++ )
 			{
 				string optionName = nodeParams[ index++ ];
+
+				// @diogo: In cases like "Category,InvertActionOnDeselection", the actual name should only be the first
+				//        part, to avoid conflicts with the template definition.
+				optionName = optionName.Split( TemplateOptionsToolsHelper.OptionsDataSeparator )[ 0 ];
+
 				string optionSelection = nodeParams[ index++ ];
 				Int64 optionTimestamp = ( UIUtils.CurrentShaderVersion() > 18929 ) ? Convert.ToInt64( nodeParams[ index++ ] ):0;
 				m_readOptions.Add( new ReadOptions() { Name = optionName , Selection = optionSelection , Timestamp = optionTimestamp });

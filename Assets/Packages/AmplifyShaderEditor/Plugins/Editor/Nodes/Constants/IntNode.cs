@@ -118,9 +118,9 @@ namespace AmplifyShaderEditor
 			}
 		}
 
-		public override void OnNodeLayout( DrawInfo drawInfo )
+		public override void OnNodeLayout( DrawInfo drawInfo, NodeUpdateCache cache )
 		{
-			base.OnNodeLayout( drawInfo );
+			base.OnNodeLayout( drawInfo, cache );
 
 			m_propertyDrawPos = m_remainingBox;
 			m_propertyDrawPos.x = m_remainingBox.x - LabelWidth * drawInfo.InvertedZoom;
@@ -228,7 +228,7 @@ namespace AmplifyShaderEditor
 
 		public override string GetPropertyValue()
 		{
-			return PropertyAttributes + m_propertyName + "(\"" + m_propertyInspectorName + "\", Int) = " + m_defaultValue;
+			return PropertyAttributes + PropertyAttributesSeparator + m_propertyName + "( \"" + m_propertyInspectorName + "\", Int ) = " + m_defaultValue;
 		}
 
 		public override void UpdateMaterial( Material mat )

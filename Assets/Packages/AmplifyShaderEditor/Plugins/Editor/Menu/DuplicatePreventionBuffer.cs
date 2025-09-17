@@ -16,7 +16,7 @@ namespace AmplifyShaderEditor
 		private const string IntNameStr = "Int ";
 		private const string FloatNameStr = "Float ";
 		private const string ColorNameStr = "Color ";
-		
+
 		[SerializeField]
 		private int[] m_availableUVChannelsArray = { -1, -1, -1, -1 };
 		private string[] m_availableUVChannelsNamesArray = { "null",
@@ -175,7 +175,7 @@ namespace AmplifyShaderEditor
 					return true;
 				}
 			}
-			
+
 			m_availableUniformNames.Add( name, nodeId );
 			return true;
 		}
@@ -270,6 +270,7 @@ namespace AmplifyShaderEditor
 						name = VectorNameStr;
 					}
 					break;
+					case WirePortDataType.FLOAT2x2:
 					case WirePortDataType.FLOAT3x3:
 					case WirePortDataType.FLOAT4x4:
 					{
@@ -290,7 +291,7 @@ namespace AmplifyShaderEditor
 			{
 				string inspectorName = name + count;
 				string propertyName =  UIUtils.GeneratePropertyName( inspectorName , PropertyType.Property );
-				
+
 				if ( IsUniformNameAvailable( propertyName ) )
 				{
 					outInspector = inspectorName;

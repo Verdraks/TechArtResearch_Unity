@@ -42,7 +42,7 @@ namespace AmplifyShaderEditor
 		TEXCOORD15,
 		NORMAL,
 		TANGENT,
-		SV_IsFrontFacing,
+		SV_IsFrontFace,
 		SV_VertexID,
 		SV_PrimitiveID,
 		SV_InstanceID,
@@ -88,7 +88,8 @@ namespace AmplifyShaderEditor
 		BLENDWEIGHTS,
 		BLENDINDICES,
 		OBJECT_POSITION,
-		VIEW_POSITION
+		VIEW_POSITION,
+		LIGHT_ATTENUATION
 	}
 
 	public enum TemplateShaderPropertiesIdx
@@ -558,6 +559,7 @@ namespace AmplifyShaderEditor
 			{WirePortDataType.FLOAT2,2 },
 			{WirePortDataType.FLOAT3,3 },
 			{WirePortDataType.FLOAT4,4 },
+			{WirePortDataType.FLOAT2x2,0 },
 			{WirePortDataType.FLOAT3x3,0 },
 			{WirePortDataType.FLOAT4x4,0 },
 			{WirePortDataType.COLOR,4 },
@@ -587,7 +589,7 @@ namespace AmplifyShaderEditor
 			{TemplateSemantics.POSITION			,"ase_position"},
 			{TemplateSemantics.SV_POSITION		,"ase_sv_position"},
 			{TemplateSemantics.TANGENT			,"ase_tangent"},
-			{TemplateSemantics.SV_IsFrontFacing			,"ase_vface"},
+			{TemplateSemantics.SV_IsFrontFace	,"ase_vface"},
 			{TemplateSemantics.SV_VertexID		,"ase_vertexId"},
 			{TemplateSemantics.SV_InstanceID    ,"ase_instanceId"},
 			{TemplateSemantics.SV_PrimitiveID   ,"ase_primitiveId"},
@@ -648,7 +650,8 @@ namespace AmplifyShaderEditor
 			{"op"   ,TemplateInfoOnSematics.OBJECT_POSITION},
 			{"vp"   ,TemplateInfoOnSematics.VIEW_POSITION},
 			{"vf"   ,TemplateInfoOnSematics.VFACE},
-			{"sc"   ,TemplateInfoOnSematics.SHADOWCOORDS}
+			{"sc"   ,TemplateInfoOnSematics.SHADOWCOORDS},
+			{"latt"   ,TemplateInfoOnSematics.LIGHT_ATTENUATION}
 		};
 
 		public static readonly Dictionary<TemplateInfoOnSematics, string> InfoToDefineFrag = new Dictionary<TemplateInfoOnSematics, string>
@@ -709,6 +712,35 @@ namespace AmplifyShaderEditor
 			{TemplateInfoOnSematics.SHADOWCOORDS,"ASE_NEEDS_VERT_SHADOWCOORDS"}
 		};
 
+		public static readonly Dictionary<TemplateInfoOnSematics, string> InfoToDefine = new Dictionary<TemplateInfoOnSematics, string>
+		{
+			{TemplateInfoOnSematics.POSITION ,"ASE_NEEDS_POSITION"},
+			{TemplateInfoOnSematics.CLIP_POS ,"ASE_NEEDS_CLIP_POS"},
+			{TemplateInfoOnSematics.SCREEN_POSITION,"ASE_NEEDS_SCREEN_POSITION" },
+			{TemplateInfoOnSematics.SCREEN_POSITION_NORMALIZED,"ASE_NEEDS_SCREEN_POSITION_NORMALIZED" },
+			{TemplateInfoOnSematics.COLOR, "ASE_NEEDS_COLOR"},
+			{TemplateInfoOnSematics.TEXTURE_COORDINATES0,"ASE_NEEDS_TEXTURE_COORDINATES0" },
+			{TemplateInfoOnSematics.TEXTURE_COORDINATES1,"ASE_NEEDS_TEXTURE_COORDINATES1" },
+			{TemplateInfoOnSematics.TEXTURE_COORDINATES2,"ASE_NEEDS_TEXTURE_COORDINATES2" },
+			{TemplateInfoOnSematics.TEXTURE_COORDINATES3,"ASE_NEEDS_TEXTURE_COORDINATES3" },
+			{TemplateInfoOnSematics.TEXTURE_COORDINATES4,"ASE_NEEDS_TEXTURE_COORDINATES4" },
+			{TemplateInfoOnSematics.TEXTURE_COORDINATES5,"ASE_NEEDS_TEXTURE_COORDINATES5" },
+			{TemplateInfoOnSematics.TEXTURE_COORDINATES6,"ASE_NEEDS_TEXTURE_COORDINATES6" },
+			{TemplateInfoOnSematics.TEXTURE_COORDINATES7,"ASE_NEEDS_TEXTURE_COORDINATES7" },
+			{TemplateInfoOnSematics.NORMAL,"ASE_NEEDS_NORMAL" },
+			{TemplateInfoOnSematics.TANGENT ,"ASE_NEEDS_TANGENT"},
+			{TemplateInfoOnSematics.WORLD_NORMAL,"ASE_NEEDS_WORLD_NORMAL"},
+			{TemplateInfoOnSematics.WORLD_TANGENT,"ASE_NEEDS_WORLD_TANGENT"},
+			{TemplateInfoOnSematics.WORLD_BITANGENT,"ASE_NEEDS_WORLD_BITANGENT"},
+			{TemplateInfoOnSematics.WORLD_VIEW_DIR,"ASE_NEEDS_WORLD_VIEW_DIR"},
+			{TemplateInfoOnSematics.WORLD_POSITION,"ASE_NEEDS_WORLD_POSITION"},
+			{TemplateInfoOnSematics.RELATIVE_WORLD_POS,"ASE_NEEDS_RELATIVE_WORLD_POS"},
+			{TemplateInfoOnSematics.OBJECT_POSITION,"ASE_NEEDS_OBJECT_POSITION"},
+			{TemplateInfoOnSematics.VIEW_POSITION,"ASE_NEEDS_VIEW_POSITION"},
+			{TemplateInfoOnSematics.VFACE,"ASE_NEEDS_VFACE"},
+			{TemplateInfoOnSematics.SHADOWCOORDS,"ASE_NEEDS_SHADOWCOORDS"}
+		};
+
 		public static readonly Dictionary<TemplateInfoOnSematics, string> InfoToLocalVar = new Dictionary<TemplateInfoOnSematics, string>
 		{
 			{TemplateInfoOnSematics.POSITION,GeneratorUtils.VertexPosition4Str },
@@ -732,6 +764,7 @@ namespace AmplifyShaderEditor
 			{TemplateInfoOnSematics.VIEW_POSITION, GeneratorUtils.ViewPositionStr},
 			{TemplateInfoOnSematics.VFACE, GeneratorUtils.VFaceStr},
 			{TemplateInfoOnSematics.SHADOWCOORDS, GeneratorUtils.ShadowCoordsStr},
+			{TemplateInfoOnSematics.LIGHT_ATTENUATION, GeneratorUtils.LightAttenuationStr}
 		};
 
 
@@ -758,6 +791,7 @@ namespace AmplifyShaderEditor
 			{TemplateInfoOnSematics.VIEW_POSITION, WirePortDataType.FLOAT3},
 			{TemplateInfoOnSematics.VFACE, WirePortDataType.FLOAT},
 			{TemplateInfoOnSematics.SHADOWCOORDS, WirePortDataType.FLOAT4},
+			{TemplateInfoOnSematics.LIGHT_ATTENUATION, WirePortDataType.FLOAT}
 		};
 		public static readonly Dictionary<int, TemplateInfoOnSematics> IntToUVChannelInfo = new Dictionary<int, TemplateInfoOnSematics>
 		{
@@ -842,18 +876,21 @@ namespace AmplifyShaderEditor
 			{"float2"           ,WirePortDataType.FLOAT2},
 			{"float3"           ,WirePortDataType.FLOAT3},
 			{"float4"           ,WirePortDataType.FLOAT4},
+			{"float2x2"         ,WirePortDataType.FLOAT2x2},
 			{"float3x3"         ,WirePortDataType.FLOAT3x3},
 			{"float4x4"         ,WirePortDataType.FLOAT4x4},
 			{"half"             ,WirePortDataType.FLOAT},
 			{"half2"            ,WirePortDataType.FLOAT2},
 			{"half3"            ,WirePortDataType.FLOAT3},
 			{"half4"            ,WirePortDataType.FLOAT4},
+			{"half2x2"          ,WirePortDataType.FLOAT2x2},
 			{"half3x3"          ,WirePortDataType.FLOAT3x3},
 			{"half4x4"          ,WirePortDataType.FLOAT4x4},
 			{"fixed"            ,WirePortDataType.FLOAT},
 			{"fixed2"           ,WirePortDataType.FLOAT2},
 			{"fixed3"           ,WirePortDataType.FLOAT3},
 			{"fixed4"           ,WirePortDataType.FLOAT4},
+			{"fixed2x2"         ,WirePortDataType.FLOAT2x2},
 			{"fixed3x3"         ,WirePortDataType.FLOAT3x3},
 			{"fixed4x4"         ,WirePortDataType.FLOAT4x4},
 			{"int"              ,WirePortDataType.INT},
@@ -872,11 +909,11 @@ namespace AmplifyShaderEditor
 			{"2.0",8 },
 			{"2.5",8 },
 			{"3.0",10},
-			{"3.5",10},
-			{"4.0",16},
-			{"4.5",16},
-			{"4.6",16},
-			{"5.0",16}
+			{"3.5",15},
+			{"4.0",15},
+			{"4.5",15},
+			{"4.6",15},
+			{"5.0",15}
 		};
 
 		public static readonly string[] AvailableShaderModels =
@@ -2470,6 +2507,7 @@ namespace AmplifyShaderEditor
 				{
 					switch( second )
 					{
+						case WirePortDataType.FLOAT2x2:
 						case WirePortDataType.FLOAT3x3:
 						case WirePortDataType.FLOAT4x4:
 						case WirePortDataType.SAMPLER1D:
@@ -2482,6 +2520,7 @@ namespace AmplifyShaderEditor
 					}
 				}
 				break;
+				case WirePortDataType.FLOAT2x2:
 				case WirePortDataType.FLOAT3x3:
 				case WirePortDataType.FLOAT4x4:
 				{
@@ -2515,6 +2554,7 @@ namespace AmplifyShaderEditor
 						case WirePortDataType.FLOAT2:
 						case WirePortDataType.FLOAT3:
 						case WirePortDataType.FLOAT4:
+						case WirePortDataType.FLOAT2x2:
 						case WirePortDataType.FLOAT3x3:
 						case WirePortDataType.FLOAT4x4:
 						case WirePortDataType.COLOR:

@@ -88,6 +88,7 @@ namespace AmplifyShaderEditor
 					result = "clamp( " + value + " , " + min + " , " + max + " )";
 				}
 				break;
+				case WirePortDataType.FLOAT2x2:
 				case WirePortDataType.FLOAT3x3:
 				case WirePortDataType.FLOAT4x4:
 				{

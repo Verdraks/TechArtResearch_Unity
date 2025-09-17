@@ -186,16 +186,23 @@ namespace AmplifyShaderEditor
 			}
 			object LHSVal = null;
 
+
+		#if UNITY_6000_2_OR_NEWER
+			int lhsPropType = ( int )LHSprop.propertyType;
+		#else
+			int lhsPropType = ( int )LHSprop.type;
+		#endif
+
 			bool test = false;
-			switch ( LHSprop.propertyType )
+			switch ( lhsPropType )
 			{
-				case UnityEngine.Rendering.ShaderPropertyType.Color:
-				case UnityEngine.Rendering.ShaderPropertyType.Vector:
-					LHSVal = LHSprop.propertyType == UnityEngine.Rendering.ShaderPropertyType.Color ? ( Vector4 )LHSprop.colorValue : LHSprop.vectorValue;
+				case ( int )UnityEngine.Rendering.ShaderPropertyType.Color:
+				case ( int )UnityEngine.Rendering.ShaderPropertyType.Vector:
+					LHSVal = lhsPropType == ( int )UnityEngine.Rendering.ShaderPropertyType.Color ? ( Vector4 )LHSprop.colorValue : LHSprop.vectorValue;
 					var v4 = ExpectedValue as Vector4?;
 					v4 = v4.HasValue ? v4 : new Vector4( ( System.Single )ExpectedValue, float.NegativeInfinity, float.NegativeInfinity, float.NegativeInfinity );
 
-					if ( LHSprop.propertyType == UnityEngine.Rendering.ShaderPropertyType.Color )
+					if ( lhsPropType == ( int )UnityEngine.Rendering.ShaderPropertyType.Color )
 					{
 						test = VectorCheck( ( Vector4 )LHSVal, op, v4 / 255 );
 
@@ -203,12 +210,12 @@ namespace AmplifyShaderEditor
 					else
 						test = VectorCheck( ( Vector4 )LHSVal, op, v4 );
 					break;
-				case UnityEngine.Rendering.ShaderPropertyType.Range:
-				case UnityEngine.Rendering.ShaderPropertyType.Float:
+				case ( int )UnityEngine.Rendering.ShaderPropertyType.Range:
+				case ( int )UnityEngine.Rendering.ShaderPropertyType.Float:
 					LHSVal = LHSprop.floatValue;
 					test = ( Check( LHSVal, op, ExpectedValue ) );
 					break;
-				case UnityEngine.Rendering.ShaderPropertyType.Texture:
+				case ( int )UnityEngine.Rendering.ShaderPropertyType.Texture:
 					LHSVal = LHSprop.textureValue;
 					test = ( CheckObject( LHSVal, op, ExpectedValue ) );
 					break;

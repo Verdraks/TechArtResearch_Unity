@@ -58,7 +58,7 @@ namespace AmplifyShaderEditor
 			"#elif defined( LIGHTMAP_ON )\n",
 			"\treturn SAMPLE_GI( input.lightmapUVOrVertexSH.xy, 0, normalWS );\n",
 			"#elif defined( PROBE_VOLUMES_L1 ) || defined( PROBE_VOLUMES_L2 )\n",
-			"\return SAMPLE_GI( SampleSH( normalWS ), positionWS, normalWS, viewDirWS, input.positionCS.xy );\n",
+			"\treturn SAMPLE_GI( SampleSH( normalWS ), positionWS, normalWS, viewDirWS, input.positionCS.xy );\n",
 			"#else\n",
 			"\treturn SampleSH( normalWS );\n",
 			"#endif\n",
@@ -75,7 +75,7 @@ namespace AmplifyShaderEditor
 			"#elif defined( LIGHTMAP_ON )\n",
 			"\treturn SAMPLE_GI( input.lightmapUVOrVertexSH.xy, 0, normalWS );\n",
 			"#elif defined( PROBE_VOLUMES_L1 ) || defined( PROBE_VOLUMES_L2 )\n",
-			"\return SampleProbeVolumePixel( SampleSH( normalWS ), positionWS, normalWS, viewDirWS, input.positionCS.xy );\n",
+			"\treturn SampleProbeVolumePixel( SampleSH( normalWS ), positionWS, normalWS, viewDirWS, input.positionCS.xy );\n",
 			"#else\n",
 			"\treturn SampleSH( normalWS );\n",
 			"#endif\n",
@@ -171,7 +171,16 @@ namespace AmplifyShaderEditor
 				if( !dataCollector.IsSRP )
 				{
 					dataCollector.AddToIncludes( UniqueId, Constants.UnityLightingLib );
-					dataCollector.AddToDirectives( FwdBasePragma );
+
+					var multiPassMasterNode = dataCollector.MasterNode as TemplateMultiPassMasterNode;
+					if ( multiPassMasterNode != null &&
+						!multiPassMasterNode.Pass.Modules.IncludePragmaContainer.HasPragma( "multi_compile_fwdbase" ) &&
+						!multiPassMasterNode.Pass.Modules.IncludePragmaContainer.HasPragma( "multi_compile_fwdadd" ) &&
+						!multiPassMasterNode.Pass.Modules.IncludePragmaContainer.HasPragma( "multi_compile_fwdadd_fullshadows" ) )
+ 					{
+						dataCollector.AddToDirectives( FwdBasePragma );
+					}
+
 					string texcoord1 = string.Empty;
 					string texcoord2 = string.Empty;
 
@@ -221,8 +230,6 @@ namespace AmplifyShaderEditor
 					dataCollector.AddToVertexLocalVariables( UniqueId, "#endif //sh" );
 					dataCollector.AddToVertexLocalVariables( UniqueId, "#endif //nstalm" );
 
-					//dataCollector.AddToPragmas( UniqueId, "multi_compile_fwdbase" );
-
 					string fragWorldNormal = string.Empty;
 					if( m_inputPorts[ 0 ].IsConnected )
 					{
@@ -258,7 +265,6 @@ namespace AmplifyShaderEditor
 					if( dataCollector.CurrentSRPType == TemplateSRPType.URP )
 					{
 						string texcoord1 = string.Empty;
-
 						if( dataCollector.TemplateDataCollectorInstance.HasInfo( TemplateInfoOnSematics.TEXTURE_COORDINATES1, false, MasterNodePortCategory.Vertex ) )
 							texcoord1 = dataCollector.TemplateDataCollectorInstance.GetInfo( TemplateInfoOnSematics.TEXTURE_COORDINATES1, false, MasterNodePortCategory.Vertex ).VarName;
 						else
@@ -274,7 +280,7 @@ namespace AmplifyShaderEditor
 
 							dataCollector.AddToVertexLocalVariables( UniqueId, "OUTPUT_LIGHTMAP_UV( " + texcoord1 + ", unity_LightmapST, " + vOutName + ".lightmapUVOrVertexSH.xy );", true );
 
-							if ( ASEPackageManagerHelper.PackageSRPVersion >= ( int )ASESRPBaseline.ASE_SRP_15 )
+							if ( ASEPackageManagerHelper.PackageSRPVersion >= ( int )ASESRPBaseline.ASE_SRP_15_X )
 							{
 								string worldPos = dataCollector.TemplateDataCollectorInstance.GetWorldPos( false, MasterNodePortCategory.Vertex );
 								dataCollector.AddToVertexLocalVariables( UniqueId, "#if !defined( OUTPUT_SH4 )", true );
@@ -290,14 +296,32 @@ namespace AmplifyShaderEditor
 								dataCollector.AddToVertexLocalVariables( UniqueId, "OUTPUT_SH( " + worldNormal + ", " + vOutName + ".lightmapUVOrVertexSH.xyz );", true );
 							}
 
-							dataCollector.AddToPragmas( UniqueId, "multi_compile _ DIRLIGHTMAP_COMBINED" );
 							dataCollector.AddToPragmas( UniqueId, "multi_compile _ LIGHTMAP_ON" );
-							dataCollector.AddToPragmas( UniqueId , "multi_compile _ _MIXED_LIGHTING_SUBTRACTIVE" );
+							dataCollector.AddToPragmas( UniqueId, "multi_compile _ DIRLIGHTMAP_COMBINED" );
+							dataCollector.AddToPragmas( UniqueId, "multi_compile _ _MIXED_LIGHTING_SUBTRACTIVE" );
 
-							dataCollector.AddToPragmas( UniqueId , "multi_compile _ _MAIN_LIGHT_SHADOWS" );
-							dataCollector.AddToPragmas( UniqueId , "multi_compile _ _MAIN_LIGHT_SHADOWS_CASCADE" );
-							dataCollector.AddToPragmas( UniqueId , "multi_compile _ _SHADOWS_SOFT" );
+							if ( ASEPackageManagerHelper.CurrentSRPVersion >= ( int )ASESRPBaseline.ASE_SRP_17_1 )
+							{
+								dataCollector.AddToPragmas( UniqueId, "multi_compile _ LIGHTMAP_BICUBIC_SAMPLING" );
+								dataCollector.AddToPragmas( UniqueId, "multi_compile_fragment _ _REFLECTION_PROBE_ATLAS" );
+							}
+						}
 
+						if ( !dataCollector.TemplateDataCollectorInstance.HasRawInterpolatorOfName( "dynamicLightmapUV" ) )
+						{
+							string texcoord2 = string.Empty;
+							if ( dataCollector.TemplateDataCollectorInstance.HasInfo( TemplateInfoOnSematics.TEXTURE_COORDINATES2, false, MasterNodePortCategory.Vertex ) )
+								texcoord2 = dataCollector.TemplateDataCollectorInstance.GetInfo( TemplateInfoOnSematics.TEXTURE_COORDINATES2, false, MasterNodePortCategory.Vertex ).VarName;
+							else
+								texcoord2 = dataCollector.TemplateDataCollectorInstance.RegisterInfoOnSemantic( MasterNodePortCategory.Vertex, TemplateInfoOnSematics.TEXTURE_COORDINATES2, TemplateSemantics.TEXCOORD2, "texcoord2", WirePortDataType.FLOAT4, PrecisionType.Float, false );
+
+							dataCollector.TemplateDataCollectorInstance.RequestNewInterpolator( WirePortDataType.FLOAT4, false, "dynamicLightmapUV" );
+
+							dataCollector.AddToVertexLocalVariables( UniqueId, "#if defined( DYNAMICLIGHTMAP_ON )", true );
+							dataCollector.AddToVertexLocalVariables( UniqueId, string.Format( "{0}.dynamicLightmapUV.xy = {1}.xy * unity_DynamicLightmapST.xy + unity_DynamicLightmapST.zw;", vOutName, texcoord2 ), true );
+							dataCollector.AddToVertexLocalVariables( UniqueId, "#endif", true );
+
+							dataCollector.AddToPragmas( UniqueId, "multi_compile _ DYNAMICLIGHTMAP_ON" );
 						}
 
 						string fragWorldNormal = string.Empty;
@@ -317,12 +341,12 @@ namespace AmplifyShaderEditor
 						finalValue = "bakedGI" + OutputId;
 
 						string result;
-						if ( ASEPackageManagerHelper.CurrentSRPVersion >= ( int )ASESRPBaseline.ASE_SRP_15 )
+						if ( ASEPackageManagerHelper.CurrentSRPVersion >= ( int )ASESRPBaseline.ASE_SRP_15_X )
 						{
 							string positionWS = dataCollector.TemplateDataCollectorInstance.GetWorldPos();
 							string viewDirWS = dataCollector.TemplateDataCollectorInstance.GetViewDir();
 
-							if ( ASEPackageManagerHelper.CurrentSRPVersion >= ( int )ASESRPBaseline.ASE_SRP_17 )
+							if ( ASEPackageManagerHelper.CurrentSRPVersion >= ( int )ASESRPBaseline.ASE_SRP_17_0 )
 							{
 								dataCollector.AddFunction( IndirectDiffuseBodyURP17[ 0 ], IndirectDiffuseBodyURP17, false );
 								result = string.Format( IndirectDiffuseHeaderURP17, fInName, fragWorldNormal, positionWS, viewDirWS );
@@ -333,7 +357,7 @@ namespace AmplifyShaderEditor
 								result = string.Format( IndirectDiffuseHeaderURP15, fInName, fragWorldNormal, positionWS, viewDirWS );
 							}
 						}
-						else if ( ASEPackageManagerHelper.CurrentSRPVersion >= ( int )ASESRPBaseline.ASE_SRP_12 )
+						else if ( ASEPackageManagerHelper.CurrentSRPVersion >= ( int )ASESRPBaseline.ASE_SRP_12_X )
 						{
 							dataCollector.AddFunction( IndirectDiffuseBodyURP12[ 0 ], IndirectDiffuseBodyURP12, false );
 							result = string.Format( IndirectDiffuseHeaderURP12, fInName, fragWorldNormal );
@@ -396,7 +420,7 @@ namespace AmplifyShaderEditor
 						}
 
 						//SAMPLE_GI
-						if ( ASEPackageManagerHelper.CurrentSRPVersion >= ( int )ASESRPBaseline.ASE_SRP_17 )
+						if ( ASEPackageManagerHelper.CurrentSRPVersion >= ( int )ASESRPBaseline.ASE_SRP_17_0 )
 						{
 							string screenPos = GeneratorUtils.GenerateScreenPositionRaw( ref dataCollector, UniqueId, CurrentPrecisionType );
 							string positionSS = string.Format( "( uint2 )( {0}.xy / {0}.w * _ScreenSize.xy )", screenPos );

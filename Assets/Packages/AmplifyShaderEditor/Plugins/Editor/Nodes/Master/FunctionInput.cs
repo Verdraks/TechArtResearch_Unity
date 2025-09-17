@@ -19,6 +19,7 @@ namespace AmplifyShaderEditor
 														"Vector3",
 														"Vector4",
 														"Color",
+														"Matrix 2x2",
 														"Matrix 3x3",
 														"Matrix 4x4",
 														"Sampler 1D",
@@ -53,7 +54,7 @@ namespace AmplifyShaderEditor
 		public delegate string PortGeneration( ref MasterNodeDataCollector dataCollector, int index, ParentGraph graph );
 		public PortGeneration OnPortGeneration = null;
 
-		//Title editing 
+		//Title editing
 		[SerializeField]
 		private string m_uniqueName;
 
@@ -118,7 +119,7 @@ namespace AmplifyShaderEditor
 
 			for( int i = 0; i < OutputPorts[ 0 ].ExternalReferences.Count; i++ )
 			{
-				ContainerGraph.GetNode( OutputPorts[ 0 ].ExternalReferences[ i ].NodeId ).OnNodeChange();
+				ContainerGraph.GetNode( OutputPorts[ 0 ].ExternalReferences[ i ].NodeId ).OnNodeChange( new NodeUpdateCache() );
 			}
 
 			if( m_typeId == -1 )
@@ -151,7 +152,7 @@ namespace AmplifyShaderEditor
 					if( input.ExternalReferences.Count > 0 )
 					{
 						outNode = Fnode.ContainerGraph.GetNode( input.ExternalReferences[ 0 ].NodeId );
-					} 
+					}
 					else if( InputPorts[ i ].ExternalReferences.Count > 0 )
 					{
 						outNode = ContainerGraph.GetNode( InputPorts[ i ].ExternalReferences[ 0 ].NodeId );
@@ -193,7 +194,7 @@ namespace AmplifyShaderEditor
 			if( m_nodeAttribs != null )
 				m_uniqueName = m_nodeAttribs.Name + UniqueId;
 		}
-		
+
 		public override void Destroy()
 		{
 			base.Destroy();
@@ -236,15 +237,16 @@ namespace AmplifyShaderEditor
 				case WirePortDataType.FLOAT3: m_selectedInputTypeInt = 3; break;
 				case WirePortDataType.FLOAT4: m_selectedInputTypeInt = 4; break;
 				case WirePortDataType.COLOR: m_selectedInputTypeInt = 5; break;
-				case WirePortDataType.FLOAT3x3: m_selectedInputTypeInt = 6; break;
-				case WirePortDataType.FLOAT4x4: m_selectedInputTypeInt = 7; break;
-				case WirePortDataType.SAMPLER1D: m_selectedInputTypeInt = 8; break;
-				case WirePortDataType.SAMPLER2D: m_selectedInputTypeInt = 9; break;
-				case WirePortDataType.SAMPLER3D: m_selectedInputTypeInt = 10; break;
-				case WirePortDataType.SAMPLERCUBE: m_selectedInputTypeInt = 11; break;
-				case WirePortDataType.SAMPLER2DARRAY: m_selectedInputTypeInt = 12; break;
-				case WirePortDataType.SAMPLERSTATE: m_selectedInputTypeInt = 13; break;
-				case WirePortDataType.OBJECT: m_selectedInputTypeInt = 14; break;
+				case WirePortDataType.FLOAT2x2: m_selectedInputTypeInt = 6; break;
+				case WirePortDataType.FLOAT3x3: m_selectedInputTypeInt = 7; break;
+				case WirePortDataType.FLOAT4x4: m_selectedInputTypeInt = 8; break;
+				case WirePortDataType.SAMPLER1D: m_selectedInputTypeInt = 9; break;
+				case WirePortDataType.SAMPLER2D: m_selectedInputTypeInt = 10; break;
+				case WirePortDataType.SAMPLER3D: m_selectedInputTypeInt = 11; break;
+				case WirePortDataType.SAMPLERCUBE: m_selectedInputTypeInt = 12; break;
+				case WirePortDataType.SAMPLER2DARRAY: m_selectedInputTypeInt = 13; break;
+				case WirePortDataType.SAMPLERSTATE: m_selectedInputTypeInt = 14; break;
+				case WirePortDataType.OBJECT: m_selectedInputTypeInt = 15; break;
 			}
 		}
 
@@ -280,7 +282,7 @@ namespace AmplifyShaderEditor
 
 					if( m_startEditing )
 						EditorGUI.FocusTextInControl( m_uniqueName );
-					
+
 				}
 
 				if( drawInfo.CurrentEventType == EventType.Repaint )
@@ -299,14 +301,14 @@ namespace AmplifyShaderEditor
 					}
 				}
 
-				
+
 			}
 		}
 
-		public override void OnNodeLayout( DrawInfo drawInfo )
+		public override void OnNodeLayout( DrawInfo drawInfo, NodeUpdateCache cache )
 		{
 			// RUN LAYOUT CHANGES AFTER TITLES CHANGE
-			base.OnNodeLayout( drawInfo );
+			base.OnNodeLayout( drawInfo, cache );
 			m_titleClickArea = m_titlePos;
 			m_titleClickArea.height = Constants.NODE_HEADER_HEIGHT;
 		}
@@ -375,15 +377,16 @@ namespace AmplifyShaderEditor
 				case 3: m_selectedInputType = WirePortDataType.FLOAT3; break;
 				case 4: m_selectedInputType = WirePortDataType.FLOAT4; break;
 				case 5: m_selectedInputType = WirePortDataType.COLOR; break;
-				case 6: m_selectedInputType = WirePortDataType.FLOAT3x3; break;
-				case 7: m_selectedInputType = WirePortDataType.FLOAT4x4; break;
-				case 8: m_selectedInputType = WirePortDataType.SAMPLER1D; break;
-				case 9: m_selectedInputType = WirePortDataType.SAMPLER2D; break;
-				case 10: m_selectedInputType = WirePortDataType.SAMPLER3D; break;
-				case 11: m_selectedInputType = WirePortDataType.SAMPLERCUBE; break;
-				case 12: m_selectedInputType = WirePortDataType.SAMPLER2DARRAY; break;
-				case 13: m_selectedInputType = WirePortDataType.SAMPLERSTATE; break;
-				case 14: m_selectedInputType = WirePortDataType.OBJECT; break;
+				case 6: m_selectedInputType = WirePortDataType.FLOAT2x2; break;
+				case 7: m_selectedInputType = WirePortDataType.FLOAT3x3; break;
+				case 8: m_selectedInputType = WirePortDataType.FLOAT4x4; break;
+				case 9: m_selectedInputType = WirePortDataType.SAMPLER1D; break;
+				case 10: m_selectedInputType = WirePortDataType.SAMPLER2D; break;
+				case 11: m_selectedInputType = WirePortDataType.SAMPLER3D; break;
+				case 12: m_selectedInputType = WirePortDataType.SAMPLERCUBE; break;
+				case 13: m_selectedInputType = WirePortDataType.SAMPLER2DARRAY; break;
+				case 14: m_selectedInputType = WirePortDataType.SAMPLERSTATE; break;
+				case 15: m_selectedInputType = WirePortDataType.OBJECT; break;
 			}
 
 			ChangeInputType( m_selectedInputType, false );
@@ -411,10 +414,11 @@ namespace AmplifyShaderEditor
 					types = new WirePortDataType[] { WirePortDataType.FLOAT, WirePortDataType.FLOAT2, WirePortDataType.FLOAT3, WirePortDataType.FLOAT4, WirePortDataType.COLOR, WirePortDataType.INT, WirePortDataType.OBJECT };
 				}
 				break;
+				case WirePortDataType.FLOAT2x2:
 				case WirePortDataType.FLOAT3x3:
 				case WirePortDataType.FLOAT4x4:
 				{
-					types = new WirePortDataType[] { WirePortDataType.FLOAT3x3, WirePortDataType.FLOAT4x4, WirePortDataType.OBJECT };
+					types = new WirePortDataType[] { WirePortDataType.FLOAT2x2, WirePortDataType.FLOAT3x3, WirePortDataType.FLOAT4x4, WirePortDataType.OBJECT };
 				}
 				break;
 				case WirePortDataType.SAMPLER1D:
@@ -474,11 +478,17 @@ namespace AmplifyShaderEditor
 			IOUtils.AddFieldValueToString( ref nodeInfo, m_autoCast );
 		}
 
+		public static int UpgradeTypeIdx( int typeIdx )
+		{
+			// 19901 => adds float2x2
+			return typeIdx + ( ( UIUtils.CurrentShaderVersion() <= 19900 && typeIdx > 5 ) ? 1 : 0 );
+		}
+
 		public override void ReadFromString( ref string[] nodeParams )
 		{
 			base.ReadFromString( ref nodeParams );
 			m_inputName = GetCurrentParam( ref nodeParams );
-			m_selectedInputTypeInt = Convert.ToInt32( GetCurrentParam( ref nodeParams ) );
+			m_selectedInputTypeInt = UpgradeTypeIdx( Convert.ToInt32( GetCurrentParam( ref nodeParams ) ) );
 			m_orderIndex = Convert.ToInt32( GetCurrentParam( ref nodeParams ) );
 			m_autoCast = Convert.ToBoolean( GetCurrentParam( ref nodeParams ) );
 

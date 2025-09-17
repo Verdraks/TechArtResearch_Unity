@@ -8,7 +8,7 @@ using System;
 namespace AmplifyShaderEditor
 {
 	[System.Serializable]
-	[NodeAttributes( "Vector3", "Constants And Properties", "Vector3 property", null, KeyCode.Alpha3 )]
+	[NodeAttributes( "Vector3", "Constants And Properties", "Vector3 property", null, KeyCode.Alpha3, tags: "vec3 v3 3" )]
 	public sealed class Vector3Node : PropertyNode
 	{
 		[SerializeField]
@@ -151,9 +151,9 @@ namespace AmplifyShaderEditor
 			}
 		}
 
-		public override void OnNodeLayout( DrawInfo drawInfo )
+		public override void OnNodeLayout( DrawInfo drawInfo, NodeUpdateCache cache )
 		{
-			base.OnNodeLayout( drawInfo );
+			base.OnNodeLayout( drawInfo, cache );
 
 			m_propertyDrawPos = m_remainingBox;
 			m_propertyDrawPos.x = m_remainingBox.x - LabelWidth * drawInfo.InvertedZoom;
@@ -218,7 +218,7 @@ namespace AmplifyShaderEditor
 			{
 				case 0:
 				{
-					result = m_precisionString + "(" + value.x + "," + value.y + "," + value.z + ")";
+					result = m_precisionString + "( " + value.x + ", " + value.y + ", " + value.z + " )";
 				}
 				break;
 
@@ -251,7 +251,8 @@ namespace AmplifyShaderEditor
 			string x = UIUtils.PropertyFloatToString( m_defaultValue.x );
 			string y = UIUtils.PropertyFloatToString( m_defaultValue.y );
 			string z = UIUtils.PropertyFloatToString( m_defaultValue.z );
-			return PropertyAttributes + m_propertyName + "(\"" + m_propertyInspectorName + "\", Vector) = (" + x + "," + y + "," + z + ",0)";
+			return PropertyAttributes + PropertyAttributesSeparator + m_propertyName + "( \"" + m_propertyInspectorName +
+				"\", Vector ) = ( " + x + ", " + y + ", " + z + ", 0 )";
 		}
 
 		public override void UpdateMaterial( Material mat )
@@ -291,7 +292,7 @@ namespace AmplifyShaderEditor
 
 		public override void WriteToString( ref string nodeInfo, ref string connectionsInfo )
 		{
-			base.WriteToString( ref nodeInfo, ref connectionsInfo );			
+			base.WriteToString( ref nodeInfo, ref connectionsInfo );
 			IOUtils.AddFieldValueToString( ref nodeInfo, IOUtils.Vector3ToString( m_defaultValue ) );
 			IOUtils.AddFieldValueToString( ref nodeInfo, IOUtils.Vector3ToString( m_materialValue ) );
 		}
