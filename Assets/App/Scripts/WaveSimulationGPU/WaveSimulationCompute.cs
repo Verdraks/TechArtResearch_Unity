@@ -2,7 +2,7 @@ using System.Runtime.InteropServices;
 using Unity.Mathematics;
 using UnityEngine;
 
-public class WaveSimCompute : MonoBehaviour
+public class WaveSimulationCompute : MonoBehaviour
 {
     private static readonly int WaveHeightBufferProp = Shader.PropertyToID("waveHeightBuffer");
     private static readonly int WaveHeightBufferSizeProp = Shader.PropertyToID("waveHeightBufferSize");
@@ -25,7 +25,6 @@ public class WaveSimCompute : MonoBehaviour
         waveComputeShader.SetInt(WaveHeightBufferSizeProp, waveMeshCount);
     }
 
-    // Update is called once per frame
     void Update()
     {
         waveComputeShader.SetFloat(TimeProp, Time.time);

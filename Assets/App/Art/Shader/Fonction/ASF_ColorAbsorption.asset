@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 78b2425a2284af743826c689403a4924, type: 3}
-  m_Name: ASE_ColorAbsorption
+  m_Name: ASF_ColorAbsorption
   m_EditorClassIdentifier: 
   m_functionInfo: "// Made with Amplify Shader Editor v1.9.8.1\n// Available at the
     Unity Asset Store - http://u3d.as/y3X \n/*ASEBEGIN\nVersion=19801\nNode;AmplifyShaderEditor.FunctionInput;3;-976,-112;Inherit;False;CoefficientAbsorption;1;0;False;1;0;FLOAT;0;False;1;FLOAT;0\nNode;AmplifyShaderEditor.RangedFloatNode;6;-896,-192;Inherit;False;Constant;_ContF;ContF;0;0;Create;True;0;0;0;False;0;False;-1;0;0;0;0;1;FLOAT;0\nNode;AmplifyShaderEditor.SimpleMultiplyOpNode;5;-704,-192;Inherit;False;3;3;0;FLOAT;0;False;1;FLOAT;0;False;2;FLOAT;0;False;1;FLOAT;0\nNode;AmplifyShaderEditor.FunctionInput;4;-912,-32;Inherit;False;Thickness;1;1;False;1;0;FLOAT;0;False;1;FLOAT;0\nNode;AmplifyShaderEditor.ExpOpNode;2;-544,-192;Inherit;False;1;0;FLOAT;0;False;1;FLOAT;0\nNode;AmplifyShaderEditor.OneMinusNode;1;-416,-192;Inherit;False;1;0;FLOAT;0;False;1;FLOAT;0\nNode;AmplifyShaderEditor.FunctionOutput;0;-240,-192;Inherit;False;True;-1;Output;0;False;1;0;FLOAT;0;False;1;FLOAT;0\nWireConnection;5;0;6;0\nWireConnection;5;1;3;0\nWireConnection;5;2;4;0\nWireConnection;2;0;5;0\nWireConnection;1;0;2;0\nWireConnection;0;0;1;0\nASEEND*/\n//CHKSM=258427847480673F1CD2FD1EE9379905E2BA9ECC"
