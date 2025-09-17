@@ -132,13 +132,13 @@ namespace AmplifyShaderEditor
 			base.DrawProperties();
 		}
 
-		public override void OnNodeLayout( DrawInfo drawInfo )
+		public override void OnNodeLayout( DrawInfo drawInfo, NodeUpdateCache cache )
 		{
 			if( m_firstDraw )
 			{
 				m_firstDraw = false;
 				AfterCommonInit();
-				OnNodeChange();
+				OnNodeChange( cache );
 			}
 
 			if( m_forceVisualDataUpdate )

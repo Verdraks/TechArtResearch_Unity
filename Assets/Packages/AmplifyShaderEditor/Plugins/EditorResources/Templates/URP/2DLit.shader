@@ -64,10 +64,13 @@ Shader /*ase_name*/ "Hidden/Universal/2D Lit" /*end*/
 
 			HLSLPROGRAM
 
+			#pragma multi_compile_instancing
+
 			#pragma vertex vert
 			#pragma fragment frag
 
-			#pragma multi_compile _ DEBUG_DISPLAY SKINNED_SPRITE
+			#pragma multi_compile_fragment _ DEBUG_DISPLAY
+			#pragma multi_compile_vertex _ SKINNED_SPRITE
 
 			#pragma multi_compile _ USE_SHAPE_LIGHT_TYPE_0
 			#pragma multi_compile _ USE_SHAPE_LIGHT_TYPE_1
@@ -89,6 +92,7 @@ Shader /*ase_name*/ "Hidden/Universal/2D Lit" /*end*/
 
 			#define SHADERPASS SHADERPASS_SPRITELIT
 
+			#include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Fog.hlsl"
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Texture.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
@@ -245,6 +249,8 @@ Shader /*ase_name*/ "Hidden/Universal/2D Lit" /*end*/
 
 			HLSLPROGRAM
 
+			#pragma multi_compile_instancing
+
 			#pragma vertex vert
 			#pragma fragment frag
 
@@ -383,10 +389,13 @@ Shader /*ase_name*/ "Hidden/Universal/2D Lit" /*end*/
 
 			HLSLPROGRAM
 
+			#pragma multi_compile_instancing
+
 			#pragma vertex vert
 			#pragma fragment frag
 
-			#pragma multi_compile _ SKINNED_SPRITE
+			#pragma multi_compile_fragment _ DEBUG_DISPLAY
+			#pragma multi_compile_vertex _ SKINNED_SPRITE
 
             #define _SURFACE_TYPE_TRANSPARENT 1
             #define ATTRIBUTES_NEED_NORMAL
@@ -402,6 +411,7 @@ Shader /*ase_name*/ "Hidden/Universal/2D Lit" /*end*/
 
 			#define SHADERPASS SHADERPASS_SPRITEFORWARD
 
+			#include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Fog.hlsl"
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Texture.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
@@ -538,6 +548,8 @@ Shader /*ase_name*/ "Hidden/Universal/2D Lit" /*end*/
 
             HLSLPROGRAM
 
+			#pragma multi_compile_instancing
+
 			#pragma vertex vert
 			#pragma fragment frag
 
@@ -650,6 +662,8 @@ Shader /*ase_name*/ "Hidden/Universal/2D Lit" /*end*/
 
             HLSLPROGRAM
 
+			#pragma multi_compile_instancing
+
 			#pragma vertex vert
 			#pragma fragment frag
 
@@ -739,7 +753,7 @@ Shader /*ase_name*/ "Hidden/Universal/2D Lit" /*end*/
 			{
 				/*ase_frag_code:IN=VertexOutput*/
 				float4 Color = /*ase_frag_out:Color;Float4;0;-1;_Color*/float4( 1, 1, 1, 1 )/*end*/;
-				half4 outColor = _SelectionID;
+				half4 outColor = unity_SelectionID;
 				return outColor;
 			}
 

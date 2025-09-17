@@ -337,7 +337,7 @@ namespace AmplifyShaderEditor
 			}
 
 #if UNITY_2021_1_OR_NEWER
-			if( ( ContainerGraph.IsLWRP || ContainerGraph.ParentWindow.IsShaderFunctionWindow ) && ASEPackageManagerHelper.CurrentHDRPBaseline >= ASESRPBaseline.ASE_SRP_11 )
+			if( ( ContainerGraph.IsLWRP || ContainerGraph.ParentWindow.IsShaderFunctionWindow ) && ASEPackageManagerHelper.CurrentHDRPBaseline >= ASESRPBaseline.ASE_SRP_11_X )
 			{
 				m_isURP2D = EditorGUILayoutToggle( "2D Renderer" , m_isURP2D);
 				if( m_isURP2D )
@@ -649,6 +649,17 @@ namespace AmplifyShaderEditor
 				else
 					m_normalize = false;
 			}
+		}
+
+		public override void ReconnectClipboardReferences( Clipboard clipboard )
+		{
+			// validate node first
+			int newId = clipboard.GeNewNodeId( m_referenceNodeId );
+			if ( ContainerGraph.GetNode( newId ) != null )
+			{
+				m_referenceNodeId = newId;
+			}
+			RefreshExternalReferences();
 		}
 
 		public override string PropertyName

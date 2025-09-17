@@ -1,4 +1,4 @@
-Shader /*ase_name*/ "Hidden/Templates/Legacy/Particles Alpha Blended" /*end*/
+Shader /*ase_name*/ "Hidden/Built-In/Particles Alpha Blended" /*end*/
 {
 	Properties
 	{

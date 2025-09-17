@@ -1,0 +1,19 @@
+#pragma kernel CSMain 
+
+Texture2D<float4> depth_texture;
+SamplerState sampler_depth_texture;
+
+RWTexture2D<float4> output_texture;
+
+[numthreads(16, 16, 1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    uint2 output_texture_size;
+    output_texture.GetDimensions(output_texture_size.x, output_texture_size.y);
+
+    float2 uv = id.xy/ output_texture_size;
+    float4 depth = depth_texture.SampleLevel(sampler_depth_texture, uv,0);
+    
+    output_texture[id.xy] = float4(depth.xyz, 1);
+}
+

@@ -26,6 +26,12 @@ namespace AmplifyShaderEditor
 
 		static void OnPostprocessAllAssets( string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths )
 		{
+			if ( Application.isBatchMode )
+			{
+				// @diogo: not necessary in batch mode, just skip it
+				return;
+			}
+
 			ASEPackageManagerHelper.RequestInfo();
 			ASEPackageManagerHelper.Update();
 

@@ -51,6 +51,7 @@ namespace AmplifyShaderEditor
 		public const string RelativeWorldPositionStr = "ase_positionRWS";
 		public const string VFaceStr = "ase_vface";
 		public const string ShadowCoordsStr = "ase_shadowCoords";
+		public const string LightAttenuationStr = "ase_lightAtten";
 		public const string WorldLightDirStr = "ase_lightDirWS";
 		public const string ObjectLightDirStr = "ase_lightDirOS";
 		public const string WorldNormalStr = "ase_normalWS";
@@ -116,15 +117,15 @@ namespace AmplifyShaderEditor
 			"}\n"
 		};
 
-		private static readonly string ScreenPosNormToPixelFunctionHeader = "ASEScreenPositionNormalizedToPixel( {0} )";
+		private static readonly string ScreenPosNormToPixelFunctionHeader = "ASEScreenPositionNormalizedToPixel( {0}, {1} )";
 		private static readonly string[] ScreenPosNormToPixelFunctionBody = {
-			"float4 ASEScreenPositionNormalizedToPixel( float4 screenPosNorm )\n",
+			"float4 ASEScreenPositionNormalizedToPixel( float4 screenPosNorm, float4 screenParams )\n",
 			"{\n",
-			"\tfloat4 screenPosPixel = screenPosNorm * float4( _ScreenParams.xy, 1, 1 );\n",
+			"\tfloat4 screenPosPixel = screenPosNorm * float4( screenParams.xy, 1, 1 );\n",
 			"\t#if UNITY_UV_STARTS_AT_TOP\n",
-			"\t\tscreenPosPixel.xy = float2( screenPosPixel.x, ( _ProjectionParams.x < 0 ) ? _ScreenParams.y - screenPosPixel.y : screenPosPixel.y );\n",
+			"\t\tscreenPosPixel.xy = float2( screenPosPixel.x, ( _ProjectionParams.x < 0 ) ? screenParams.y - screenPosPixel.y : screenPosPixel.y );\n",
 			"\t#else\n",
-			"\t\tscreenPosPixel.xy = float2( screenPosPixel.x, ( _ProjectionParams.x > 0 ) ? _ScreenParams.y - screenPosPixel.y : screenPosPixel.y );\n",
+			"\t\tscreenPosPixel.xy = float2( screenPosPixel.x, ( _ProjectionParams.x > 0 ) ? screenParams.y - screenPosPixel.y : screenPosPixel.y );\n",
 			"\t#endif\n",
 			"\treturn screenPosPixel;\n",
 			"}\n"
@@ -402,7 +403,7 @@ namespace AmplifyShaderEditor
 		static public string GenerateWorldBitangent( ref MasterNodeDataCollector dataCollector, int uniqueId )
 		{
 			if ( dataCollector.IsTemplate )
-				return dataCollector.TemplateDataCollectorInstance.GetWorldBinormal( UIUtils.CurrentWindow.CurrentGraph.CurrentPrecision );
+				return dataCollector.TemplateDataCollectorInstance.GetWorldBitangent( UIUtils.CurrentWindow.CurrentGraph.CurrentPrecision );
 
 			string precisionType = UIUtils.PrecisionWirePortToCgType( UIUtils.CurrentWindow.CurrentGraph.CurrentPrecision, WirePortDataType.FLOAT3 );
 			string result = "WorldNormalVector( " + Constants.InputVarStr + ", " + precisionType + "( 0, 1, 0 ) )";
@@ -489,7 +490,7 @@ namespace AmplifyShaderEditor
 			string worldTangent = GenerateWorldTangent( ref dataCollector, uniqueId );
 			string worldBitangent = GenerateWorldBitangent( ref dataCollector, uniqueId );
 
-			string result = string.Format( "float3x3({0}.x,{1}.x,{2}.x,{0}.y,{1}.y,{2}.y,{0}.z,{1}.z,{2}.z)", worldTangent, worldBitangent, worldNormal );
+			string result = string.Format( "float3x3( {0}.x, {1}.x, {2}.x, {0}.y, {1}.y, {2}.y, {0}.z, {1}.z, {2}.z )", worldTangent, worldBitangent, worldNormal );
 			dataCollector.AddLocalVariable( uniqueId, precision, WirePortDataType.FLOAT3x3, TangentToWorldFastStr, result );
 			return TangentToWorldFastStr;
 		}
@@ -755,6 +756,11 @@ namespace AmplifyShaderEditor
 			//	sizeDif = "3";
 			//else if( maxSize == WirePortDataType.FLOAT4 )
 			//	sizeDif = "4";
+
+			if ( !dataCollector.IsTemplate && ( size == WirePortDataType.FLOAT3 || size == WirePortDataType.FLOAT4 ) )
+			{
+				dataCollector.UsingHigherSizeTexcoords = true;
+			}
 
 			if ( !dataCollector.IsTemplate && index > 3 )
 			{
@@ -1030,7 +1036,8 @@ namespace AmplifyShaderEditor
 		static public string GenerateScreenPositionTiled( ref MasterNodeDataCollector dataCollector, int uniqueId, PrecisionType precision, bool addInput = true )
 		{
 			string screenPosNorm = GenerateScreenPositionNormalized( ref dataCollector, uniqueId, precision, addInput );
-			string value = string.Format( "frac( float4( ( {0}.x * 2 - 1 ) * _ScreenParams.x / _ScreenParams.y, {0}.y * 2 - 1, 0, 0 ) )", screenPosNorm );
+			string screenParams = dataCollector.IsURP ? "_ScaledScreenParams" : "_ScreenParams";
+			string value = string.Format( "frac( float4( ( {0}.x * 2 - 1 ) * {1}.x / {1}.y, {0}.y * 2 - 1, 0, 0 ) )", screenPosNorm, screenParams );
 			dataCollector.AddLocalVariable( uniqueId, precision, WirePortDataType.FLOAT4, GeneratorUtils.ScreenPosTiledStr, value );
 			return GeneratorUtils.ScreenPosTiledStr;
 		}
@@ -1040,16 +1047,17 @@ namespace AmplifyShaderEditor
 			dataCollector.AddFunction( ScreenPosNormToPixelFunctionBody[ 0 ], ScreenPosNormToPixelFunctionBody, false );
 		}
 
-		static public string GenerateScreenPosNormToPixelFunctionCall( string screenPosNorm )
+		static public string GenerateScreenPosNormToPixelFunctionCall( string screenPosNorm, string screenParams )
 		{
-			return string.Format( ScreenPosNormToPixelFunctionHeader, screenPosNorm );
+			return string.Format( ScreenPosNormToPixelFunctionHeader, screenPosNorm, screenParams );
 		}
 
 		static public string GenerateScreenPositionPixel( ref MasterNodeDataCollector dataCollector, int uniqueId, PrecisionType precision, bool addInput = true )
 		{
 			string screenPosNorm = GenerateScreenPositionNormalized( ref dataCollector, uniqueId, precision, addInput );
+			string screenParams = dataCollector.IsURP ? "_ScaledScreenParams" : "_ScreenParams";
 			GenerateScreenPosNormToPixelFunction( ref dataCollector );
-			string value = GenerateScreenPosNormToPixelFunctionCall( screenPosNorm );
+			string value = GenerateScreenPosNormToPixelFunctionCall( screenPosNorm, screenParams );
 			dataCollector.AddLocalVariable( uniqueId, precision, WirePortDataType.FLOAT4, GeneratorUtils.ScreenPosPixelStr, value );
 			return GeneratorUtils.ScreenPosPixelStr;
 		}
@@ -1411,7 +1419,8 @@ namespace AmplifyShaderEditor
 			if ( !dataCollector.HasLocalVariableByName( GeneratorUtils.ScreenPosTiledStr ) )
 			{
 				string screenPosNorm = GenerateScreenPositionNormalizedOnFrag( ref dataCollector, uniqueId, precision );
-				string value = string.Format( "frac( float4( ( {0}.x * 2 - 1 ) * _ScreenParams.x / _ScreenParams.y, {0}.y * 2 - 1, 0, 0 ) )", screenPosNorm );
+				string screenParams = dataCollector.IsURP ? "_ScaledScreenParams" : "_ScreenParams";
+				string value = string.Format( "frac( float4( ( {0}.x * 2 - 1 ) * {1}.x / {1}.y, {0}.y * 2 - 1, 0, 0 ) )", screenPosNorm, screenParams );
 				dataCollector.AddLocalVariable( -1, precision, WirePortDataType.FLOAT4, GeneratorUtils.ScreenPosTiledStr, value );
 			}
 			return GeneratorUtils.ScreenPosTiledStr;
@@ -1427,8 +1436,9 @@ namespace AmplifyShaderEditor
 			if ( !dataCollector.HasLocalVariableByName( GeneratorUtils.ScreenPosPixelStr ) )
 			{
 				string screenPosNorm = GenerateScreenPositionNormalizedOnFrag( ref dataCollector, uniqueId, precision );
+				string screenParams = dataCollector.IsURP ? "_ScaledScreenParams" : "_ScreenParams";
 				GeneratorUtils.GenerateScreenPosNormToPixelFunction( ref dataCollector );
-				dataCollector.AddLocalVariable( -1, precision, WirePortDataType.FLOAT4, GeneratorUtils.ScreenPosPixelStr, GeneratorUtils.GenerateScreenPosNormToPixelFunctionCall( screenPosNorm ) );
+				dataCollector.AddLocalVariable( -1, precision, WirePortDataType.FLOAT4, GeneratorUtils.ScreenPosPixelStr, GeneratorUtils.GenerateScreenPosNormToPixelFunctionCall( screenPosNorm, screenParams ) );
 			}
 			return GeneratorUtils.ScreenPosPixelStr;
 		}
@@ -1614,6 +1624,7 @@ namespace AmplifyShaderEditor
 					finalFunction[ 0 ] = string.Format( funcVersion[ 0 ] , "4" );
 					break;
 					default:
+					case WirePortDataType.FLOAT2x2:
 					case WirePortDataType.FLOAT3x3:
 					case WirePortDataType.FLOAT4x4:
 					case WirePortDataType.INT:
@@ -1683,6 +1694,52 @@ namespace AmplifyShaderEditor
 		}
 
 		//MATRIX INVERSE
+		// 2x2
+		public static string Inverse2x2Header = "Inverse2x2( {0} )";
+		public static string[] Inverse2x2Function =
+		{
+			"{0}2x2 Inverse2x2({0}2x2 input)\n",
+			"{\n",
+			"\treturn {0}2x2( input._m11, -input._m01, -input._m10, input._m00 ) / determinant( input );\n",
+			"}\n"
+		};
+
+		public static bool[] Inverse2x2FunctionFlags =
+		{
+			true,
+			false,
+			true,
+			false
+		};
+
+		public static void Add2x2InverseFunction( ref MasterNodeDataCollector dataCollector, string precisionString )
+		{
+			if ( !dataCollector.HasFunction( Inverse2x2Header ) )
+			{
+				//Hack to be used util indent is properly used
+				int currIndent = UIUtils.ShaderIndentLevel;
+				if ( dataCollector.IsTemplate )
+				{
+					UIUtils.ShaderIndentLevel = 0;
+				}
+				else
+				{
+					UIUtils.ShaderIndentLevel = 1;
+					UIUtils.ShaderIndentLevel++;
+				}
+				string finalFunction = string.Empty;
+				for ( int i = 0; i < Inverse2x2Function.Length; i++ )
+				{
+					finalFunction += UIUtils.ShaderIndentTabs + ( Inverse2x2FunctionFlags[ i ] ? string.Format( Inverse2x2Function[ i ], precisionString ) : Inverse2x2Function[ i ] );
+				}
+
+
+				UIUtils.ShaderIndentLevel = currIndent;
+
+				dataCollector.AddFunction( Inverse2x2Header, finalFunction );
+			}
+		}
+
 		// 3x3
 		public static string Inverse3x3Header = "Inverse3x3( {0} )";
 		public static string[] Inverse3x3Function =

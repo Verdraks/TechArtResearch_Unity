@@ -30,12 +30,12 @@ namespace AmplifyShaderEditor
 
 		private const string AseObjectToWorldPosVarName = "objToWorld";
 		private const string AseObjectToWorldPosFormat = "mul( unity_ObjectToWorld, float4( {0}, 1 ) ).xyz";
-		private const string AseHDObjectToWorldPosFormat = "mul( GetObjectToWorldMatrix(), float4( {0}, 1 ) ).xyz";
+		private const string AseSRPObjectToWorldPosFormat = "mul( GetObjectToWorldMatrix(), float4( {0}, 1 ) ).xyz";
 		private const string ASEHDAbsoluteWordPos = "GetAbsolutePositionWS( {0} )";
 		private const string ASEHDRelaviveCameraPos = "GetCameraRelativePositionWS( {0} )";
 		private const string AseObjectToViewPosVarName = "objToView";
 		private const string AseObjectToViewPosFormat = "mul( UNITY_MATRIX_MV, float4( {0}, 1 ) ).xyz";
-		private const string AseHDObjectToViewPosFormat = "TransformWorldToView( TransformObjectToWorld({0}) )";
+		private const string AseSRPObjectToViewPosFormat = "TransformWorldToView( TransformObjectToWorld({0}) )";
 
 		private const string AseWorldToObjectPosVarName = "worldToObj";
 		private const string AseWorldToObjectPosFormat = "mul( unity_WorldToObject, float4( {0}, 1 ) ).xyz";
@@ -47,7 +47,7 @@ namespace AmplifyShaderEditor
 
 		private const string AseViewToObjectPosVarName = "viewToObj";
 		private const string AseViewToObjectPosFormat = "mul( unity_WorldToObject, mul( UNITY_MATRIX_I_V, float4( {0}, 1 ) ) ).xyz";
-		private const string AseHDViewToObjectPosFormat = "mul( GetWorldToObjectMatrix(), mul( UNITY_MATRIX_I_V, float4( {0}, 1 ) ) ).xyz";
+		private const string AseSRPViewToObjectPosFormat = "mul( GetWorldToObjectMatrix(), mul( UNITY_MATRIX_I_V, float4( {0}, 1 ) ) ).xyz";
 
 		private const string AseViewToWorldPosVarName = "viewToWorld";
 		private const string AseViewToWorldPosFormat = "mul( UNITY_MATRIX_I_V, float4( {0}, 1.0 ) ).xyz";
@@ -214,7 +214,7 @@ namespace AmplifyShaderEditor
 							{
 								if( dataCollector.TemplateDataCollectorInstance.CurrentSRPType == TemplateSRPType.HDRP )
 								{
-									result = string.Format( AseHDObjectToWorldPosFormat, result );
+									result = string.Format( AseSRPObjectToWorldPosFormat, result );
 									if( m_absoluteWorldPos )
 									{
 										result = string.Format( ASEHDAbsoluteWordPos, result );
@@ -222,7 +222,7 @@ namespace AmplifyShaderEditor
 								}
 								else if( dataCollector.TemplateDataCollectorInstance.CurrentSRPType == TemplateSRPType.URP )
 								{
-									result = string.Format( AseHDObjectToWorldPosFormat, result );
+									result = string.Format( AseSRPObjectToWorldPosFormat, result );
 								}
 							}
 							else
@@ -234,8 +234,8 @@ namespace AmplifyShaderEditor
 						}
 						case TransformSpaceTo.View:
 						{
-							if( dataCollector.IsTemplate && dataCollector.TemplateDataCollectorInstance.CurrentSRPType == TemplateSRPType.HDRP )
-								result = string.Format( AseHDObjectToViewPosFormat, result );
+							if( dataCollector.IsTemplate && dataCollector.TemplateDataCollectorInstance.IsSRP )
+								result = string.Format( AseSRPObjectToViewPosFormat, result );
 							else
 								result = string.Format( AseObjectToViewPosFormat, result );
 							varName = AseObjectToViewPosVarName + OutputId;
@@ -358,8 +358,8 @@ namespace AmplifyShaderEditor
 						}
 						case TransformSpaceTo.Object:
 						{
-							if( dataCollector.IsTemplate && dataCollector.TemplateDataCollectorInstance.CurrentSRPType == TemplateSRPType.HDRP )
-								result = string.Format( AseHDViewToObjectPosFormat, result );
+							if( dataCollector.IsTemplate && dataCollector.TemplateDataCollectorInstance.IsSRP )
+								result = string.Format( AseSRPViewToObjectPosFormat, result );
 							else
 								result = string.Format( AseViewToObjectPosFormat, result );
 							varName = AseViewToObjectPosVarName + OutputId;
@@ -367,8 +367,8 @@ namespace AmplifyShaderEditor
 						break;
 						case TransformSpaceTo.World:
 						{
-							result = string.Format( AseViewToWorldPosFormat, result ); 
-							if( dataCollector.IsTemplate && 
+							result = string.Format( AseViewToWorldPosFormat, result );
+							if( dataCollector.IsTemplate &&
 								dataCollector.TemplateDataCollectorInstance.CurrentSRPType == TemplateSRPType.HDRP &&
 								m_absoluteWorldPos )
 							{

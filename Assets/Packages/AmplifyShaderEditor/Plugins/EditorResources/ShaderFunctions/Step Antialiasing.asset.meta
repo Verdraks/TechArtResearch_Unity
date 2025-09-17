@@ -10,7 +10,7 @@ AssetOrigin:
   serializedVersion: 1
   productId: 68570
   packageName: Amplify Shader Editor
-  packageVersion: 1.9.8.1
-  assetPath: Assets/AmplifyShaderEditor/Plugins/EditorResources/ShaderFunctions/Step
+  packageVersion: 1.9.9.4
+  assetPath: Assets/Packages/AmplifyShaderEditor/Plugins/EditorResources/ShaderFunctions/Step
     Antialiasing.asset
-  uploadId: 723576
+  uploadId: 782635

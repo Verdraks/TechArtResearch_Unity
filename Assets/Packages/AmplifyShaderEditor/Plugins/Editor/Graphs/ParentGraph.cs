@@ -119,6 +119,9 @@ namespace AmplifyShaderEditor
 		private UsageListStaticSwitchNodes m_staticSwitchNodes = new UsageListStaticSwitchNodes();
 
 		[SerializeField]
+		private UsageListToggleSwitchNodes m_toggleSwitchNodes = new UsageListToggleSwitchNodes();
+
+		[SerializeField]
 		private int m_masterNodeId = Constants.INVALID_NODE_ID;
 
 		[SerializeField]
@@ -231,6 +234,9 @@ namespace AmplifyShaderEditor
 			m_staticSwitchNodes = new UsageListStaticSwitchNodes();
 			m_staticSwitchNodes.ContainerGraph = this;
 			m_staticSwitchNodes.ReorderOnChange = true;
+			m_toggleSwitchNodes = new UsageListToggleSwitchNodes();
+			m_toggleSwitchNodes.ContainerGraph = this;
+			m_toggleSwitchNodes.ReorderOnChange = true;
 			m_screenColorNodes = new UsageListScreenColorNodes();
 			m_screenColorNodes.ContainerGraph = this;
 			m_screenColorNodes.ReorderOnChange = true;
@@ -314,6 +320,7 @@ namespace AmplifyShaderEditor
 			m_rawPropertyNodes.UpdateNodeArr();
 			m_customExpressionsOnFunctionMode.UpdateNodeArr();
 			m_staticSwitchNodes.UpdateNodeArr();
+			m_toggleSwitchNodes.UpdateNodeArr();
 			m_functionInputNodes.UpdateNodeArr();
 			m_functionNodes.UpdateNodeArr();
 			m_functionOutputNodes.UpdateNodeArr();
@@ -421,6 +428,7 @@ namespace AmplifyShaderEditor
 			m_rawPropertyNodes.Clear();
 			m_customExpressionsOnFunctionMode.Clear();
 			m_staticSwitchNodes.Clear();
+			m_toggleSwitchNodes.Clear();
 			m_functionInputNodes.Clear();
 			m_functionNodes.Clear();
 			m_functionOutputNodes.Clear();
@@ -637,6 +645,8 @@ namespace AmplifyShaderEditor
 
 			m_staticSwitchNodes.Clear();
 
+			m_toggleSwitchNodes.Clear();
+
 			m_functionInputNodes.Clear();
 			//m_functionInputNodes = null;
 
@@ -739,6 +749,9 @@ namespace AmplifyShaderEditor
 
 			m_staticSwitchNodes.Destroy();
 			m_staticSwitchNodes = null;
+
+			m_toggleSwitchNodes.Destroy();
+			m_toggleSwitchNodes = null;
 
 			m_functionInputNodes.Destroy();
 			m_functionInputNodes = null;
@@ -1349,7 +1362,9 @@ namespace AmplifyShaderEditor
 			//	UIUtils.FunctionSwitchCopyList()[ i ].CheckReference();
 			//}
 
-
+			// @diogo: when loading we only need to call OnNodeChange once for every node, where branch connections to multiple inputs sometimes causes
+			//         the same node to be visited multiple times; avoid it
+			var nodeCache = new NodeUpdateCache();
 
 			// Dont use nodeCount variable because node count can change in this loop???
 			nodeCount = m_nodes.Count;
@@ -1365,7 +1380,7 @@ namespace AmplifyShaderEditor
 				node.MovingInFrame = false;
 
 				if( drawInfo.CurrentEventType == EventType.Repaint )
-					node.OnNodeLayout( drawInfo );
+					node.OnNodeLayout( drawInfo, nodeCache );
 
 				m_hasUnConnectedNodes = m_hasUnConnectedNodes ||
 										( node.ConnStatus != NodeConnectionStatus.Connected && node.ConnStatus != NodeConnectionStatus.Island );
@@ -3628,6 +3643,19 @@ namespace AmplifyShaderEditor
 			}
 		}
 
+		public bool HasPassWithTag( int lod, string tagKey, string tagValue = "" )
+		{
+			var passes = GetMultiPassMasterNodes( lod );
+			foreach ( TemplateMultiPassMasterNode pass in passes )
+			{
+				if ( pass.PassModule != null && pass.PassModule.TagsHelper != null && pass.PassModule.TagsHelper.HasTag( tagKey, tagValue ) )
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+
 		public bool HasVirtualTexture { get { return m_virtualTextureCount > 0; } }
 
 		public void AddInstancePropertyCount()
@@ -3984,6 +4012,7 @@ namespace AmplifyShaderEditor
 		public UsageListPropertyNodes RawPropertyNodes { get { return m_rawPropertyNodes; } }
 		public UsageListCustomExpressionsOnFunctionMode CustomExpressionOnFunctionMode { get { return m_customExpressionsOnFunctionMode; } }
 		public UsageListStaticSwitchNodes StaticSwitchNodes { get { return m_staticSwitchNodes; } }
+		public UsageListToggleSwitchNodes ToggleSwitchNodes { get { return m_toggleSwitchNodes; } }
 		public UsageListScreenColorNodes ScreenColorNodes { get { return m_screenColorNodes; } }
 		public UsageListRegisterLocalVarNodes LocalVarNodes { get { return m_localVarNodes; } }
 		public UsageListGlobalArrayNodes GlobalArrayNodes { get { return m_globalArrayNodes; } }

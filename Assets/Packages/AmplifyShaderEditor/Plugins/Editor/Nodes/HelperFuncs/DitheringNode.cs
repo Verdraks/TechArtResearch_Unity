@@ -125,14 +125,14 @@ namespace AmplifyShaderEditor
 				{
 					m_functionBody = string.Empty;
 					m_functionHeader = "Dither" + PatternsFuncStr[ m_selectedPatternInt ] + "( {0}, {1} )";
-					IOUtils.AddFunctionHeader( ref m_functionBody, "inline float Dither" + PatternsFuncStr[ m_selectedPatternInt ] + "( int x, int y )" );
+					IOUtils.AddFunctionHeader( ref m_functionBody, "inline float Dither" + PatternsFuncStr[ m_selectedPatternInt ] + "( uint x, uint y )" );
 					IOUtils.AddFunctionLine( ref m_functionBody, "const float dither[ 16 ] = {" );
 					IOUtils.AddFunctionLine( ref m_functionBody, "     1,  9,  3, 11," );
 					IOUtils.AddFunctionLine( ref m_functionBody, "    13,  5, 15,  7," );
 					IOUtils.AddFunctionLine( ref m_functionBody, "     4, 12,  2, 10," );
 					IOUtils.AddFunctionLine( ref m_functionBody, "    16,  8, 14,  6 };" );
-					IOUtils.AddFunctionLine( ref m_functionBody, "int r = y * 4 + x;" );
-					IOUtils.AddFunctionLine( ref m_functionBody, "return dither[ r ] / 16; // same # of instructions as pre-dividing due to compiler magic" );
+					IOUtils.AddFunctionLine( ref m_functionBody, "uint r = y * 4 + x;" );
+					IOUtils.AddFunctionLine( ref m_functionBody, "return dither[ min( r, 15 ) ] / 16; // same # of instructions as pre-dividing due to compiler magic" );
 					IOUtils.CloseFunctionBody( ref m_functionBody );
 				}
 				break;
@@ -140,7 +140,7 @@ namespace AmplifyShaderEditor
 				{
 					m_functionBody = string.Empty;
 					m_functionHeader = "Dither" + PatternsFuncStr[ m_selectedPatternInt ] + "( {0}, {1} )";
-					IOUtils.AddFunctionHeader( ref m_functionBody, "inline float Dither" + PatternsFuncStr[ m_selectedPatternInt ] + "( int x, int y )" );
+					IOUtils.AddFunctionHeader( ref m_functionBody, "inline float Dither" + PatternsFuncStr[ m_selectedPatternInt ] + "( uint x, uint y )" );
 					IOUtils.AddFunctionLine( ref m_functionBody, "const float dither[ 64 ] = {" );
 					IOUtils.AddFunctionLine( ref m_functionBody, "     1, 49, 13, 61,  4, 52, 16, 64," );
 					IOUtils.AddFunctionLine( ref m_functionBody, "    33, 17, 45, 29, 36, 20, 48, 32," );
@@ -150,8 +150,8 @@ namespace AmplifyShaderEditor
 					IOUtils.AddFunctionLine( ref m_functionBody, "    35, 19, 47, 31, 34, 18, 46, 30," );
 					IOUtils.AddFunctionLine( ref m_functionBody, "    11, 59,  7, 55, 10, 58,  6, 54," );
 					IOUtils.AddFunctionLine( ref m_functionBody, "    43, 27, 39, 23, 42, 26, 38, 22};" );
-					IOUtils.AddFunctionLine( ref m_functionBody, "int r = y * 8 + x;" );
-					IOUtils.AddFunctionLine( ref m_functionBody, "return dither[ r ] / 64; // same # of instructions as pre-dividing due to compiler magic" );
+					IOUtils.AddFunctionLine( ref m_functionBody, "uint r = y * 8 + x;" );
+					IOUtils.AddFunctionLine( ref m_functionBody, "return dither[ min( r, 63 ) ] / 64; // same # of instructions as pre-dividing due to compiler magic" );
 					IOUtils.CloseFunctionBody( ref m_functionBody );
 				}
 				break;
@@ -164,7 +164,8 @@ namespace AmplifyShaderEditor
 
 					IOUtils.AddFunctionHeader( ref m_functionBody, "inline float Dither" + PatternsFuncStr[ m_selectedPatternInt ] + "( float4 screenPos, " + GeneratorUtils.GetPropertyDeclaraction( "noiseTexture", TextureType.Texture2D, ", " ) + GeneratorUtils.GetSamplerDeclaraction( "samplernoiseTexture", TextureType.Texture2D, ", " ) + "float4 noiseTexelSize )" );
 
-					string samplingCall = GeneratorUtils.GenerateSamplingCall( ref dataCollector, WirePortDataType.SAMPLER2D, "noiseTexture", "samplernoiseTexture", "screenPos.xy * _ScreenParams.xy * noiseTexelSize.xy", MipType.MipLevel, "0" );
+					string screenParams = dataCollector.IsURP ? "_ScaledScreenParams" : "_ScreenParams";
+					string samplingCall = GeneratorUtils.GenerateSamplingCall( ref dataCollector, WirePortDataType.SAMPLER2D, "noiseTexture", "samplernoiseTexture", "screenPos.xy * " + screenParams + ".xy * noiseTexelSize.xy", MipType.MipLevel, "0" );
 					IOUtils.AddFunctionLine( ref m_functionBody, "float dither = "+ samplingCall + ".g;" );
 					IOUtils.AddFunctionLine( ref m_functionBody, "float ditherRate = noiseTexelSize.x * noiseTexelSize.y;" );
 					IOUtils.AddFunctionLine( ref m_functionBody, "dither = ( 1 - ditherRate ) * dither + ditherRate;" );
@@ -215,7 +216,7 @@ namespace AmplifyShaderEditor
 					}
 				}
 			}
-			
+
 			//string surfInstruction = string.Format( "abs( {0}.xy ) * _ScreenParams.xy", varName );
 			m_showErrorMessage = false;
 			string functionResult = "";

@@ -1,4 +1,4 @@
-Shader /*ase_name*/"Hidden/Templates/Legacy/Sprites Default"/*end*/
+Shader /*ase_name*/"Hidden/Built-In/Sprites Default"/*end*/
 {
 	Properties
 	{

@@ -170,11 +170,11 @@ namespace AmplifyShaderEditor
 			"\t#endif",
 			"#endif",
 		};
-		private readonly string[] AdditionalUsePasses =
-		{
-			"Hidden/Nature/Terrain/Utilities/PICKING",
-			"Hidden/Nature/Terrain/Utilities/SELECTION"
-		};
+
+		private const string TerrainPickingPass = "Hidden/Nature/Terrain/Utilities/PICKING";
+		private const string TerrainSelectionPass = "Hidden/Nature/Terrain/Utilities/SELECTION";
+
+		private readonly string[] AdditionalUsePasses = { TerrainPickingPass, TerrainSelectionPass };
 		private readonly string DrawInstancedLabel = "Instanced Terrain";
 
 		[SerializeField]
@@ -189,9 +189,31 @@ namespace AmplifyShaderEditor
 		{
 			if( m_enable )
 			{
-				for( int i = 0; i < AdditionalUsePasses.Length; i++ )
+				dataCollector.AddToDefines( -1, "ASE_INSTANCED_TERRAIN" );
+
+				var multiPassMasterNode = dataCollector.MasterNode as TemplateMultiPassMasterNode;
+				if ( multiPassMasterNode != null )
 				{
-					dataCollector.AddUsePass( AdditionalUsePasses[ i ], false );
+					// @diogo: add selection/picking passes ONLY if they don't already exist in the template
+					bool hasPickingPass = multiPassMasterNode.ContainerGraph.HasPassWithTag( multiPassMasterNode.LODIndex, "LightMode", "ScenePickingPass" );
+					bool hasSelectionPass = multiPassMasterNode.ContainerGraph.HasPassWithTag( multiPassMasterNode.LODIndex, "LightMode", "SceneSelectionPass" );
+
+					if ( !hasPickingPass )
+					{
+						dataCollector.AddUsePass( TerrainPickingPass, false );
+					}
+
+					if ( !hasSelectionPass )
+					{
+						dataCollector.AddUsePass( TerrainSelectionPass, false );
+					}
+				}
+				else
+				{
+					for( int i = 0; i < AdditionalUsePasses.Length; i++ )
+					{
+						dataCollector.AddUsePass( AdditionalUsePasses[ i ], false );
+					}
 				}
 
 				string[] instancedPragmas = dataCollector.IsSRP ? InstancedPragmasSRP : InstancedPragmas;
@@ -313,6 +335,8 @@ namespace AmplifyShaderEditor
 		{
 			if( m_enable )
 			{
+				dataCollector.AddToDefines( -1, "ASE_INSTANCED_TERRAIN" );
+
 				for( int i = 0; i < AdditionalUsePasses.Length; i++ )
 				{
 					dataCollector.AddUsePass( AdditionalUsePasses[ i ], false );

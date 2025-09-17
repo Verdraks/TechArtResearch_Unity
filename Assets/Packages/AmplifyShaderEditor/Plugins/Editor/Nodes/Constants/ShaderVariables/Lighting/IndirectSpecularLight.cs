@@ -190,9 +190,17 @@ namespace AmplifyShaderEditor
 						string tempocclusion = m_inputPorts[ 2 ].GeneratePortInstructions( ref dataCollector );
 
 						dataCollector.AddLocalVariable( UniqueId, "half3 reflectVector" + OutputId + " = reflect( -" + worldViewDir + ", " + worldNormal + " );" );
-						if ( ASEPackageManagerHelper.PackageSRPVersion >= ( int )ASESRPBaseline.ASE_SRP_14 )
+						if ( ASEPackageManagerHelper.PackageSRPVersion >= ( int )ASESRPBaseline.ASE_SRP_14_X )
 						{
-							dataCollector.AddToPragmas( UniqueId, "multi_compile _ _FORWARD_PLUS" );
+							if ( ASEPackageManagerHelper.PackageSRPVersion >= ( int )ASESRPBaseline.ASE_SRP_17_1 )
+							{
+								dataCollector.AddToPragmas( UniqueId, "multi_compile _ _CLUSTER_LIGHT_LOOP" );
+								dataCollector.AddToPragmas( UniqueId, "multi_compile_fragment _ _REFLECTION_PROBE_ATLAS" );
+							}
+							else
+							{
+								dataCollector.AddToPragmas( UniqueId, "multi_compile _ _FORWARD_PLUS" );
+							}
 
 							string worldPos = dataCollector.TemplateDataCollectorInstance.GetWorldPos( useMasterNodeCategory: false, customCategory: MasterNodePortCategory.Fragment );
 							string normalizedScreenUV = dataCollector.TemplateDataCollectorInstance.GetScreenPosNormalized( CurrentPrecisionType, useMasterNodeCategory: false, customCategory: MasterNodePortCategory.Fragment );

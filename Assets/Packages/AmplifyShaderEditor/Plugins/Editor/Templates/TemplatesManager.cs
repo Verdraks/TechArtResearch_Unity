@@ -466,7 +466,7 @@ namespace AmplifyShaderEditor
 	public class TemplatesManager : ScriptableObject
 	{
 		public static int MPShaderVersion = 14503;
-		
+
 		public static readonly string TemplateShaderNameBeginTag = "/*ase_name*/";
 		public static readonly string TemplateStencilTag = "/*ase_stencil*/\n";
 		public static readonly string TemplateRenderPlatformsTag = "/*ase_render_platforms*/";
@@ -563,17 +563,14 @@ namespace AmplifyShaderEditor
 
 			{ "5056123faa0c79b47ab6ad7e8bf059a4","UI/Default" },
 
-			{ "ed95fe726fd7b4644bb42f4d1ddd2bcd","Legacy/Lit"},
-			{ "0770190933193b94aaa3065e307002fa","Legacy/Unlit"},
-			{ "899e609c083c74c4ca567477c39edef0","Legacy/Unlit Lightmap" },
-			{ "e1de45c0d41f68c41b2cc20c8b9c05ef","Legacy/Multi Pass Unlit" },
-
-			{ "32139be9c1eb75640a847f011acf3bcf","Legacy/Post-Processing Stack"},
-			{ "c71b220b631b6344493ea3cf87110c93","Legacy/Image Effect" },
-
-			{ "0f8ba0101102bb14ebf021ddadce9b49","Legacy/Default Sprites" },
-			{ "0b6a9f8b4f707c74ca64c0be8e590de0","Legacy/Particles Alpha Blended" },
-			
+			{ "ed95fe726fd7b4644bb42f4d1ddd2bcd","Built-In/Lit"},
+			{ "0770190933193b94aaa3065e307002fa","Built-In/Unlit"},
+			{ "899e609c083c74c4ca567477c39edef0","Built-In/Unlit Lightmap" },
+			{ "e1de45c0d41f68c41b2cc20c8b9c05ef","Built-In/Multi Pass Unlit" },
+			{ "32139be9c1eb75640a847f011acf3bcf","Built-In/Post-Processing Stack"},
+			{ "c71b220b631b6344493ea3cf87110c93","Built-In/Image Effect" },
+			{ "0f8ba0101102bb14ebf021ddadce9b49","Built-In/Default Sprites" },
+			{ "0b6a9f8b4f707c74ca64c0be8e590de0","Built-In/Particles Alpha Blended" },
 
 			{ URPLitGUID,"Universal/Lit"},
 			{ URPUnlitGUID,"Universal/Unlit"},
@@ -634,15 +631,15 @@ namespace AmplifyShaderEditor
 				bool refreshTemplateMenuItems = false;
 
 				string[] allShaders = AssetDatabase.FindAssets( "t:shader" );
-				var templates = new Dictionary<string,TemplateDescriptor>();				
-				
+				var templates = new Dictionary<string,TemplateDescriptor>();
+
 				// Add official templates first
 				foreach ( KeyValuePair<string, string> kvp in OfficialTemplates )
 				{
 					string guid = kvp.Key;
 					string path = AssetDatabase.GUIDToAssetPath( guid );
 					if ( !string.IsNullOrEmpty( path ) && !templates.ContainsKey( guid ) )
-					{												
+					{
 						var desc = new TemplateDescriptor();
 						desc.template = ScriptableObject.CreateInstance<TemplateMultiPass>();
 						desc.name = kvp.Value;
@@ -665,15 +662,15 @@ namespace AmplifyShaderEditor
 					}
 				}
 
-				Parallel.For( 0, candidates.Count, i =>				
+				Parallel.For( 0, candidates.Count, i =>
 				{
 					string body = File.ReadAllText( candidates[ i ].Value ); ;
 					if ( body.IndexOf( TemplatesManager.TemplateShaderNameBeginTag ) > -1 )
 					{
 						candidateBag.Add( candidates[ i ].Key );
-					}						
+					}
 				} );
-				
+
 				foreach ( var guid in candidateBag )
 				{
 					TemplateDataParent template = GetTemplate( guid );
@@ -685,26 +682,26 @@ namespace AmplifyShaderEditor
 						desc.guid = guid;
 						desc.path = AssetDatabase.GUIDToAssetPath( guid );
 						desc.isCommunity = true;
-						templates.Add( desc.guid, desc );					
-					}				
+						templates.Add( desc.guid, desc );
+					}
 				}
 
 				var templateList = templates.Values.ToArray();
-				Parallel.For( 0, templateList.Length, i =>				
+				Parallel.For( 0, templateList.Length, i =>
 				{
 					TemplateDescriptor desc = templateList[ i ];
 					desc.template.Init( desc.name, desc.guid, desc.path, desc.isCommunity );
 				} );
-				
+
 				foreach ( var pair in templates )
 				{
 					TemplateDescriptor desc = pair.Value;
-					
+
 					if ( desc.template.IsValid )
 					{
 						AddTemplate( desc.template );
-					}					
-				
+					}
+
 					if ( !desc.isCommunity && !refreshTemplateMenuItems && templateMenuItems.IndexOf( name ) < 0 )
 					{
 						refreshTemplateMenuItems = true;
@@ -766,7 +763,7 @@ namespace AmplifyShaderEditor
 			for ( int i = 0; i < m_sortedTemplates.Count; i++ )
 			{
 				sorted.Add( m_sortedTemplates[ i ].Name, m_sortedTemplates[ i ].GUID );
-			}			
+			}
 
 			System.Text.StringBuilder fileContents = new System.Text.StringBuilder();
 			fileContents.Append( "// Amplify Shader Editor - Visual Shader Editing Tool\n" );

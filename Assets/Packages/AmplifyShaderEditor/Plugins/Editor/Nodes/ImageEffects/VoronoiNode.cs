@@ -59,15 +59,15 @@ namespace AmplifyShaderEditor
 
 		private const string VoronoiHeader = "float voronoi{0}( float2 v, float time, inout float2 id, inout float2 mr, float smoothness, inout float2 smoothId )";
 		private const string VoronoiFunc = "voronoi{0}( {1}, {2}, {3}, {4}, {5}, {6} )";
-		private string[] VoronoiBody = 
+		private string[] VoronoiBody =
 		{
 			"float2 n = floor( v );",
 			"float2 f = frac( v );",
 			"float F1 = 8.0;",
-			"float F2 = 8.0; float2 mg = 0;",
-			"for ( int j = -1; j <= 1; j++ )",
+			"float F2 = 8.0; float2 mg = 0; int i, j;",
+			"for ( j = -1; j <= 1; j++ )",
 			"{",
-			" \tfor ( int i = -1; i <= 1; i++ )",
+			" \tfor ( i = -1; i <= 1; i++ )",
 			" \t{",
 			" \t\tfloat2 g = float2( i, j );",
 			" \t\tfloat2 o = voronoihash{0}( n + g );",
@@ -84,20 +84,20 @@ namespace AmplifyShaderEditor
 			"}",
 			"return F1;"
 		};
-		
+
 		private string VoronoiDistanceBody =
-			"\nF1 = 8.0;" +
-			"\nfor ( int j = -2; j <= 2; j++ )" +
-			"\n{{" +
-			"\nfor ( int i = -2; i <= 2; i++ )" +
-			"\n{{" +
-			"\nfloat2 g = mg + float2( i, j );" +
-			"\nfloat2 o = voronoihash{1}( n + g );" +
-			"\n{0}" +
-			"\nfloat d = dot( 0.5 * ( r + mr ), normalize( r - mr ) );" +
-			"\nF1 = min( F1, d );" +
-			"\n}}" +
-			"\n}}" +
+			"\n\tF1 = 8.0;" +
+			"\n\tfor ( j = -2; j <= 2; j++ )" +
+			"\n\t{{" +
+			"\n\t\tfor ( i = -2; i <= 2; i++ )" +
+			"\n\t\t{{" +
+			"\n\t\tfloat2 g = mg + float2( i, j );" +
+			"\n\t\tfloat2 o = voronoihash{1}( n + g );" +
+			"\n\t\t{0}" +
+			"\n\t\t\tfloat d = dot( 0.5 * ( r + mr ), normalize( r - mr ) );" +
+			"\n\t\t\tF1 = min( F1, d );" +
+			"\n\t\t}}" +
+			"\n\t}}" +
 			"\nreturn F1;";
 
 		[SerializeField]
@@ -278,7 +278,7 @@ namespace AmplifyShaderEditor
 				Graphics.Blit( null , m_outputPorts[ 2 ].OutputPreviewTexture , PreviewMaterial , m_previewMaterialPassId );
 				RenderTexture.active = temp;
 			}
-			PreviewIsDirty = m_continuousPreviewRefresh;
+			PreviewIsDirty = ContinuousPreviewRefresh;
 
 			FinishPreviewRender = true;
 		}
@@ -359,8 +359,8 @@ namespace AmplifyShaderEditor
 		{
 			VoronoiBody[ 10 ] = "\t\to = ( sin( time + o * 6.2831 ) * 0.5 + 0.5 ); float2 r = f - g - o;";
 			int q = m_searchQuality + 1;
-			VoronoiBody[ 4 ] = "for ( int j = -" + q + "; j <= " + q + "; j++ )";
-			VoronoiBody[ 6 ] = "\tfor ( int i = -" + q + "; i <= " + q + "; i++ )";
+			VoronoiBody[ 4 ] = "for ( j = -" + q + "; j <= " + q + "; j++ )";
+			VoronoiBody[ 6 ] = "\tfor ( i = -" + q + "; i <= " + q + "; i++ )";
 			int dFunction = m_distanceFunction;
 			if( m_functionType == 4 )
 				dFunction = 0;
@@ -406,8 +406,8 @@ namespace AmplifyShaderEditor
 					VoronoiBody[ 17 ] = string.Empty;
 					VoronoiBody[ 18 ] = " \t\t}";
 				}
-				
-				
+
+
 			}
 			else
 			{
@@ -568,7 +568,7 @@ namespace AmplifyShaderEditor
 					dataCollector.AddLocalVariable( UniqueId, string.Format( "voroi{0} /= rest{0};", OutputId ) );
 				}
 				m_outputPorts[ 0 ].SetLocalValue( "voroi" + OutputId, dataCollector.PortCategory );
-				
+
 				m_outputPorts[ 1 ].SetLocalValue( ( m_functionType == 0 && m_calculateSmoothValue && m_applySmoothToIds ) ? smoothIdName : ( "id" + OutputId ), dataCollector.PortCategory );
 				m_outputPorts[ 2 ].SetLocalValue( "uv" + OutputId, dataCollector.PortCategory );
 				return m_outputPorts[ outputId ].LocalValue( dataCollector.PortCategory );

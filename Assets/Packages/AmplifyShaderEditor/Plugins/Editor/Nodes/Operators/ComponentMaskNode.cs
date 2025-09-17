@@ -129,6 +129,7 @@ namespace AmplifyShaderEditor
 				break;
 				case WirePortDataType.FLOAT:
 				case WirePortDataType.INT:
+				case WirePortDataType.FLOAT2x2:
 				case WirePortDataType.FLOAT3x3:
 				case WirePortDataType.FLOAT4x4:
 				{ }
@@ -186,6 +187,7 @@ namespace AmplifyShaderEditor
 					count = 0;
 				}
 				break;
+				case WirePortDataType.FLOAT2x2:
 				case WirePortDataType.FLOAT3x3:
 				case WirePortDataType.FLOAT4x4:
 				{ }
@@ -237,6 +239,7 @@ namespace AmplifyShaderEditor
 				break;
 				case WirePortDataType.FLOAT:
 				case WirePortDataType.INT:
+				case WirePortDataType.FLOAT2x2:
 				case WirePortDataType.FLOAT3x3:
 				case WirePortDataType.FLOAT4x4:
 				{ }
@@ -309,6 +312,7 @@ namespace AmplifyShaderEditor
 					count = 0;
 				}
 				break;
+				case WirePortDataType.FLOAT2x2:
 				case WirePortDataType.FLOAT3x3:
 				case WirePortDataType.FLOAT4x4:
 				{ }

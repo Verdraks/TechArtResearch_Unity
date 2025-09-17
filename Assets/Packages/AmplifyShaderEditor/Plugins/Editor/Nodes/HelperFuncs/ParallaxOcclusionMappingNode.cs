@@ -297,20 +297,20 @@ namespace AmplifyShaderEditor
 			}
 
 			string worldViewDir = GeneratorUtils.GenerateViewDirection( ref dataCollector, UniqueId, space: ViewSpace.World );
-			
-			string dx = "ddx("+ textcoords + ")";
-			string dy = "ddy(" + textcoords + ")";
+
+			string dx = "ddx( " + textcoords + " )";
+			string dy = "ddy( " + textcoords + " )";
 
 			string refPlane = m_defaultRefPlane.ToString();
 			if ( m_refPlanePort.IsConnected )
 				refPlane = m_refPlanePort.GeneratePortInstructions( ref dataCollector );
 
 
-			string curvature = "float2("+ m_CurvatureVector.x + "," + m_CurvatureVector.y + ")";
+			string curvature = "float2( "+ m_CurvatureVector.x + ", " + m_CurvatureVector.y + " )";
 			if ( m_useCurvature )
 			{
-				dataCollector.AddToProperties( UniqueId, "[Header(Parallax Occlusion Mapping)]", 300 );
-				dataCollector.AddToProperties( UniqueId, "_CurvFix(\"Curvature Bias\", Range( 0 , 1)) = 1", 301 );
+				dataCollector.AddToProperties( UniqueId, "[Header( Parallax Occlusion Mapping )]", 300 );
+				dataCollector.AddToProperties( UniqueId, "_CurvFix(\"Curvature Bias\", Range( 0, 1 ) ) = 1", 301 );
 				dataCollector.AddToUniforms( UniqueId, "uniform float _CurvFix;" );
 
 				if ( m_curvaturePort.IsConnected )

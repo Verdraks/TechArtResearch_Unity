@@ -47,7 +47,7 @@ namespace AmplifyShaderEditor
 				}
 			}
 
-			PreviewIsDirty = m_continuousPreviewRefresh;
+			PreviewIsDirty = ContinuousPreviewRefresh;
 		}
 
 		public override string GenerateShaderForOutput( int outputId, ref MasterNodeDataCollector dataCollector, bool ignoreLocalvar )

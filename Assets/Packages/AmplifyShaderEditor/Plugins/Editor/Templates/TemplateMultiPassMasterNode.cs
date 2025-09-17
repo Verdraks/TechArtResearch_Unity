@@ -1194,7 +1194,7 @@ namespace AmplifyShaderEditor
 			}
 		}
 
-		public override void OnNodeLayout( DrawInfo drawInfo )
+		public override void OnNodeLayout( DrawInfo drawInfo, NodeUpdateCache cache )
 		{
 			if( m_invalidNode )
 			{
@@ -1242,7 +1242,7 @@ namespace AmplifyShaderEditor
 								backTracking++;
 						}
 						m_position.y = master.TruePosition.yMax + 1 + 33 * ( backTracking );// ContainerGraph.MultiPassMasterNodes.NodesList[ index - 1 ].TruePosition.yMax;
-						base.OnNodeLayout( drawInfo );
+						base.OnNodeLayout( drawInfo, cache );
 					}
 					else
 					{
@@ -1253,18 +1253,18 @@ namespace AmplifyShaderEditor
 								forwardTracking++;
 						}
 						m_position.y = master.TruePosition.y - 33 * ( forwardTracking );// ContainerGraph.MultiPassMasterNodes.NodesList[ index - 1 ].TruePosition.yMax;
-						base.OnNodeLayout( drawInfo );
+						base.OnNodeLayout( drawInfo, cache );
 					}
 				}
 				else
 				{
 					m_useSquareNodeTitle = false;
-					base.OnNodeLayout( drawInfo );
+					base.OnNodeLayout( drawInfo, cache );
 				}
 			}
 			else
 			{
-				base.OnNodeLayout( drawInfo );
+				base.OnNodeLayout( drawInfo, cache );
 			}
 		}
 
@@ -3082,7 +3082,7 @@ namespace AmplifyShaderEditor
 				m_visiblePorts = Convert.ToInt32( GetCurrentParam( ref nodeParams ) );
 
 				m_subShaderModule.ReadFromString( m_templateMultiPass.SubShaders[ m_subShaderIdx ].Modules, ref m_currentReadParamIdx, ref nodeParams );
-				m_passModule.ReadFromString( m_templateMultiPass.SubShaders[ m_subShaderIdx ].Passes[ m_passIdx ].Modules, ref m_currentReadParamIdx, ref nodeParams );				
+				m_passModule.ReadFromString( m_templateMultiPass.SubShaders[ m_subShaderIdx ].Passes[ m_passIdx ].Modules, ref m_currentReadParamIdx, ref nodeParams );
 
 				if( UIUtils.CurrentShaderVersion() > 15308 )
 				{
@@ -3161,7 +3161,7 @@ namespace AmplifyShaderEditor
 		void CheckLegacyCustomInspectors()
 		{
 #if UNITY_2021_2_OR_NEWER
-			if( m_templateMultiPass.SubShaders[ 0 ].Modules.SRPType == TemplateSRPType.HDRP && ASEPackageManagerHelper.CurrentHDRPBaseline >= ASESRPBaseline.ASE_SRP_11 )
+			if( m_templateMultiPass.SubShaders[ 0 ].Modules.SRPType == TemplateSRPType.HDRP && ASEPackageManagerHelper.CurrentHDRPBaseline >= ASESRPBaseline.ASE_SRP_11_X )
 			{
 				if( Constants.CustomInspectorHDLegacyTo11.ContainsKey( m_customInspectorName ) )
 				{
@@ -3170,7 +3170,7 @@ namespace AmplifyShaderEditor
 				}
 			}
 
-			if( m_templateMultiPass.SubShaders[ 0 ].Modules.SRPType == TemplateSRPType.URP && ASEPackageManagerHelper.CurrentURPBaseline>= ASESRPBaseline.ASE_SRP_12 )
+			if( m_templateMultiPass.SubShaders[ 0 ].Modules.SRPType == TemplateSRPType.URP && ASEPackageManagerHelper.CurrentURPBaseline>= ASESRPBaseline.ASE_SRP_12_X )
 			{
 				if( Constants.CustomInspectorURP10To12.ContainsKey( m_customInspectorName ) )
 				{
@@ -3194,7 +3194,7 @@ namespace AmplifyShaderEditor
 			}
 
 #elif UNITY_2021_1_OR_NEWER
-			if( m_templateMultiPass.SubShaders[ 0 ].Modules.SRPType == TemplateSRPType.HDRP && ASEPackageManagerHelper.CurrentHDRPBaseline >= ASESRPBaseline.ASE_SRP_11 )
+			if( m_templateMultiPass.SubShaders[ 0 ].Modules.SRPType == TemplateSRPType.HDRP && ASEPackageManagerHelper.CurrentHDRPBaseline >= ASESRPBaseline.ASE_SRP_11_X )
 			{
 				if( Constants.CustomInspectorHDLegacyTo11.ContainsKey( m_customInspectorName ) )
 				{
@@ -3203,7 +3203,7 @@ namespace AmplifyShaderEditor
 				}
 			}
 #elif UNITY_2020_2_OR_NEWER
-			if(  m_templateMultiPass.SubShaders[0].Modules.SRPType == TemplateSRPType.HDRP && ASEPackageManagerHelper.CurrentHDRPBaseline >= ASESRPBaseline.ASE_SRP_10 )
+			if(  m_templateMultiPass.SubShaders[0].Modules.SRPType == TemplateSRPType.HDRP && ASEPackageManagerHelper.CurrentHDRPBaseline >= ASESRPBaseline.ASE_SRP_10_X )
 			{
 				if( Constants.CustomInspectorHD7To10.ContainsKey( m_customInspectorName ) )
 				{

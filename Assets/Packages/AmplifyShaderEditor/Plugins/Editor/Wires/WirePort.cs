@@ -26,7 +26,8 @@ namespace AmplifyShaderEditor
 		UINT = 1 << 14,
 		SAMPLER2DARRAY = 1 << 15,
 		SAMPLERSTATE = 1 << 16,
-		UINT4 = 1 << 17
+		UINT4 = 1 << 17,
+		FLOAT2x2 = 1 << 18
 	}
 
 	public enum VariableQualifiers
@@ -576,6 +577,11 @@ namespace AmplifyShaderEditor
 		{
 			get { return m_isEditable; }
 			set { m_isEditable = value; }
+		}
+
+		public bool DataTypeIsMatrix
+		{
+			get { return DataType == WirePortDataType.FLOAT2x2 || DataType == WirePortDataType.FLOAT3x3 || DataType == WirePortDataType.FLOAT4x4; }
 		}
 
 		public bool Available { get { return m_visible && !m_locked; } }

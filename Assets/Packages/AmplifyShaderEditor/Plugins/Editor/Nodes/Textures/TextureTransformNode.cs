@@ -90,7 +90,7 @@ namespace AmplifyShaderEditor
 
 			}
 
-			PreviewIsDirty = m_continuousPreviewRefresh;
+			PreviewIsDirty = ContinuousPreviewRefresh;
 			FinishPreviewRender = true;
 		}
 
@@ -328,6 +328,17 @@ namespace AmplifyShaderEditor
 			m_referenceNode = UIUtils.GetNode( m_referenceNodeId ) as TexturePropertyNode;
 			m_referenceSamplerId = UIUtils.GetTexturePropertyNodeRegisterId( m_referenceNodeId );
 			UpdateTitle();
+		}
+
+		public override void ReconnectClipboardReferences( Clipboard clipboard )
+		{
+			// validate node first
+			int newId = clipboard.GeNewNodeId( m_referenceNodeId );
+			if ( ContainerGraph.GetNode( newId ) != null )
+			{
+				m_referenceNodeId = newId;
+			}
+			RefreshExternalReferences();
 		}
 
 		public override void ReadFromString( ref string[] nodeParams )

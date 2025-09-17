@@ -46,9 +46,12 @@ namespace AmplifyShaderEditor
 			if ( m_dummyMaterial == null )
 				m_dummyMaterial = new Material( Shader.Find( "Hidden/ASESShaderSelectorUnlit" ) );
 
-#pragma warning disable 0618
+		#pragma warning disable 0618
+		#if !UNITY_6000_2_OR_NEWER
 			UnityEditorInternal.InternalEditorUtility.SetupShaderMenu( m_dummyMaterial );
-#pragma warning restore 0618
+		#endif
+		#pragma warning restore 0618
+
 			EditorUtility.DisplayPopupMenu( r, ShaderPoputContext, m_dummyCommand );
 		}
 
@@ -61,7 +64,7 @@ namespace AmplifyShaderEditor
 				m_fallbackShader = shader.name;
 			}
 		}
-		
+
 		public void ReadFromString( ref uint index, ref string[] nodeParams )
 		{
 			m_fallbackShader = nodeParams[ index++ ];

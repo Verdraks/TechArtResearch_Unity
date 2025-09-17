@@ -40,7 +40,7 @@ namespace AmplifyShaderEditor
 			base.OnInputPortConnected( portId, otherNodeId, otherPortId, activateNode );
 			if( portId == 2 )
 			{
-				m_continuousPreviewRefresh = false;
+				ContinuousPreviewRefresh = false;
 			}
 		}
 
@@ -49,7 +49,7 @@ namespace AmplifyShaderEditor
 			base.OnInputPortDisconnected( portId );
 			if( portId == 2 )
 			{
-				m_continuousPreviewRefresh = true;
+				ContinuousPreviewRefresh = true;
 			}
 		}
 

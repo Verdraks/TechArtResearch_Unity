@@ -1,4 +1,4 @@
-Shader /*ase_name*/ "Hidden/Templates/Legacy/Multi Pass Unlit" /*end*/
+Shader /*ase_name*/ "Hidden/Built-In/Multi Pass Unlit" /*end*/
 {
 	Properties
 	{

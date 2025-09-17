@@ -1,4 +1,4 @@
-Shader /*ase_name*/ "Hidden/Templates/Legacy/PostProcess" /*end*/
+Shader /*ase_name*/ "Hidden/Built-In/PostProcess" /*end*/
 {
 	Properties
 	{

@@ -17,15 +17,15 @@ Shader "Hidden/DotProductOpNode"
 
 			sampler2D _A;
 			sampler2D _B;
-			int _Type_PID;
+			int _Type;
 
 			float4 frag(v2f_img i) : SV_Target
 			{
 				float4 a = tex2D(_A, i.uv);
 				float4 b = tex2D(_B, i.uv);
-	
+
 				float result;
-				switch ( _Type_PID )
+				switch ( _Type )
 				{
 					case 1: result = dot( a.x, b.x ); break;
 					case 2: result = dot( a.xy, b.xy ); break;

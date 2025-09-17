@@ -203,7 +203,7 @@ namespace AmplifyShaderEditor
 			}
 			owner.ContainerGraph.ParentWindow.InnerWindowVariables.ExpandedUsePass = foldoutValue;
 		}
-		
+
 		private void DisplayShaderContext( UndoParentNode node, Rect r )
 		{
 			if( m_dummyCommand == null )
@@ -212,9 +212,12 @@ namespace AmplifyShaderEditor
 			if( m_dummyMaterial == null )
 				m_dummyMaterial = new Material( Shader.Find( "Hidden/ASESShaderSelectorUnlit" ) );
 
-#pragma warning disable 0618
+		#pragma warning disable 0618
+		#if !UNITY_6000_2_OR_NEWER
 			UnityEditorInternal.InternalEditorUtility.SetupShaderMenu( m_dummyMaterial );
-#pragma warning restore 0618
+		#endif
+		#pragma warning restore 0618
+
 			EditorUtility.DisplayPopupMenu( r, ShaderPoputContext, m_dummyCommand );
 		}
 
@@ -301,7 +304,7 @@ namespace AmplifyShaderEditor
 			{
 				bellowItems += tabs + string.Format( UseGrabFormatNewLine,  dataCollector.BelowUsePassesList[ i ].PropertyName );
 			}
-			
+
 			count = m_items.Count;
 			for( int i = 0; i < count; i++ )
 			{

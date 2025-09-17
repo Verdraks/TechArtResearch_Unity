@@ -57,7 +57,7 @@ namespace AmplifyShaderEditor
 					RenderTexture.active = temp;
 				}
 			}
-			PreviewIsDirty = m_continuousPreviewRefresh;
+			PreviewIsDirty = ContinuousPreviewRefresh;
 		}
 
 		public override RenderTexture PreviewTexture
@@ -134,6 +134,19 @@ namespace AmplifyShaderEditor
 					for( int i = 0; i < 4; i++ )
 					{
 						m_outputPorts[ i ].ChangeProperties( VectorPortNames[ i ], WirePortDataType.FLOAT, false );
+						m_outputPorts[ i ].Visible = true;
+					}
+					for( int i = 4; i < m_outputPorts.Count; i++ )
+					{
+						m_outputPorts[ i ].Visible = false;
+					}
+				}
+				break;
+				case WirePortDataType.FLOAT2x2:
+				{
+					for( int i = 0; i < 4; i++ )
+					{
+						m_outputPorts[ i ].ChangeProperties( "[" + (int)( i / 2 ) + "][" + i % 2 + "]", WirePortDataType.FLOAT, false );
 						m_outputPorts[ i ].Visible = true;
 					}
 					for( int i = 4; i < m_outputPorts.Count; i++ )
@@ -274,6 +287,10 @@ namespace AmplifyShaderEditor
 				case WirePortDataType.COLOR:
 				{
 					return GetOutputColorItem( 0, outputId + 1, value );
+				}
+				case WirePortDataType.FLOAT2x2:
+				{
+					return value + "[ " + ( (int)( outputId / 2 ) ) + " ][ " + ( outputId % 2 ) + " ]";
 				}
 				case WirePortDataType.FLOAT3x3:
 				{

@@ -205,12 +205,15 @@ namespace AmplifyShaderEditor
 				m_typeId = Shader.PropertyToID( "_Type" );
 
 			bool usingTexture = false;
-			if( m_texPort.IsConnected )
-			{
-				usingTexture = true;
-				SetPreviewTexture( m_texPort.InputPreviewTexture( ContainerGraph ) );
-			}
-			else if( SoftValidReference && m_referenceSampler.TextureProperty != null )
+
+			// @diogo: we can't use the preview texture, in this case, because output preview RenderTextures have no mips
+			//if( m_texPort.IsConnected )
+			//{
+			//	usingTexture = true;
+			//	SetPreviewTexture( m_texPort.InputPreviewTexture( ContainerGraph ) );
+			//}
+			//else
+			if( SoftValidReference && m_referenceSampler.TextureProperty != null )
 			{
 				if( m_referenceSampler.TextureProperty.Value != null )
 				{
@@ -342,6 +345,16 @@ namespace AmplifyShaderEditor
 					ConfigTextureData( m_currentType );
 					ConfigureInputPorts();
 					ConfigureOutputPorts();
+				}
+			}
+
+			if ( !ContainerGraph.IsSRP )
+			{
+				// @diogo: only BiRP for now
+				m_assignKeyword = EditorGUILayoutToggle( "Assign Keyword", m_assignKeyword );
+				if ( m_assignKeyword )
+				{
+					EditorGUILayout.HelpBox( string.Format( AssignKeywordInfoStr, PropertyName.ToUpper() ), MessageType.Info );
 				}
 			}
 		}
@@ -762,9 +775,9 @@ namespace AmplifyShaderEditor
 				m_previewTextProp = this;
 		}
 
-		public override void OnNodeLayout( DrawInfo drawInfo )
+		public override void OnNodeLayout( DrawInfo drawInfo, NodeUpdateCache cache )
 		{
-			base.OnNodeLayout( drawInfo );
+			base.OnNodeLayout( drawInfo, cache );
 
 			if( m_drawPreview )
 			{
@@ -1066,8 +1079,8 @@ namespace AmplifyShaderEditor
 		public string SampleTexture( ref MasterNodeDataCollector dataCollector, bool ignoreLocalVar, string portProperty, MipType currMipMode, string propertyName , VariableMode varMode )
 		{
 			string samplerValue = string.Empty;
-			string uvCoords = GetUVCoords( ref dataCollector, ignoreLocalVar, portProperty );
-			
+			string uvCoords = GetUVCoords( ref dataCollector, CurrentPrecisionType, ignoreLocalVar, portProperty );
+
 			bool isVertex = ( dataCollector.PortCategory == MasterNodePortCategory.Vertex || dataCollector.PortCategory == MasterNodePortCategory.Tessellation );
 
 			bool useMacros = false;
@@ -1369,7 +1382,7 @@ namespace AmplifyShaderEditor
 			return samplerOp;
 		}
 
-		public string GetUVCoords( ref MasterNodeDataCollector dataCollector, bool ignoreLocalVar, string portProperty )
+		public string GetUVCoords( ref MasterNodeDataCollector dataCollector, PrecisionType precisionType, bool ignoreLocalVar, string portProperty )
 		{
 			bool isVertex = ( dataCollector.PortCategory == MasterNodePortCategory.Vertex || dataCollector.PortCategory == MasterNodePortCategory.Tessellation );
 
@@ -1420,14 +1433,8 @@ namespace AmplifyShaderEditor
 						m_texCoordsHelper.AddGlobalToSRPBatcher = true;
 					}
 
-					if( UIUtils.CurrentWindow.OutsideGraph.IsInstancedShader )
-					{
-						m_texCoordsHelper.CurrentParameterType = PropertyType.InstancedProperty;
-					}
-					else
-					{
-						m_texCoordsHelper.CurrentParameterType = PropertyType.Global;
-					}
+					m_texCoordsHelper.CurrentParameterType = PropertyType.Global;
+
 					m_texCoordsHelper.ResetOutputLocals();
 					m_texCoordsHelper.SetRawPropertyName( propertyName + "_ST" );
 					texCoordsST = m_texCoordsHelper.GenerateShaderForOutput( 0, ref dataCollector, false );
@@ -1457,7 +1464,7 @@ namespace AmplifyShaderEditor
 				if( dataCollector.MasterNodeCategory == AvailableShaderTypes.Template )
 				{
 					string result = string.Empty;
-					if( dataCollector.TemplateDataCollectorInstance.GetCustomInterpolatedData( TemplateHelperFunctions.IntToUVChannelInfo[ m_textureCoordSet ], m_uvPort.DataType, PrecisionType.Float, ref result, false, dataCollector.PortCategory ) )
+					if( dataCollector.TemplateDataCollectorInstance.GetCustomInterpolatedData( TemplateHelperFunctions.IntToUVChannelInfo[ m_textureCoordSet ], m_uvPort.DataType, precisionType, ref result, false, dataCollector.PortCategory ) )
 					{
 						coordInput = result;
 					}
@@ -1490,10 +1497,10 @@ namespace AmplifyShaderEditor
 					if( scaleOffset )
 					{
 						string scaleOffsetValue = GeneratorUtils.GenerateScaleOffsettedUV( m_currentType , coordInput , texCoordsST, false );
-						dataCollector.AddLocalVariable( UniqueId , PrecisionType.Float , m_uvPort.DataType , uvName , scaleOffsetValue );
+						dataCollector.AddLocalVariable( UniqueId , precisionType, m_uvPort.DataType , uvName , scaleOffsetValue );
 					}
 					else
-						dataCollector.AddLocalVariable( UniqueId , PrecisionType.Float , m_uvPort.DataType , uvName , coordInput );
+						dataCollector.AddLocalVariable( UniqueId , precisionType, m_uvPort.DataType , uvName , coordInput );
 				}
 
 				uvs = uvName;
@@ -1518,7 +1525,7 @@ namespace AmplifyShaderEditor
 				if( ( outsideGraph.SamplingMacros || m_currentType == TextureType.Texture2DArray ) && m_currentType != TextureType.Texture1D )
 					return uvs + ", " + lodLevel;
 				else
-					return UIUtils.PrecisionWirePortToCgType( PrecisionType.Float, WirePortDataType.FLOAT4 ) + "( " + uvs + uvAppendix + lodLevel + ")";
+					return UIUtils.PrecisionWirePortToCgType( precisionType, WirePortDataType.FLOAT4 ) + "( " + uvs + uvAppendix + lodLevel + ")";
 			}
 			else
 			{
@@ -1528,7 +1535,7 @@ namespace AmplifyShaderEditor
 					if( ( outsideGraph.SamplingMacros || m_currentType == TextureType.Texture2DArray ) && m_currentType != TextureType.Texture1D )
 						return uvs + ", " + lodLevel;
 					else
-						return UIUtils.PrecisionWirePortToCgType( PrecisionType.Float, WirePortDataType.FLOAT4 ) + "( " + uvs + uvAppendix + lodLevel + ")";
+						return UIUtils.PrecisionWirePortToCgType( precisionType, WirePortDataType.FLOAT4 ) + "( " + uvs + uvAppendix + lodLevel + ")";
 				}
 				else if( m_mipMode == MipType.Derivative )
 				{
@@ -1887,6 +1894,11 @@ namespace AmplifyShaderEditor
 			if( UIUtils.CurrentShaderVersion() > 3201 )
 				m_currentType = (TextureType)Enum.Parse( typeof( TextureType ), GetCurrentParam( ref nodeParams ) );
 
+			if( UIUtils.CurrentShaderVersion() >= 19902 )
+			{
+				m_assignKeyword = Convert.ToBoolean( GetCurrentParam( ref nodeParams ) );
+			}
+
 			if( m_defaultValue == null )
 			{
 				ConfigureInputPorts();
@@ -1958,6 +1970,17 @@ namespace AmplifyShaderEditor
 			}
 		}
 
+		public override void ReconnectClipboardReferences( Clipboard clipboard )
+		{
+			// validate node first
+			int newId = clipboard.GeNewNodeId( m_referenceNodeId );
+			if ( ContainerGraph.GetNode( newId ) != null )
+			{
+				m_referenceNodeId = newId;
+			}
+			RefreshExternalReferences();
+		}
+
 		public override void ReadAdditionalData( ref string[] nodeParams ) { }
 
 		public override void WriteToString( ref string nodeInfo, ref string connectionsInfo )
@@ -1975,6 +1998,7 @@ namespace AmplifyShaderEditor
 			IOUtils.AddFieldValueToString( ref nodeInfo, ( ( m_referenceSampler != null ) ? m_referenceSampler.UniqueId : -1 ) );
 			IOUtils.AddFieldValueToString( ref nodeInfo, m_mipMode );
 			IOUtils.AddFieldValueToString( ref nodeInfo, m_currentType );
+			IOUtils.AddFieldValueToString( ref nodeInfo, m_assignKeyword );
 		}
 
 		public override void WriteAdditionalToString( ref string nodeInfo, ref string connectionsInfo ) { }
@@ -2082,24 +2106,24 @@ namespace AmplifyShaderEditor
 			{
 				case TextureType.Texture1D:
 				{
-					return PropertyAttributes + GetTexture1DPropertyValue();
+					return PropertyAttributes + PropertyAttributesSeparator + GetTexture1DPropertyValue();
 				}
 				case TextureType.ProceduralTexture:
 				case TextureType.Texture2D:
 				{
-					return PropertyAttributes + GetTexture2DPropertyValue();
+					return PropertyAttributes + PropertyAttributesSeparator + GetTexture2DPropertyValue();
 				}
 				case TextureType.Texture3D:
 				{
-					return PropertyAttributes + GetTexture3DPropertyValue();
+					return PropertyAttributes + PropertyAttributesSeparator + GetTexture3DPropertyValue();
 				}
 				case TextureType.Cube:
 				{
-					return PropertyAttributes + GetCubePropertyValue();
+					return PropertyAttributes + PropertyAttributesSeparator + GetCubePropertyValue();
 				}
 				case TextureType.Texture2DArray:
 				{
-					return PropertyAttributes + GetTexture2DArrayPropertyValue();
+					return PropertyAttributes + PropertyAttributesSeparator + GetTexture2DArrayPropertyValue();
 				}
 			}
 			return string.Empty;

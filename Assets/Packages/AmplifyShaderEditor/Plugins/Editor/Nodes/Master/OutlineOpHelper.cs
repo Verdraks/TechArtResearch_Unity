@@ -291,7 +291,7 @@ namespace AmplifyShaderEditor
 			}
 
 		}
-		public string[] OutlineFunctionBody( ref MasterNodeDataCollector dataCollector, bool instanced, bool isShadowCaster, string shaderName, string[] billboardInfo, ref TessellationOpHelper tessOpHelper, string target, PrecisionType precision )
+		public string[] OutlineFunctionBody( ref MasterNodeDataCollector dataCollector, bool instanced, bool isShadowCaster, string shaderName, string[] billboardInfo, ref TessellationOpHelper tessOpHelper, string target, PrecisionType precision, StencilBufferOpHelper stencilBufferHelper, UndoParentNode nodeObject )
 		{
 			List<string> body = new List<string>();
 			body.Add( ModeTags[ dataCollector.CustomOutlineSelectedAlpha ] );
@@ -305,6 +305,11 @@ namespace AmplifyShaderEditor
 
 			body.Add( "Cull " + m_cullMode );
 			
+			if( stencilBufferHelper.Active )
+			{
+				body.Add(stencilBufferHelper.CreateStencilOp(nodeObject));
+			}
+
 			//Color Mask
 			{
 				int count = 0;

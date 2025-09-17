@@ -47,7 +47,7 @@ namespace AmplifyShaderEditor
 				if( !dataCollector.IsSRP )
 				{
 					string result = string.Empty;
-					if( dataCollector.TemplateDataCollectorInstance.ContainsSpecialLocalFragVar( TemplateInfoOnSematics.SHADOWCOORDS, WirePortDataType.FLOAT4, ref result ) )
+					if( dataCollector.TemplateDataCollectorInstance.ContainsSpecialLocalFragVar( TemplateInfoOnSematics.LIGHT_ATTENUATION, WirePortDataType.FLOAT, ref result ) )
 					{
 						return result;
 					}
@@ -66,7 +66,22 @@ namespace AmplifyShaderEditor
 
 						// Pragmas
 						var pragmas = new List<string>();
-						if ( ASEPackageManagerHelper.CurrentSRPVersion >= 140009 )
+						if ( ASEPackageManagerHelper.CurrentSRPVersion >= 170100 )
+						{
+							if ( isForward || isGBuffer )
+							{
+								pragmas.Add( "multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN" );
+								pragmas.Add( "multi_compile_fragment _ _SHADOWS_SOFT _SHADOWS_SOFT_LOW _SHADOWS_SOFT_MEDIUM _SHADOWS_SOFT_HIGH" );
+							}
+
+							if ( isForward )
+							{
+								pragmas.Add( "multi_compile _ _ADDITIONAL_LIGHTS_VERTEX _ADDITIONAL_LIGHTS" );
+								pragmas.Add( "multi_compile_fragment _ _ADDITIONAL_LIGHT_SHADOWS" );
+								pragmas.Add( "multi_compile _ _CLUSTER_LIGHT_LOOP" );
+							}
+						}
+						else if ( ASEPackageManagerHelper.CurrentSRPVersion >= 140009 )
 						{
 							if ( isForward || isGBuffer )
 							{
@@ -81,7 +96,7 @@ namespace AmplifyShaderEditor
 								pragmas.Add( "multi_compile _ _FORWARD_PLUS" );
 							}
 						}
-						else if ( ASEPackageManagerHelper.CurrentURPBaseline >= ASESRPBaseline.ASE_SRP_14 )
+						else if ( ASEPackageManagerHelper.CurrentURPBaseline >= ASESRPBaseline.ASE_SRP_14_X )
 						{
 							if ( isForward || isGBuffer )
 							{
@@ -96,7 +111,7 @@ namespace AmplifyShaderEditor
 								pragmas.Add( "multi_compile _ _FORWARD_PLUS" );
 							}
 						}
-						else if ( ASEPackageManagerHelper.CurrentURPBaseline >= ASESRPBaseline.ASE_SRP_12 )
+						else if ( ASEPackageManagerHelper.CurrentURPBaseline >= ASESRPBaseline.ASE_SRP_12_X )
 						{
 							if ( isForward || isGBuffer )
 							{
@@ -110,7 +125,7 @@ namespace AmplifyShaderEditor
 								pragmas.Add( "multi_compile_fragment _ _ADDITIONAL_LIGHT_SHADOWS" );
 							}
 						}
-						else if ( ASEPackageManagerHelper.CurrentURPBaseline >= ASESRPBaseline.ASE_SRP_11 )
+						else if ( ASEPackageManagerHelper.CurrentURPBaseline >= ASESRPBaseline.ASE_SRP_11_X )
 						{
 							if ( isForward || isGBuffer )
 							{

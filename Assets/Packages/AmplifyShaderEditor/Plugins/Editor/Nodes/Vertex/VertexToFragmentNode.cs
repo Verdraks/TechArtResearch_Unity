@@ -28,7 +28,8 @@ namespace AmplifyShaderEditor
 		protected override void CommonInit( int uniqueId )
 		{
 			base.CommonInit( uniqueId );
-			m_inputPorts[ 0 ].AddPortForbiddenTypes(	WirePortDataType.FLOAT3x3,
+			m_inputPorts[ 0 ].AddPortForbiddenTypes(	WirePortDataType.FLOAT2x2,
+														WirePortDataType.FLOAT3x3,
 														WirePortDataType.FLOAT4x4,
 														WirePortDataType.SAMPLER1D,
 														WirePortDataType.SAMPLER2D,

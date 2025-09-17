@@ -92,14 +92,16 @@ namespace AmplifyShaderEditor
 			AddInputPort( WirePortDataType.FLOAT, false,"Alpha" );
 			m_inputPorts[ 2 ].FloatInternalData = 1;
 			AddOutputPort( WirePortDataType.COLOR, Constants.EmptyPortValue );
-			m_inputPorts[ 0 ].AddPortForbiddenTypes(	WirePortDataType.FLOAT3x3,
+			m_inputPorts[ 0 ].AddPortForbiddenTypes(	WirePortDataType.FLOAT2x2,
+														WirePortDataType.FLOAT3x3,
 														WirePortDataType.FLOAT4x4,
 														WirePortDataType.SAMPLER1D,
 														WirePortDataType.SAMPLER2D,
 														WirePortDataType.SAMPLER3D,
 														WirePortDataType.SAMPLERCUBE,
 														WirePortDataType.SAMPLER2DARRAY );
-			m_inputPorts[ 1 ].AddPortForbiddenTypes(	WirePortDataType.FLOAT3x3,
+			m_inputPorts[ 1 ].AddPortForbiddenTypes(	WirePortDataType.FLOAT2x2,
+														WirePortDataType.FLOAT3x3,
 														WirePortDataType.FLOAT4x4,
 														WirePortDataType.SAMPLER1D,
 														WirePortDataType.SAMPLER2D,
