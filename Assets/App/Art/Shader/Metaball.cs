@@ -48,16 +48,6 @@ public class Metaball : MonoBehaviour
         }
     }
 
-    private void LateUpdate()
-    {
-        var data = new MetaballData[m_MaxParticles];
-        m_Buffer.GetData(data);
-        foreach (var d in data)
-        {
-            Debug.Log(d.Radius);
-        }
-    }
-
     private void OnDisable()
     {
         if(m_Buffer != null && m_Buffer.IsValid()) m_Buffer.Release();
