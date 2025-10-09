@@ -10,7 +10,7 @@ float GetDistanceMetaball_float(float3 p)
 {
     float sumDensity = 0.0;
     float sumRi = 0.0;
-    float minDist = 1000000.0;
+    float minDist = 100000.0;
 
     for (int i = 0; i < _MetaballsCount; i++)
     {
@@ -27,54 +27,50 @@ float GetDistanceMetaball_float(float3 p)
     return  max(minDist, (0.2 - sumDensity) / (3.0 / 2.0 * sumRi));
 }
 
-float GetDistanceSphere_float(float3 p, float3 center, float radius)
+float3 CalculateNormalMetaball_float(float3 from)
 {
-    return length(p - center) - radius;
+    float delta = 10e-5;
+    float3 normal = float3(
+        GetDistanceMetaball_float(from + float3(delta, 0, 0)) - GetDistanceMetaball_float(from + float3(-delta, 0, 0)),
+        GetDistanceMetaball_float(from + float3(0, delta, 0)) - GetDistanceMetaball_float(from + float3(-0, -delta, 0)),
+        GetDistanceMetaball_float(from + float3(0, 0, delta)) - GetDistanceMetaball_float(from + float3(0, 0, -delta))
+    );
+    return normalize(normal);
 }
 
-
-void SphereTraceMetaballs_float(float3 worldPosition, float3 viewPosition, out float alpha)
+void SphereTraceMetaballs_float(float3 worldPosition, float3 viewPosition, out float alpha, out float3 normalWs)
 {
     #if defined(SHADERGRAPH_PREVIEW)
     alpha = 1.0;
+    normalWs = float3(0,0,0);
     #else
     
     float maxDist = 100.0;
-    float threshold = 0.0001;
+    float threshold = 0.00001;
     float t = 0.0;
     int numSteps = 0;
     
     half3 viewDir = normalize( worldPosition - viewPosition );
 
-    for (int i = 0; i < _MetaballsCount; i++)
+    
+    while (t < maxDist)
     {
-        while (t < maxDist)
-        {
-            float minDist = 1000000.0;
-            float3 from = viewPosition + t * viewDir;
+        float3 from = viewPosition + t * viewDir;
 
-            float d = 0.0;
-            //Work, data buffer filled
-            d = GetDistanceSphere_float(from, _MetaballsDataBuffer[i].Position, _MetaballsDataBuffer[i].Radius);
+        //Work, data buffer filled
+        // float d = GetDistanceSphere_float(from, _MetaballsDataBuffer[0].Position, _MetaballsDataBuffer[0].Radius);
 
-            //Dont work
-            // d = GetDistanceMetaball_float(from);
+        float d = GetDistanceMetaball_float(from);
         
-
-            if (d < minDist)
-            {
-                minDist = d;
-            }
-
-            if (minDist <= threshold * t)
-            {
-                alpha = 1.0;
-                break;
-            }
-
-            t+= minDist;
-            numSteps++;
+        if (d <= threshold * t)
+        {
+            alpha = 1.0;
+            normalWs = CalculateNormalMetaball_float(from);
+            break;
         }
+
+        t+= d;
+        numSteps++;
     }
     
     #endif

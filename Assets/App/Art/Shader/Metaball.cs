@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.InteropServices;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.VFX;
 
@@ -32,10 +33,14 @@ public class Metaball : MonoBehaviour
         m_Buffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, m_MaxParticles, Marshal.SizeOf(typeof(MetaballData)));
         if (m_TargetRenderer && m_MatMetaball)
         {
-            m_MaterialInstance = new Material(m_MatMetaball);
+            m_MaterialInstance = new Material(m_MatMetaball)
+            {
+                name = m_MatMetaball.name + " (Instance)"
+            };
+            m_TargetRenderer.material = m_MaterialInstance;
+            
             m_MaterialInstance.SetBuffer(s_MetaballDataBufferMatProp, m_Buffer);
             m_MaterialInstance.SetInt(s_MetaballsCountMatProp, m_MaxParticles);
-            m_TargetRenderer.material = m_MaterialInstance;
         }
         if (m_VFXMetaball)
         {
@@ -43,9 +48,19 @@ public class Metaball : MonoBehaviour
         }
     }
 
+    private void LateUpdate()
+    {
+        var data = new MetaballData[m_MaxParticles];
+        m_Buffer.GetData(data);
+        foreach (var d in data)
+        {
+            Debug.Log(d.Radius);
+        }
+    }
+
     private void OnDisable()
     {
-        m_Buffer?.Release();
+        if(m_Buffer != null && m_Buffer.IsValid()) m_Buffer.Release();
         if (m_MaterialInstance)
         {
             #if UNITY_EDITOR
@@ -56,11 +71,10 @@ public class Metaball : MonoBehaviour
         }
     }
 
-    [VFXType(VFXTypeAttribute.Usage.GraphicsBuffer)]
+    [VFXType(VFXTypeAttribute.Usage.GraphicsBuffer), StructLayout(LayoutKind.Sequential)]
     private struct MetaballData
     {
         public Vector3 Position;
         public float Radius;
-        public Vector3 Color;
     }
 }

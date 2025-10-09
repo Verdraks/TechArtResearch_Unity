@@ -7,6 +7,5 @@ struct MetaballData
 {
     float3 Position;
     float Radius;
-    float3 Color;
 };
 #endif
