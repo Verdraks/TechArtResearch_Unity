@@ -6,7 +6,63 @@
 StructuredBuffer<MetaballData> _MetaballsDataBuffer;
 int _MetaballsCount;
 
-float GetDistanceMetaball_float(float3 p)
+float Smin_float(float d1, float d2, float k)
+{
+    k *= 4.0;
+    float x = (d2-d1)/k;
+    float g = (x> 1.0) ? x :
+              (x<-1.0) ? 0.0 :
+              (x*(2.0+x)+1.0)/4.0;
+    return d2 - k * g;
+    
+}
+
+float SdfSphere_float(float3 p, float3 center, float radius)
+{
+    return length(p - center) - radius;
+}
+
+float SdfMap_0_float(float3 p, float eps)
+{
+    float sumDensity = 0.0;
+    float sumRi = 0.0;
+    float minDist = 1e20;
+
+    for (int i = 0; i < _MetaballsCount; i++)
+    {
+        float3 center = _MetaballsDataBuffer[i].Position;
+        float radius = _MetaballsDataBuffer[i].Radius;
+
+        float3 d = p - center;
+        float r2 = dot(d, d);
+        float R2 = radius * radius;
+
+        if (r2 >= R2)
+        {
+            float r = sqrt(r2);
+            minDist = min(minDist, r - radius);
+            sumRi += radius;
+            continue;
+        }
+
+        float r = sqrt(r2);
+        float invR = 1.0 / max(radius, eps);
+        float x = r * invR;
+        float x2 = x * x;
+        float x3 = x2 * x;
+        sumDensity += 2.0 * x3 - 3.0 * x2 + 1.0;
+
+        minDist = min(minDist, r - radius);
+        sumRi += radius;
+    }
+
+    float denom = 1.5 * max(sumRi, eps);
+    float densityDist = (0.2 - sumDensity) / denom;
+
+    return max(minDist, densityDist);
+}
+
+float SdfMap_1_float(float3 p)
 {
     float sumDensity = 0.0;
     float sumRi = 0.0;
@@ -27,50 +83,73 @@ float GetDistanceMetaball_float(float3 p)
     return  max(minDist, (0.2 - sumDensity) / (3.0 / 2.0 * sumRi));
 }
 
-float3 CalculateNormalMetaball_float(float3 from)
+float SdfMap_2_float(float3 p,float k)
 {
-    float delta = 10e-5;
-    float3 normal = float3(
-        GetDistanceMetaball_float(from + float3(delta, 0, 0)) - GetDistanceMetaball_float(from + float3(-delta, 0, 0)),
-        GetDistanceMetaball_float(from + float3(0, delta, 0)) - GetDistanceMetaball_float(from + float3(-0, -delta, 0)),
-        GetDistanceMetaball_float(from + float3(0, 0, delta)) - GetDistanceMetaball_float(from + float3(0, 0, -delta))
-    );
+    float d = 1e9;
+    for (int i = 0; i < _MetaballsCount; i++)
+    {
+        float3 center = _MetaballsDataBuffer[i].Position;
+        float radius = _MetaballsDataBuffer[i].Radius;
+        float di = SdfSphere_float(p, center, radius);
+        d = Smin_float(d, di, k);
+    }
+    return d;
+    
+}
+
+
+float3 NormalSdfMap_0_float(float3 p,float eps)
+{
+    float dx = SdfMap_0_float(p + float3(eps, 0, 0),eps) - SdfMap_0_float(p + float3(-eps, 0, 0),eps);
+    float dy = SdfMap_0_float(p + float3(0, eps, 0),eps) - SdfMap_0_float(p + float3(0, -eps, 0),eps);
+    float dz = SdfMap_0_float(p + float3(0, 0, eps),eps) - SdfMap_0_float(p + float3(0, 0, -eps),eps);
+    float3 normal = float3(dx, dy, dz);
     return normalize(normal);
 }
 
-void SphereTraceMetaballs_float(float3 worldPosition, float3 viewPosition, out float alpha, out float3 normalWs)
+float3 NormalSdfMap_2_float(float3 p,float eps, float k)
+{
+    float dx = SdfMap_2_float(p + float3(eps,0,0),k);
+    float dy = SdfMap_2_float(p + float3(0,eps,0),k);
+    float dz = SdfMap_2_float(p + float3(0,0,eps),k);
+    float3 normal = normalize(float3(dx, dy, dz));
+    return normal;
+}
+
+
+void SphereTraceMetaballs_float(float k, float eps, float3 rayOrigin, float3 rayDir, out float3 positionWs,out float3 normalWs, out float3 viewDir, out float alpha)
 {
     #if defined(SHADERGRAPH_PREVIEW)
-    alpha = 1.0;
+    positionWs = float3(0,0,0);
     normalWs = float3(0,0,0);
+    viewDir = float3(0,0,0);
+    alpha = 1.0;
     #else
     
     float maxDist = 100.0;
-    float threshold = 0.00001;
     float t = 0.0;
-    int numSteps = 0;
-    
-    half3 viewDir = normalize( worldPosition - viewPosition );
+    int steps = 0;
+    int maxSteps = 20;
 
+    alpha = 0.0;
     
     while (t < maxDist)
     {
-        float3 from = viewPosition + t * viewDir;
-
-        //Work, data buffer filled
-        // float d = GetDistanceSphere_float(from, _MetaballsDataBuffer[0].Position, _MetaballsDataBuffer[0].Radius);
-
-        float d = GetDistanceMetaball_float(from);
+        float3 p = rayOrigin + t * rayDir;
         
-        if (d <= threshold * t)
+        float d = SdfMap_1_float(p);
+        
+        if (d <= eps)
         {
+            positionWs = p;
+            normalWs = NormalSdfMap_0_float(p, eps);
+            viewDir = rayDir;
             alpha = 1.0;
-            normalWs = CalculateNormalMetaball_float(from);
             break;
         }
 
         t+= d;
-        numSteps++;
+        steps++;
     }
     
     #endif
