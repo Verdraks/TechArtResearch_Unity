@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.VFX;
 
 [ExecuteInEditMode]
-public class Metaball : MonoBehaviour
+public class MetaballVisualBinder : MonoBehaviour
 {
     private static readonly int s_MetaballDataBufferMatProp = Shader.PropertyToID("_MetaballsDataBuffer");
     private static readonly int s_MetaballDataBufferVfxProp = Shader.PropertyToID("MetaballsDataBuffer");

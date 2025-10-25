@@ -2,5 +2,5 @@ using UnityEngine;
 
     #ROOTNAMESPACEBEGIN#
 [CreateAssetMenu(fileName = "#SCRIPTNAME#", menuName = "RSO/_/#SCRIPTNAME#")]
-public class #SCRIPTNAME# : BT.ScriptablesObject.RuntimeScriptableObject<>{}
+public class RSO_#SCRIPTNAME# : BT.ScriptablesObject.RuntimeScriptableObject<>{}
 #ROOTNAMESPACEEND#
