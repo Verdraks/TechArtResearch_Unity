@@ -3,13 +3,12 @@ using UnityEngine;
 public class MousePainter : MonoBehaviour
 {
     [Header("Settings")]
-    [SerializeField] private bool m_isVerbose = false;
     [SerializeField] private bool m_EnableContinuousPainting = true;
     
+    [SerializeField] private Color m_Color = Color.red;
     [SerializeField, Range(0.01f, 1f)] private float m_Radius = 0.1f;
     [SerializeField, Range(0f, 1f)] private float m_Hardness = 0.5f;
     [SerializeField, Range(0f, 1f)] private float m_Strength = 1f;
-    [SerializeField] private Color m_Color = Color.red;
     
     [Header("Output")]
     [SerializeField] private RSE_Paint m_Paint;
@@ -21,7 +20,6 @@ public class MousePainter : MonoBehaviour
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(ray, out RaycastHit hit))
             {
-                if (m_isVerbose) Debug.DrawRay(ray.origin, hit.point - ray.origin, m_Color,3f);
                 
                 if (hit.collider.TryGetComponent(out Paintable paintable))
                 {

@@ -23,7 +23,7 @@ public class PlayerCameraFollow : MonoBehaviour
 
     private void HandleLook()
     {
-        Vector2 look = input.lookInput;
+        Vector2 look = input.LookInput;
         float mouseX = look.x * sensitivity * Time.deltaTime;
         float mouseY = look.y * sensitivity * Time.deltaTime;
 

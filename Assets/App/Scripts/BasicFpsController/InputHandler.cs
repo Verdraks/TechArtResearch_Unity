@@ -2,32 +2,37 @@ using UnityEngine;
 
 public class InputHandler : MonoBehaviour
 {
-    public Vector2 moveInput { get; private set; }
-    public Vector2 lookInput { get; private set; }
-    public bool jumpPressed { get; private set; }
+    public Vector2 MoveInput { get; private set; }
+    public Vector2 LookInput { get; private set; }
+    public bool JumpPressed { get; private set; }
 
-    public bool isSprinting { get; private set; }
+    public bool AttackPressed { get; private set; }
+    
+    public bool IsSprinting { get; private set; }
 
-    private InputSystem_Actions _inputSystemActions;
+    private InputSystem_Actions m_InputSystemActions;
 
     private void Awake()
     {
-        _inputSystemActions = new InputSystem_Actions();
+        m_InputSystemActions = new InputSystem_Actions();
 
-        _inputSystemActions.Player.Move.performed += ctx => moveInput = ctx.ReadValue<Vector2>();
-        _inputSystemActions.Player.Move.canceled += _ => moveInput = Vector2.zero;
+        m_InputSystemActions.Player.Move.performed += ctx => MoveInput = ctx.ReadValue<Vector2>();
+        m_InputSystemActions.Player.Move.canceled += _ => MoveInput = Vector2.zero;
 
-        _inputSystemActions.Player.Look.performed += ctx => lookInput = ctx.ReadValue<Vector2>();
-        _inputSystemActions.Player.Look.canceled += _ => lookInput = Vector2.zero;
+        m_InputSystemActions.Player.Look.performed += ctx => LookInput = ctx.ReadValue<Vector2>();
+        m_InputSystemActions.Player.Look.canceled += _ => LookInput = Vector2.zero;
 
-        _inputSystemActions.Player.Jump.performed += _ => jumpPressed = true;
+        m_InputSystemActions.Player.Jump.performed += _ => JumpPressed = true;
         
-        _inputSystemActions.Player.Sprint.performed += _ => isSprinting = true;
-        _inputSystemActions.Player.Sprint.canceled += _ => isSprinting = false;
+        m_InputSystemActions.Player.Sprint.performed += _ => IsSprinting = true;
+        m_InputSystemActions.Player.Sprint.canceled += _ => IsSprinting = false;
+        
+        m_InputSystemActions.Player.Attack.performed += _ => AttackPressed = true;
+        m_InputSystemActions.Player.Attack.canceled += _ => AttackPressed = false;
     }
 
-    private void OnEnable() => _inputSystemActions.Enable();
-    private void OnDisable() => _inputSystemActions.Disable();
+    private void OnEnable() => m_InputSystemActions.Enable();
+    private void OnDisable() => m_InputSystemActions.Disable();
 
-    public void ResetJump() => jumpPressed = false;
+    public void ResetJump() => JumpPressed = false;
 }

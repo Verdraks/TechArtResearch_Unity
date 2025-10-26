@@ -29,6 +29,7 @@ Shader "Custom/SH_TexturePainter"
             {
                 float4 positionOS : POSITION;
                 float2 uv : TEXCOORD0;
+                float2 uvLightmap : TEXCOORD1;
             };
 
             struct Varyings
@@ -57,8 +58,8 @@ Shader "Custom/SH_TexturePainter"
 
                 float4 uvHCS = float4(0,0,0,1);
 
-                uvHCS.xy = float2(1.0,_ProjectionParams.x) * (IN.uv * float2(2.0,2.0) - float2(1.0,1.0));
-                
+                uvHCS.xy = float2(1.0,_ProjectionParams.x) * (IN.uvLightmap * float2(2.0,2.0) - float2(1.0,1.0));
+
                 OUT.positionHCS = uvHCS;
                 
                 OUT.uv = IN.uv;
@@ -67,17 +68,18 @@ Shader "Custom/SH_TexturePainter"
             }
 
 
-            float mask(float3 p, float3 center, float radius)
+            float mask(float3 p, float3 center, float radius, float hardness)
             {
                 float m = distance(p, center);
-                return smoothstep(radius, radius * 0.5, m);
+                return 1-smoothstep(radius * hardness, radius , m);
             }
             
             half4 frag(Varyings IN) : SV_Target
             {
                 float4 col = SAMPLE_TEXTURE2D(_MainTex,sampler_MainTex, IN.uv);
-                float m = mask(IN.positonWS, _PainterPosition, _Radius);
-                return lerp(col, _PainterColor, m);
+                float m = mask(IN.positonWS, _PainterPosition, _Radius, _Hardness);
+                float edge = m * _Strength;
+                return lerp(col, _PainterColor, edge);
             }
             
             ENDHLSL
