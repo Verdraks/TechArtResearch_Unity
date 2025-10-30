@@ -21,11 +21,14 @@ public class ParticlePainter : MonoBehaviour
     private void OnParticleCollision(GameObject other)
     {
         if (!other.TryGetComponent(out Paintable paintable)) return;
+        
         int particleCollisionCount = m_ParticleSystem.GetCollisionEvents(other, m_CollisionEvents);
-
+        
         for (int i = 0; i < particleCollisionCount; i++)
         {
             Vector3 posHit = m_CollisionEvents[i].intersection;
+            Debug.Log(posHit.ToString());
+            
                 
             PainterManager.PainterSettings settings = new()
             {
