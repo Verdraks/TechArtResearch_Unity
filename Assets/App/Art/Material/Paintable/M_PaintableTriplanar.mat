@@ -118,7 +118,7 @@ Material:
     - _MaskMetallic: 0
     - _MaskSmoothness: 1
     - _Metallic: 0
-    - _NoiseScale: 10
+    - _NoiseScale: 5
     - _NormalStrength: 0.3
     - _OcclusionStrength: 1
     - _Parallax: 0.005
