@@ -7,5 +7,6 @@ struct MetaballData
 {
     float3 Position;
     float Radius;
+    bool Alive;
 };
 #endif

@@ -1,10 +1,8 @@
-using System;
 using System.Runtime.InteropServices;
-using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.VFX;
 
-[ExecuteInEditMode]
+[ExecuteAlways]
 public class MetaballVisualBinder : MonoBehaviour
 {
     private static readonly int s_MetaballDataBufferMatProp = Shader.PropertyToID("_MetaballsDataBuffer");
@@ -66,5 +64,6 @@ public class MetaballVisualBinder : MonoBehaviour
     {
         public Vector3 Position;
         public float Radius;
+        public bool Alive;
     }
 }
