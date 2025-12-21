@@ -3,12 +3,10 @@ using UnityEngine;
 using UnityEngine.VFX;
 
 [ExecuteAlways]
-public class MetaballVisualBinder : MonoBehaviour
+public class MetaballVisualEffectBinder : MonoBehaviour
 {
-    private static readonly int s_MetaballDataBufferMatProp = Shader.PropertyToID("_MetaballsDataBuffer");
     private static readonly int s_MetaballDataBufferVfxProp = Shader.PropertyToID("MetaballsDataBuffer");
-    private static readonly int s_MetaballsCountMatProp = Shader.PropertyToID("_MetaballsCount");
-
+    
     [Header("Settings")]
     [SerializeField] private int m_MaxParticles = 10;
     
@@ -28,7 +26,7 @@ public class MetaballVisualBinder : MonoBehaviour
 
     private void OnEnable()
     {
-        m_Buffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, m_MaxParticles, Marshal.SizeOf(typeof(MetaballData)));
+        m_Buffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, m_MaxParticles, Marshal.SizeOf(typeof(MetaballDataConstant.MetaballData)));
         if (m_TargetRenderer && m_MatMetaball)
         {
             m_MaterialInstance = new Material(m_MatMetaball)
@@ -37,8 +35,8 @@ public class MetaballVisualBinder : MonoBehaviour
             };
             m_TargetRenderer.material = m_MaterialInstance;
             
-            m_MaterialInstance.SetBuffer(s_MetaballDataBufferMatProp, m_Buffer);
-            m_MaterialInstance.SetInt(s_MetaballsCountMatProp, m_MaxParticles);
+            m_MaterialInstance.SetBuffer(MetaballDataConstant.S_MetaballDataBufferMat, m_Buffer);
+            m_MaterialInstance.SetInt(MetaballDataConstant.S_MetaballCountMat, m_MaxParticles);
         }
         if (m_VFXMetaball)
         {
@@ -57,13 +55,5 @@ public class MetaballVisualBinder : MonoBehaviour
             Destroy(m_MaterialInstance);
             #endif
         }
-    }
-
-    [VFXType(VFXTypeAttribute.Usage.GraphicsBuffer), StructLayout(LayoutKind.Sequential)]
-    private struct MetaballData
-    {
-        public Vector3 Position;
-        public float Radius;
-        public uint Alive;
     }
 }

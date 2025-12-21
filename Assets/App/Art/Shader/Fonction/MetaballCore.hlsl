@@ -3,8 +3,8 @@
 
 #include "MetaballData.hlsl"
 
-StructuredBuffer<MetaballData> _MetaballsDataBuffer;
-int _MetaballsCount;
+StructuredBuffer<MetaballData> _MetaballDataBuffer;
+int _MetaballCount;
 
 float Smin_float(float a, float b, float k)
 {
@@ -24,12 +24,10 @@ float SdfSphere_float(float3 p, float3 center, float radius)
 float SdfMap_float(float3 p,float k)
 {
     float d = 1e9;
-    for (int i = 0; i < _MetaballsCount; i++)
+    for (int i = 0; i < _MetaballCount; i++)
     {
-        if (!_MetaballsDataBuffer[i].Alive) continue;
-        
-        float3 center = _MetaballsDataBuffer[i].Position;
-        float radius = _MetaballsDataBuffer[i].Radius;
+        float3 center = _MetaballDataBuffer[i].Position;
+        float radius = _MetaballDataBuffer[i].Radius;
         float di = SdfSphere_float(p, center, radius);
 
         float kScaled = max(k * radius, 1e-6);

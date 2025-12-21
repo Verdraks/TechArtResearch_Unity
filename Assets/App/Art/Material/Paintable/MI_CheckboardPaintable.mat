@@ -31,7 +31,7 @@ Material:
     m_Ints: []
     m_Floats:
     - _BaseMetallic: 0
-    - _BaseSmoothness: 0.459
+    - _BaseSmoothness: 0
     - _NormalStrenght: 0.3
     - _ThreasholdScale: 0.3
     - _TriplanarBlend: 1
