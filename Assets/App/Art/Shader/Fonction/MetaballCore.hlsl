@@ -6,11 +6,13 @@
 StructuredBuffer<MetaballData> _MetaballsDataBuffer;
 int _MetaballsCount;
 
-float Smin_float(float d1, float d2, float k)
+float Smin_float(float a, float b, float k)
 {
-    k = max(k, 1e-6);
-    float h = saturate(0.5 + 0.5 * ( d2- d1) / k);
-    return lerp(d2, d1, h) - k * h * (1.0 - h);
+    k *= 1.0 / (1.0 - sqrt(0.5));
+    float h = max(k - abs(a - b), 0.0) / k;
+    const float b2 = 13.0 / 4.0 - 4.0 * sqrt(0.5);
+    const float b3 = 3.0 / 4.0 - 1.0 * sqrt(0.5);
+    return min(a, b) - k * h * h * (h * b3 * (h - 4.0) + b2);
     
 }
 

@@ -350,10 +350,10 @@
         "m_Expanded": true,
         "m_Position": {
             "serializedVersion": "2",
-            "x": -685.6000366210938,
-            "y": 344.0000305175781,
-            "width": 116.800048828125,
-            "height": 33.600006103515628
+            "x": -659.0,
+            "y": 289.0,
+            "width": 116.0,
+            "height": 34.0
         }
     },
     "m_Slots": [
@@ -657,18 +657,6 @@
     },
     "m_Slots": [
         {
-            "m_Id": "486498fd58064f59830be8ee551935fe"
-        },
-        {
-            "m_Id": "c3e263a53f6b41bba1e4a002dda6b5fb"
-        },
-        {
-            "m_Id": "c9d42eba27534e0b912ceffb53421272"
-        },
-        {
-            "m_Id": "6f6d69d9dd794155beb7d8c990d2cc2e"
-        },
-        {
             "m_Id": "7976af72a77745b1989cedd466c9bebc"
         },
         {
@@ -679,6 +667,18 @@
         },
         {
             "m_Id": "bbf6e229766942bfaae44996f2fbc1fe"
+        },
+        {
+            "m_Id": "486498fd58064f59830be8ee551935fe"
+        },
+        {
+            "m_Id": "c3e263a53f6b41bba1e4a002dda6b5fb"
+        },
+        {
+            "m_Id": "c9d42eba27534e0b912ceffb53421272"
+        },
+        {
+            "m_Id": "6f6d69d9dd794155beb7d8c990d2cc2e"
         }
     ],
     "synonyms": [

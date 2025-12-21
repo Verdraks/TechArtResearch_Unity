@@ -64,6 +64,6 @@ public class MetaballVisualBinder : MonoBehaviour
     {
         public Vector3 Position;
         public float Radius;
-        public bool Alive;
+        public uint Alive;
     }
 }
