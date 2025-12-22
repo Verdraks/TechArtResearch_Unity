@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 56e2f07cff585624e90f808c5839ddc0, type: 3}
   m_Name: SSO_PaintableConfigHigh
   m_EditorClassIdentifier: Assembly-CSharp::SSO_PaintableConfig
-  TextureSize: 1024
-  FilterMode: 2
+  TextureSize: 2048
+  AntiAliasing: 2
+  FilterMode: 1
   WrapMode: 1

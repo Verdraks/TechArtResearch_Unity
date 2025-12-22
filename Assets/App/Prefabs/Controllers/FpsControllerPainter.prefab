@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 7651797987158489109}
   - component: {fileID: 3850273931363533499}
   m_Layer: 0
-  m_Name: Painter_PlayerController
+  m_Name: FpsControllerPainter
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

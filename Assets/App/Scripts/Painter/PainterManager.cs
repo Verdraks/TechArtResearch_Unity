@@ -89,7 +89,7 @@ public class PainterManager : MonoBehaviour
         m_PainterMaterial.SetFloat(s_PrepareUvIslandsIdShader, 0);
         
         m_CmdPaint.SetRenderTarget(target.Mask);
-        m_CmdPaint.DrawRenderer(target.Renderer, m_PainterMaterial,0,-1);
+        m_CmdPaint.DrawRenderer(target.Renderer, m_PainterMaterial,0,0);
         
         m_CmdPaint.SetRenderTarget(target.Support);
         m_CmdPaint.Blit(target.Mask, target.Support);

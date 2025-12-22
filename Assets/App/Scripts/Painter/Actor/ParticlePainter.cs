@@ -20,8 +20,6 @@ public class ParticlePainter : MonoBehaviour
     private readonly List<ParticleCollisionEvent> m_CollisionEvents = new();
     private void OnParticleCollision(GameObject other)
     {
-        Debug.Log("Particle Collision with " + other.name);
-        
         if (!other.TryGetComponent(out Paintable paintable)) return;
         
         int particleCollisionCount = m_ParticleSystem.GetCollisionEvents(other, m_CollisionEvents);

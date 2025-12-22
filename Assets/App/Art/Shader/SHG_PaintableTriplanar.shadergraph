@@ -251,6 +251,20 @@
         {
             "m_OutputSlot": {
                 "m_Node": {
+                    "m_Id": "2c52ae83ac5b44759cc50e354526990b"
+                },
+                "m_SlotId": 3
+            },
+            "m_InputSlot": {
+                "m_Node": {
+                    "m_Id": "5411b892a5614d35945c98ce0a05216d"
+                },
+                "m_SlotId": 0
+            }
+        },
+        {
+            "m_OutputSlot": {
+                "m_Node": {
                     "m_Id": "3f0c9404a65243468216d1e7d9359b53"
                 },
                 "m_SlotId": 0
@@ -482,20 +496,6 @@
             "m_InputSlot": {
                 "m_Node": {
                     "m_Id": "2c52ae83ac5b44759cc50e354526990b"
-                },
-                "m_SlotId": 0
-            }
-        },
-        {
-            "m_OutputSlot": {
-                "m_Node": {
-                    "m_Id": "b02f43e427924f9a981882e2ebdcfe79"
-                },
-                "m_SlotId": 0
-            },
-            "m_InputSlot": {
-                "m_Node": {
-                    "m_Id": "5411b892a5614d35945c98ce0a05216d"
                 },
                 "m_SlotId": 0
             }
@@ -803,8 +803,8 @@
     "m_ObjectId": "139f17f23f1e406f8fe9c05010df1a71",
     "m_Title": "Smoothness & Metallic",
     "m_Position": {
-        "x": -594.9998779296875,
-        "y": -257.0000305175781
+        "x": -595.0,
+        "y": -257.00006103515627
     }
 }
 
@@ -1870,8 +1870,8 @@
     "m_ObjectId": "69fe61b4d59147418e830abb63497e07",
     "m_Title": "Normal",
     "m_Position": {
-        "x": -1687.9998779296875,
-        "y": 442.0
+        "x": -1688.0001220703125,
+        "y": 442.0001220703125
     }
 }
 
@@ -2829,8 +2829,8 @@
     "m_ObjectId": "ba39a5e374af4feca5c07cf808abba1a",
     "m_Title": "Base Color",
     "m_Position": {
-        "x": -2222.999755859375,
-        "y": -565.0
+        "x": -2223.000244140625,
+        "y": -565.0000610351563
     }
 }
 

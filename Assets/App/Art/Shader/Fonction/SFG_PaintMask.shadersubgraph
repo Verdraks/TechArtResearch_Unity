@@ -2017,10 +2017,10 @@
         "m_Expanded": true,
         "m_Position": {
             "serializedVersion": "2",
-            "x": -2150.322998046875,
-            "y": -149.55877685546876,
-            "width": 0.0,
-            "height": 0.0
+            "x": -2198.0,
+            "y": 287.9999694824219,
+            "width": 153.0,
+            "height": 173.0
         }
     },
     "m_Slots": [

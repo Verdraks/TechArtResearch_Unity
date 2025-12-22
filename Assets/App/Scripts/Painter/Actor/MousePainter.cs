@@ -10,30 +10,32 @@ public class MousePainter : MonoBehaviour
     [SerializeField, Range(0f, 1f)] private float m_Hardness = 0.5f;
     [SerializeField, Range(0f, 1f)] private float m_Strength = 1f;
     
+    
+    [Header("References")]
+    [SerializeField] private Camera m_Camera;
+    
     [Header("Output")]
     [SerializeField] private RSE_Paint m_Paint;
     
     private void Update()
     {
-        if (CanPaint())
+        if (!CanPaint()) return;
+        Ray ray = m_Camera.ScreenPointToRay(Input.mousePosition);
+        if (Physics.Raycast(ray, out RaycastHit hit))
         {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(ray, out RaycastHit hit))
-            {
                 
-                if (hit.collider.TryGetComponent(out Paintable paintable))
+            if (hit.collider.TryGetComponent(out Paintable paintable))
+            {
+                PainterManager.PainterSettings settings = new ()
                 {
-                    PainterManager.PainterSettings settings = new ()
-                    {
-                        Color = m_Color,
-                        Position = hit.point,
-                        Radius = m_Radius,
-                        Hardness = m_Hardness,
-                        Strength = m_Strength
-                    };
+                    Color = m_Color,
+                    Position = hit.point,
+                    Radius = m_Radius,
+                    Hardness = m_Hardness,
+                    Strength = m_Strength
+                };
                     
-                    m_Paint.Call(paintable.GetData(), settings);
-                }
+                m_Paint.Call(paintable.GetData(), settings);
             }
         }
     }

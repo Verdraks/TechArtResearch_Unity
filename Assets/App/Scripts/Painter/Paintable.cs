@@ -34,7 +34,8 @@ public class Paintable : MonoBehaviour
         {
             filterMode = m_Config.FilterMode,
             name = $"Mask Render Texture: {gameObject.name}",
-            wrapMode = m_Config.WrapMode
+            wrapMode = m_Config.WrapMode,
+            antiAliasing = m_Config.AntiAliasing
         };
         m_MaskRenderTexture.Create();
         
