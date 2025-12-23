@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: SSO_PaintableConfigHigh
   m_EditorClassIdentifier: Assembly-CSharp::SSO_PaintableConfig
   TextureSize: 2048
-  AntiAliasing: 2
+  AntiAliasing: 1
   FilterMode: 1
   WrapMode: 1

@@ -30,7 +30,8 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _BaseSmoothness: 0
+    - _BaseMetallic: 0
+    - _BaseSmoothness: 1
     - _TriplanarBlend: 1
     m_Colors: []
   m_BuildTextureStacks: []

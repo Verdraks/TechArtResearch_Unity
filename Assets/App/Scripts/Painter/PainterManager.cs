@@ -7,8 +7,6 @@ public class PainterManager : MonoBehaviour
     
     [Header("Settings")]
     [SerializeField] private bool m_IsVerbose;
-    [SerializeField] private float m_RefreshRate = 0.1f;
-    [SerializeField, Min(0)] private float m_UvOffset = 1.0f;
     
     [Header("References")]
     [SerializeField] private Shader m_PainterShader;
@@ -91,33 +89,10 @@ public class PainterManager : MonoBehaviour
         m_CmdPaint.SetRenderTarget(target.Mask);
         m_CmdPaint.DrawRenderer(target.Renderer, m_PainterMaterial,0,0);
         
-        m_CmdPaint.SetRenderTarget(target.Support);
         m_CmdPaint.Blit(target.Mask, target.Support);
         
         Graphics.ExecuteCommandBuffer(m_CmdPaint);
         m_CmdPaint.Clear();
-    }
-
-    private void LateUpdate()
-    {
-        // RefreshCmdPaint();
-    }
-
-    /// <summary>
-    /// Execute the command buffer at a fixed refresh rate to optimize performance.
-    /// </summary>
-    private void RefreshCmdPaint()
-    {
-        if (m_TimeSinceLastExecutionCmd >= m_RefreshRate)
-        {
-            Graphics.ExecuteCommandBuffer(m_CmdPaint);
-            m_CmdPaint.Clear();
-            m_TimeSinceLastExecutionCmd = 0f;
-        }
-        else
-        {
-            m_TimeSinceLastExecutionCmd += Time.deltaTime;
-        }
     }
     
     public struct PainterSettings

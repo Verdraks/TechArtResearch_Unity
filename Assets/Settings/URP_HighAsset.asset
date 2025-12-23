@@ -25,7 +25,7 @@ MonoBehaviour:
   m_SupportsTerrainHoles: 0
   m_SupportsHDR: 1
   m_HDRColorBufferPrecision: 0
-  m_MSAA: 8
+  m_MSAA: 2
   m_RenderScale: 1
   m_UpscalingFilter: 0
   m_FsrOverrideSharpness: 0
@@ -55,13 +55,13 @@ MonoBehaviour:
   m_ReflectionProbeBoxProjection: 1
   m_ReflectionProbeAtlas: 1
   m_ShadowDistance: 100
-  m_ShadowCascadeCount: 3
+  m_ShadowCascadeCount: 4
   m_Cascade2Split: 0.25
   m_Cascade3Split: {x: 0.14622276, y: 0.54652816}
-  m_Cascade4Split: {x: 0.105166666, y: 0.2926, z: 0.53599995}
-  m_CascadeBorder: 0.39946267
+  m_Cascade4Split: {x: 0.12531056, y: 0.29547784, z: 0.50146765}
+  m_CascadeBorder: 0.22132492
   m_ShadowDepthBias: 0.1
-  m_ShadowNormalBias: 0.1
+  m_ShadowNormalBias: 0.2
   m_AnyShadowsSupported: 1
   m_SoftShadowsSupported: 1
   m_ConservativeEnclosingSphere: 1
@@ -92,7 +92,7 @@ MonoBehaviour:
   m_MaxPixelLights: 0
   m_ShadowAtlasResolution: 256
   m_VolumeFrameworkUpdateMode: 0
-  m_VolumeProfile: {fileID: 11400000, guid: 90a4f559bbc49be4194a532203d585c0, type: 2}
+  m_VolumeProfile: {fileID: 0}
   apvScenesData:
     obsoleteSceneBounds:
       m_Keys: []

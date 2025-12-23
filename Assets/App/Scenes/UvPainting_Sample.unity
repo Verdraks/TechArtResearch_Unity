@@ -93,7 +93,7 @@ LightmapSettings:
     m_ExportTrainingData: 0
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
-  m_LightingDataAsset: {fileID: 0}
+  m_LightingDataAsset: {fileID: 112000000, guid: 1c9de30058b5d2c43a7fe8ec04c15d5f, type: 2}
   m_LightingSettings: {fileID: 0}
 --- !u!196 &4
 NavMeshSettings:
@@ -386,7 +386,7 @@ GameObject:
   - component: {fileID: 76769813}
   - component: {fileID: 76769815}
   - component: {fileID: 76769814}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Quad (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -402,7 +402,7 @@ Transform:
   m_GameObject: {fileID: 76769812}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 5, z: 5}
+  m_LocalPosition: {x: 0, y: 5, z: 4}
   m_LocalScale: {x: 10, y: 10, z: 0.2}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -429,7 +429,7 @@ MeshCollider:
   serializedVersion: 5
   m_Convex: 1
   m_CookingOptions: 30
-  m_Mesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!33 &76769815
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -519,7 +519,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Paintable
   m_Config: {fileID: 11400000, guid: eafdcd786ac6f15448d1e1532465e969, type: 2}
-  m_Renderer: {fileID: 985644528}
+  m_Renderer: {fileID: 115061124}
   m_SetupPaintable: {fileID: 11400000, guid: a1333f880c4c94e4f806428a2878f853, type: 2}
 --- !u!64 &115061123
 MeshCollider:
@@ -542,7 +542,7 @@ MeshCollider:
   serializedVersion: 5
   m_Convex: 1
   m_CookingOptions: 30
-  m_Mesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!23 &115061124
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -668,9 +668,9 @@ MeshCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 5
-  m_Convex: 0
+  m_Convex: 1
   m_CookingOptions: 30
-  m_Mesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!23 &161263791
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -988,9 +988,9 @@ MeshCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 5
-  m_Convex: 0
+  m_Convex: 1
   m_CookingOptions: 30
-  m_Mesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!23 &375037944
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1224,6 +1224,7 @@ GameObject:
   - component: {fileID: 555694475}
   - component: {fileID: 555694474}
   - component: {fileID: 555694473}
+  - component: {fileID: 555694478}
   m_Layer: 0
   m_Name: Sphere_Blue
   m_TagString: Untagged
@@ -1260,7 +1261,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CollisionPainter
   m_Color: {r: 0.34901962, g: 0.65882355, b: 0.8862745, a: 1}
   m_Radius: 1
-  m_Hardness: 0.5
+  m_Hardness: 1
   m_Strength: 1
   m_Paint: {fileID: 11400000, guid: 78e7a88c7f32edd4786e6a9161e3f533, type: 2}
 --- !u!54 &555694474
@@ -1367,6 +1368,21 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 555694471}
   m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &555694478
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 555694471}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4247eef89c5017c4abc165d2d937dcec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RigidbodyRandomPilot
+  m_ForceMode: 1
+  m_Force: 5
+  m_Rb: {fileID: 0}
 --- !u!1 &588874411
 GameObject:
   m_ObjectHideFlags: 0
@@ -1674,6 +1690,7 @@ GameObject:
   - component: {fileID: 1034185229}
   - component: {fileID: 1034185228}
   - component: {fileID: 1034185227}
+  - component: {fileID: 1034185232}
   m_Layer: 0
   m_Name: Sphere_Red
   m_TagString: Untagged
@@ -1817,6 +1834,21 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1034185225}
   m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1034185232
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1034185225}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4247eef89c5017c4abc165d2d937dcec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RigidbodyRandomPilot
+  m_ForceMode: 1
+  m_Force: 5
+  m_Rb: {fileID: 0}
 --- !u!1 &1112877783
 GameObject:
   m_ObjectHideFlags: 0
@@ -1862,8 +1894,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PainterManager
   m_IsVerbose: 1
-  m_RefreshRate: 0.1
-  m_UvOffset: 1
   m_PainterShader: {fileID: 4800000, guid: 4837b400ab5c5b146b8ba4eecbd37eef, type: 3}
   m_SetupPaintable: {fileID: 11400000, guid: a1333f880c4c94e4f806428a2878f853, type: 2}
   m_Paint: {fileID: 11400000, guid: 78e7a88c7f32edd4786e6a9161e3f533, type: 2}
@@ -1915,7 +1945,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Paintable
   m_Config: {fileID: 11400000, guid: eafdcd786ac6f15448d1e1532465e969, type: 2}
-  m_Renderer: {fileID: 985644528}
+  m_Renderer: {fileID: 1153184736}
   m_SetupPaintable: {fileID: 11400000, guid: a1333f880c4c94e4f806428a2878f853, type: 2}
 --- !u!64 &1153184735
 MeshCollider:
@@ -1938,7 +1968,7 @@ MeshCollider:
   serializedVersion: 5
   m_Convex: 1
   m_CookingOptions: 30
-  m_Mesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!23 &1153184736
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -2172,6 +2202,7 @@ GameObject:
   - component: {fileID: 1361570086}
   - component: {fileID: 1361570085}
   - component: {fileID: 1361570084}
+  - component: {fileID: 1361570089}
   m_Layer: 0
   m_Name: Sphere_Yellow
   m_TagString: Untagged
@@ -2315,6 +2346,21 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1361570082}
   m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1361570089
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1361570082}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4247eef89c5017c4abc165d2d937dcec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RigidbodyRandomPilot
+  m_ForceMode: 1
+  m_Force: 5
+  m_Rb: {fileID: 0}
 --- !u!1 &1399596077
 GameObject:
   m_ObjectHideFlags: 0
@@ -2451,9 +2497,9 @@ MeshCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 5
-  m_Convex: 0
+  m_Convex: 1
   m_CookingOptions: 30
-  m_Mesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!23 &1520089034
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -2524,6 +2570,7 @@ GameObject:
   - component: {fileID: 1630964839}
   - component: {fileID: 1630964838}
   - component: {fileID: 1630964837}
+  - component: {fileID: 1630964842}
   m_Layer: 0
   m_Name: Sphere_Green
   m_TagString: Untagged
@@ -2667,6 +2714,21 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1630964835}
   m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1630964842
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1630964835}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4247eef89c5017c4abc165d2d937dcec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RigidbodyRandomPilot
+  m_ForceMode: 1
+  m_Force: 5
+  m_Rb: {fileID: 0}
 --- !u!1 &1651135828
 GameObject:
   m_ObjectHideFlags: 0
@@ -2929,7 +2991,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Paintable
   m_Config: {fileID: 11400000, guid: eafdcd786ac6f15448d1e1532465e969, type: 2}
-  m_Renderer: {fileID: 985644528}
+  m_Renderer: {fileID: 1789804572}
   m_SetupPaintable: {fileID: 11400000, guid: a1333f880c4c94e4f806428a2878f853, type: 2}
 --- !u!64 &1789804571
 MeshCollider:
@@ -2952,7 +3014,7 @@ MeshCollider:
   serializedVersion: 5
   m_Convex: 1
   m_CookingOptions: 30
-  m_Mesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!23 &1789804572
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -3058,11 +3120,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1959591051895040976, guid: dcc9b4f88b3251844a48c09be9255c05, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 8.21
+      value: 10.59
       objectReference: {fileID: 0}
     - target: {fileID: 1959591051895040976, guid: dcc9b4f88b3251844a48c09be9255c05, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 12.53
+      value: 14.58
       objectReference: {fileID: 0}
     - target: {fileID: 1959591051895040976, guid: dcc9b4f88b3251844a48c09be9255c05, type: 3}
       propertyPath: m_LocalRotation.w
@@ -3074,15 +3136,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1959591051895040976, guid: dcc9b4f88b3251844a48c09be9255c05, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0.9883595
+      value: -0.972929
       objectReference: {fileID: 0}
     - target: {fileID: 1959591051895040976, guid: dcc9b4f88b3251844a48c09be9255c05, type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0.15213656
+      value: 0.23110431
       objectReference: {fileID: 0}
     - target: {fileID: 1959591051895040976, guid: dcc9b4f88b3251844a48c09be9255c05, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
-      value: 17.502
+      value: 26.724
       objectReference: {fileID: 0}
     - target: {fileID: 1959591051895040976, guid: dcc9b4f88b3251844a48c09be9255c05, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
@@ -3124,17 +3186,13 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.x
       value: 6.842
       objectReference: {fileID: 0}
-    - target: {fileID: 5272738671486087503, guid: dcc9b4f88b3251844a48c09be9255c05, type: 3}
-      propertyPath: m_Dithering
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 8194259250218973761, guid: dcc9b4f88b3251844a48c09be9255c05, type: 3}
       propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8263849285652113840, guid: dcc9b4f88b3251844a48c09be9255c05, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

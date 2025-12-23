@@ -2,7 +2,6 @@ using UnityEngine;
 
 public class Paintable : MonoBehaviour
 {
-    
     [Header("Settings")]
     [SerializeField] private SSO_PaintableConfig m_Config;
     
@@ -13,7 +12,7 @@ public class Paintable : MonoBehaviour
     [SerializeField] private RSE_SetupPaintable m_SetupPaintable;
 
     private PaintableData m_PaintableData;
-    
+    private MaterialPropertyBlock m_MaterialPropertyBlock;
     
     //Use two different RenderTextures to avoid read/write issues
     private RenderTexture m_MaskRenderTexture;
@@ -54,8 +53,12 @@ public class Paintable : MonoBehaviour
             wrapMode = m_Config.WrapMode
         };
         m_UvIslandsRenderTexture.Create();
+        
+        m_MaterialPropertyBlock = new MaterialPropertyBlock();
+        m_MaterialPropertyBlock.SetTexture(s_MaskTextureIdShader, m_MaskRenderTexture);
+        m_Renderer.SetPropertyBlock(m_MaterialPropertyBlock);
 
-        m_Renderer.material.SetTexture(s_MaskTextureIdShader, m_MaskRenderTexture);
+        // m_Renderer.material.SetTexture(s_MaskTextureIdShader, m_MaskRenderTexture);
         
         m_PaintableData = new PaintableData
         {
@@ -80,7 +83,7 @@ public class Paintable : MonoBehaviour
         return m_PaintableData;
     }
     
-    public struct PaintableData
+    public class PaintableData
     {
         public RenderTexture Mask;
         public RenderTexture Support;

@@ -90,7 +90,7 @@ Shader "Custom/SH_TexturePainter"
                 {
                     float4 col = SAMPLE_TEXTURE2D(_MainTex,sampler_MainTex, IN.uv);
                     float m = mask(IN.positonWS, _PainterPosition, _Radius, _Hardness);
-                    float edge = saturate(m * _Strength);
+                    float edge = m * _Strength;
                     return lerp(col, _PainterColor, edge);
                 }
             }
