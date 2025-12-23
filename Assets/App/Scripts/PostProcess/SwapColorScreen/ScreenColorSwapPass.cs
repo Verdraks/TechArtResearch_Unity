@@ -6,8 +6,8 @@ using UnityEngine.Rendering.Universal;
 
 public class ScreenColorSwapPass : ScriptableRenderPass
 {
-    private ComputeShader _computeShaderEffect;
-    private const string PassName = "ScreenColorSwapPass";
+    private ComputeShader m_ComputeShaderEffect;
+    private const string k_PassName = "ScreenColorSwapPass";
     
     class PassDataCompute
     {
@@ -25,7 +25,7 @@ public class ScreenColorSwapPass : ScriptableRenderPass
 
     public void Setup(ComputeShader computeShader)
     {
-        _computeShaderEffect = computeShader;
+        m_ComputeShaderEffect = computeShader;
     }
     
     
@@ -60,14 +60,14 @@ public class ScreenColorSwapPass : ScriptableRenderPass
         var sourceTextureModified = renderGraph.CreateTexture(descSourceTexture);
         
         //Compute Pass => Use for perform any compute operations
-        using (var builder = renderGraph.AddComputePass(PassName + "_Compute",out PassDataCompute passData))
+        using (var builder = renderGraph.AddComputePass(k_PassName + "_Compute",out PassDataCompute passData))
         {
             builder.UseTexture(cameraTextureTarget, AccessFlags.Read);
             builder.UseTexture(sourceTextureModified, AccessFlags.Write);
             
             passData.Source = cameraTextureTarget;
             passData.SourceModified = sourceTextureModified;
-            passData.ComputeShader = _computeShaderEffect;
+            passData.ComputeShader = m_ComputeShaderEffect;
             passData.DispatchSize = new Vector2Int(
                 Mathf.CeilToInt(descSourceTexture.width),
                 Mathf.CeilToInt(descSourceTexture.height));
@@ -78,7 +78,7 @@ public class ScreenColorSwapPass : ScriptableRenderPass
         }
         
         //Raster Pass => Use for perform any raster operations (post-processing, etc.)
-        using (var builder = renderGraph.AddRasterRenderPass(PassName + "_Raster", out PassDataRaster passDataRaster))
+        using (var builder = renderGraph.AddRasterRenderPass(k_PassName + "_Raster", out PassDataRaster passDataRaster))
         {
             builder.UseTexture(sourceTextureModified, AccessFlags.Read);
             

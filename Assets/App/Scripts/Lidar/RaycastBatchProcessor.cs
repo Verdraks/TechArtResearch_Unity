@@ -5,21 +5,21 @@ using UnityEngine;
 
 public class RaycastBatchProcessor : MonoBehaviour
 {
-    public static RaycastBatchProcessor instance { get; private set; }
+    public static RaycastBatchProcessor Instance { get; private set; }
     
     
-    private const int MaxRaycastBatch = 100000;
-    private const int MaxHitsPerRaycast = 1;
+    private const int k_MaxRaycastBatch = 100000;
+    private const int k_MaxHitsPerRaycast = 1;
 
-    NativeArray<RaycastCommand> _raycastCommands;
-    NativeArray<RaycastHit> _raycastHits;
+    NativeArray<RaycastCommand> m_RaycastCommands;
+    NativeArray<RaycastHit> m_RaycastHits;
     
 
     private void Awake()
     {
-        if (instance == null)
+        if (Instance == null)
         {
-            instance = this;
+            Instance = this;
         }
         else
         {
@@ -29,7 +29,7 @@ public class RaycastBatchProcessor : MonoBehaviour
     
     public void PerformRaycast(RaycastCommandData raycastCommandData , Action<RaycastHit[]> callbacks)
     {
-        int rayCount = Math.Min(raycastCommandData.Origin.Length, MaxRaycastBatch);
+        int rayCount = Math.Min(raycastCommandData.Origin.Length, k_MaxRaycastBatch);
         QueryParameters queryParameters = new QueryParameters
         {
             layerMask = raycastCommandData.LayerMask,
@@ -38,29 +38,29 @@ public class RaycastBatchProcessor : MonoBehaviour
             hitBackfaces = false
         };
 
-        using (_raycastCommands = new NativeArray<RaycastCommand>(rayCount, Allocator.TempJob))
+        using (m_RaycastCommands = new NativeArray<RaycastCommand>(rayCount, Allocator.TempJob))
         {
             for (int i = 0; i < rayCount; i++)
             {
-                _raycastCommands[i] =  new RaycastCommand(raycastCommandData.Origin[i], raycastCommandData.Direction[i] , queryParameters,raycastCommandData.MaxDistance);
+                m_RaycastCommands[i] =  new RaycastCommand(raycastCommandData.Origin[i], raycastCommandData.Direction[i] , queryParameters,raycastCommandData.MaxDistance);
             }
             
-            ExecuteRaycast(_raycastCommands, callbacks);
+            ExecuteRaycast(m_RaycastCommands, callbacks);
         }
     }
 
     private void ExecuteRaycast(NativeArray<RaycastCommand> raycastCommands,Action<RaycastHit[]> callbacks)
     {
-        using (_raycastHits = new NativeArray<RaycastHit>(raycastCommands.Length, Allocator.TempJob))
+        using (m_RaycastHits = new NativeArray<RaycastHit>(raycastCommands.Length, Allocator.TempJob))
         {
             
-            JobHandle jobHandle = RaycastCommand.ScheduleBatch(raycastCommands, _raycastHits, (int)(_raycastCommands.Length * 25f / 100f) ,MaxHitsPerRaycast);
+            JobHandle jobHandle = RaycastCommand.ScheduleBatch(raycastCommands, m_RaycastHits, (int)(m_RaycastCommands.Length * 25f / 100f) ,k_MaxHitsPerRaycast);
             
             jobHandle.Complete();
 
-            if (_raycastHits.Length > 0)
+            if (m_RaycastHits.Length > 0)
             {
-                var hits = _raycastHits.ToArray();
+                var hits = m_RaycastHits.ToArray();
                 
                 callbacks?.Invoke(hits);
             }

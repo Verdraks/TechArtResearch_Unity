@@ -1,23 +1,26 @@
 using System.Runtime.InteropServices;
 using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class ParticleGPUCompute : MonoBehaviour
 {
-    private static readonly int ParticlesDataProp = Shader.PropertyToID("particles_data");
-    private static readonly int ParticlesMatrixProp = Shader.PropertyToID("particles_matrix");
+    private static readonly int s_ParticlesDataProp = Shader.PropertyToID("particles_data");
+    private static readonly int s_ParticlesMatrixProp = Shader.PropertyToID("particles_matrix");
 
+    [FormerlySerializedAs("particleCount")]
     [Header("Settings")]
-    [SerializeField] private int particleCount = 1000;
+    [SerializeField] private int m_ParticleCount = 1000;
     
+    [FormerlySerializedAs("computeShader")]
     [Header("References")]
-    [SerializeField] private ComputeShader computeShader;
-    [SerializeField] private Mesh particleMesh;
-    [SerializeField] private Material particleMaterial;
+    [SerializeField] private ComputeShader m_ComputeShader;
+    [FormerlySerializedAs("particleMesh")] [SerializeField] private Mesh m_ParticleMesh;
+    [FormerlySerializedAs("particleMaterial")] [SerializeField] private Material m_ParticleMaterial;
     
-    private ComputeBuffer _particlesDataBuffer;
-    private ComputeBuffer _particlesMatrixBuffer;
-    private Matrix4x4[] _particlesMatrix;
+    private ComputeBuffer m_ParticlesDataBuffer;
+    private ComputeBuffer m_ParticlesMatrixBuffer;
+    private Matrix4x4[] m_ParticlesMatrix;
     
     private void Start()
     {
@@ -27,13 +30,13 @@ public class ParticleGPUCompute : MonoBehaviour
     private void InitializeParticles()
     {
         //Init array data buffer out for rendering
-        _particlesMatrix = new Matrix4x4[particleCount];
+        m_ParticlesMatrix = new Matrix4x4[m_ParticleCount];
         
-        _particlesDataBuffer = new ComputeBuffer(particleCount, Marshal.SizeOf<ParticleData>(), ComputeBufferType.Structured);
+        m_ParticlesDataBuffer = new ComputeBuffer(m_ParticleCount, Marshal.SizeOf<ParticleData>(), ComputeBufferType.Structured);
         //Fill initial particle data
-        var particlesData = new ParticleData[particleCount];
+        var particlesData = new ParticleData[m_ParticleCount];
         
-        float gridSize = Mathf.Sqrt(particleCount);
+        float gridSize = Mathf.Sqrt(m_ParticleCount);
         float offset = gridSize * 2.0f / 2.0f;
         
         for (int i = 0; i < gridSize; i++)
@@ -47,28 +50,28 @@ public class ParticleGPUCompute : MonoBehaviour
                 };
             }
         }
-        _particlesDataBuffer.SetData(particlesData);
-        computeShader.SetBuffer(0, ParticlesDataProp, _particlesDataBuffer);
-        computeShader.SetBuffer(1,ParticlesDataProp, _particlesDataBuffer);
+        m_ParticlesDataBuffer.SetData(particlesData);
+        m_ComputeShader.SetBuffer(0, s_ParticlesDataProp, m_ParticlesDataBuffer);
+        m_ComputeShader.SetBuffer(1,s_ParticlesDataProp, m_ParticlesDataBuffer);
         
         //Create buffer for particle matrices
-        _particlesMatrixBuffer = new ComputeBuffer(particleCount, Marshal.SizeOf<Matrix4x4>(), ComputeBufferType.Structured);
-        computeShader.SetBuffer(1, ParticlesMatrixProp, _particlesMatrixBuffer);
+        m_ParticlesMatrixBuffer = new ComputeBuffer(m_ParticleCount, Marshal.SizeOf<Matrix4x4>(), ComputeBufferType.Structured);
+        m_ComputeShader.SetBuffer(1, s_ParticlesMatrixProp, m_ParticlesMatrixBuffer);
     }
 
 
     private void Update()
     {
-        computeShader.Dispatch(0, particleCount / 16, 1, 1);
-        computeShader.Dispatch(1, particleCount / 16, 1, 1);
-        _particlesMatrixBuffer.GetData(_particlesMatrix);
-        Graphics.DrawMeshInstanced(particleMesh,0,particleMaterial, _particlesMatrix);
+        m_ComputeShader.Dispatch(0, m_ParticleCount / 16, 1, 1);
+        m_ComputeShader.Dispatch(1, m_ParticleCount / 16, 1, 1);
+        m_ParticlesMatrixBuffer.GetData(m_ParticlesMatrix);
+        Graphics.DrawMeshInstanced(m_ParticleMesh,0,m_ParticleMaterial, m_ParticlesMatrix);
     }
     
     private void OnDestroy()
     {
-        _particlesDataBuffer?.Release();
-        _particlesMatrixBuffer?.Release();
+        m_ParticlesDataBuffer?.Release();
+        m_ParticlesMatrixBuffer?.Release();
     }
 
     private struct ParticleData
