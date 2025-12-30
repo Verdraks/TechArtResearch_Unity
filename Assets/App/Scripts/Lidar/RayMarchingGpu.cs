@@ -1,18 +1,21 @@
 ﻿using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class RayMarchingGpu : MonoBehaviour
 {
+    [FormerlySerializedAs("resolution")]
     [Header("Settings")]
-    [SerializeField] private int resolution = 512;
+    [SerializeField] private int m_Resolution = 512;
     
+    [FormerlySerializedAs("renderer")]
     [Header("References")] 
-    [SerializeField] private new Renderer renderer;
-    [SerializeField] private ComputeShader computeShader;
+    [SerializeField] private new Renderer m_Renderer;
+    [FormerlySerializedAs("computeShader")] [SerializeField] private ComputeShader m_ComputeShader;
     
-    private RenderTexture _renderTexture;
-    public Texture _depthTexture;
+    private RenderTexture m_RenderTexture;
+    [FormerlySerializedAs("_depthTexture")] public Texture DepthTexture;
 
     private void Start()
     {
@@ -26,25 +29,25 @@ public class RayMarchingGpu : MonoBehaviour
     
     private void SetupRender()
     {
-        _renderTexture = new RenderTexture(resolution, resolution, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear)
+        m_RenderTexture = new RenderTexture(m_Resolution, m_Resolution, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear)
         {
             enableRandomWrite = true
         };
-        _renderTexture.Create();
+        m_RenderTexture.Create();
         
-        renderer.material.SetTexture("_BaseMap", _renderTexture);
+        m_Renderer.material.SetTexture("_BaseMap", m_RenderTexture);
     }
 
     private void DrawRender()
     {
-        computeShader.SetTexture(0,"output_texture",_renderTexture);
-        computeShader.SetTexture(0,"depth_texture", _depthTexture);
-        computeShader.Dispatch(0,resolution/16,resolution/16,1);
+        m_ComputeShader.SetTexture(0,"output_texture",m_RenderTexture);
+        m_ComputeShader.SetTexture(0,"depth_texture", DepthTexture);
+        m_ComputeShader.Dispatch(0,m_Resolution/16,m_Resolution/16,1);
     }
 
     private void FreeTextures()
     {
-        _renderTexture.Release();
+        m_RenderTexture.Release();
     }
 
     private void OnDestroy() => FreeTextures();

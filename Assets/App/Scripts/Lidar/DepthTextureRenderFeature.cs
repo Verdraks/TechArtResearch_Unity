@@ -8,16 +8,16 @@ using UnityEngine.Rendering.Universal;
 public class DepthTextureRenderFeature : ScriptableRendererFeature
 {
     
-    private ScriptableRenderPass _depthTexturePass;
+    private ScriptableRenderPass m_DepthTexturePass;
     
     public override void Create()
     {
-        _depthTexturePass = new DepthTextureCopyRenderPass();
+        m_DepthTexturePass = new DepthTextureCopyRenderPass();
     }
 
     public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
     {
-        renderer.EnqueuePass(_depthTexturePass);
+        renderer.EnqueuePass(m_DepthTexturePass);
     }
     
     private class DepthTextureCopyRenderPass : ScriptableRenderPass

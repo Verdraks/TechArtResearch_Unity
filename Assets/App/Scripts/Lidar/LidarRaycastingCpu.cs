@@ -8,59 +8,59 @@ using Random = UnityEngine.Random;
 
 public class LidarRaycastingCpu : MonoBehaviour
 {
-    private static readonly int BaseColor = Shader.PropertyToID("_BaseColor");
+    private static readonly int s_BaseColor = Shader.PropertyToID("_BaseColor");
 
     [Header("Settings")]
-    [SerializeField] private float delayLidarRaycast = 0.5f;
-    [SerializeField] private float distanceSearching = 20;
-    [SerializeField] private int density = 10;
-    [SerializeField] private int maxVisiblePoints = 1000;
-    [SerializeField] private SerializedDictionary<string, Color> colorObjectDetection;
+    [SerializeField] private float m_DelayLidarRaycast = 0.5f;
+    [SerializeField] private float m_DistanceSearching = 20;
+    [SerializeField] private int m_Density = 10;
+    [SerializeField] private int m_MaxVisiblePoints = 1000;
+    [SerializeField] private SerializedDictionary<string, Color> m_ColorObjectDetection;
     
     
     [Header("References")]
-    [SerializeField] private Mesh meshPrimitive;
-    [SerializeField] private Material materialPrimitive;
+    [SerializeField] private Mesh m_MeshPrimitive;
+    [SerializeField] private Material m_MaterialPrimitive;
 
     //Data Rendering
-    private Matrix4x4[] _matricesPointProjected;
-    private Color[] _colorsPointProjected;
+    private Matrix4x4[] m_MatricesPointProjected;
+    private Color[] m_ColorsPointProjected;
 
-    private RaycastBatchProcessor.RaycastCommandData _raycastCommandData;
+    private RaycastBatchProcessor.RaycastCommandData m_RaycastCommandData;
     
     //Internals Counters
-    private float _internalCounter;
-    private int _matricesPointProjectedIndex;
+    private float m_InternalCounter;
+    private int m_MatricesPointProjectedIndex;
     
     private void Awake()
     {
-        _matricesPointProjected = new Matrix4x4[maxVisiblePoints];
-        _colorsPointProjected = new Color[maxVisiblePoints];
-        _raycastCommandData = new RaycastBatchProcessor.RaycastCommandData
+        m_MatricesPointProjected = new Matrix4x4[m_MaxVisiblePoints];
+        m_ColorsPointProjected = new Color[m_MaxVisiblePoints];
+        m_RaycastCommandData = new RaycastBatchProcessor.RaycastCommandData
         {
-            Origin = new Vector3[maxVisiblePoints],
-            Direction = new Vector3[maxVisiblePoints],
+            Origin = new Vector3[m_MaxVisiblePoints],
+            Direction = new Vector3[m_MaxVisiblePoints],
             LayerMask = LayerMask.GetMask("Default"),
             HitTrigger = false,
-            MaxDistance = distanceSearching
+            MaxDistance = m_DistanceSearching
         };
     }
 
     private void Update()
     {
-        if (_internalCounter >= delayLidarRaycast)
+        if (m_InternalCounter >= m_DelayLidarRaycast)
         {
-            _internalCounter = 0;
+            m_InternalCounter = 0;
             CalculateLidarPoints();
         }
         
         ShowPoints();
-        _internalCounter += Time.deltaTime;
+        m_InternalCounter += Time.deltaTime;
     }
     
     private void CalculateLidarPoints()
     {
-        for (int i = 0; i < density; i++)
+        for (int i = 0; i < m_Density; i++)
         {
             var pointW = transform.rotation * Random.insideUnitCircle;
             
@@ -68,11 +68,11 @@ public class LidarRaycastingCpu : MonoBehaviour
 
             Vector3 pointEnd = pointStart + transform.forward;
             
-            _raycastCommandData.Origin[i] = pointStart;
-            _raycastCommandData.Direction[i] = (pointEnd - pointStart).normalized;
+            m_RaycastCommandData.Origin[i] = pointStart;
+            m_RaycastCommandData.Direction[i] = (pointEnd - pointStart).normalized;
         }
         
-        RaycastBatchProcessor.instance.PerformRaycast(_raycastCommandData, CollectRaycastPoint());
+        RaycastBatchProcessor.Instance.PerformRaycast(m_RaycastCommandData, CollectRaycastPoint());
     }
 
     private Action<RaycastHit[]> CollectRaycastPoint()
@@ -83,12 +83,12 @@ public class LidarRaycastingCpu : MonoBehaviour
             {
                 if (!hit.collider) continue;
                 
-                Color colorFromTag = colorObjectDetection.TryGetValue(hit.collider.tag, out var c) ? c : Color.white;
-                _colorsPointProjected[_matricesPointProjectedIndex] = colorFromTag;
+                Color colorFromTag = m_ColorObjectDetection.TryGetValue(hit.collider.tag, out Color c) ? c : Color.white;
+                m_ColorsPointProjected[m_MatricesPointProjectedIndex] = colorFromTag;
                 
-                _matricesPointProjected[_matricesPointProjectedIndex] =
+                m_MatricesPointProjected[m_MatricesPointProjectedIndex] =
                     Matrix4x4.TRS(hit.point, Quaternion.identity, Vector3.one * 0.1f);
-                _matricesPointProjectedIndex = (_matricesPointProjectedIndex + 1) % maxVisiblePoints;
+                m_MatricesPointProjectedIndex = (m_MatricesPointProjectedIndex + 1) % m_MaxVisiblePoints;
             }
         };
     }
@@ -99,10 +99,10 @@ public class LidarRaycastingCpu : MonoBehaviour
         
         
         MaterialPropertyBlock mpb = new MaterialPropertyBlock();
-        for (int i = 0; i < maxVisiblePoints; i++)
+        for (int i = 0; i < m_MaxVisiblePoints; i++)
         {
-            mpb.SetColor(BaseColor, _colorsPointProjected[i]);
-            Graphics.DrawMesh(meshPrimitive, _matricesPointProjected[i], materialPrimitive, 0, null, 0, mpb);
+            mpb.SetColor(s_BaseColor, m_ColorsPointProjected[i]);
+            Graphics.DrawMesh(m_MeshPrimitive, m_MatricesPointProjected[i], m_MaterialPrimitive, 0, null, 0, mpb);
         }
         
         // Graphics.DrawMeshInstanced(meshPrimitive, 0, materialPrimitive, _matricesPointProjected);
@@ -111,6 +111,6 @@ public class LidarRaycastingCpu : MonoBehaviour
 
     private struct PointData
     {
-        private Matrix4x4 _matrix;
+        private Matrix4x4 m_Matrix;
     }
 }

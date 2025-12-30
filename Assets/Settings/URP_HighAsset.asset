@@ -22,7 +22,7 @@ MonoBehaviour:
   m_RequireDepthTexture: 1
   m_RequireOpaqueTexture: 1
   m_OpaqueDownsampling: 1
-  m_SupportsTerrainHoles: 1
+  m_SupportsTerrainHoles: 0
   m_SupportsHDR: 1
   m_HDRColorBufferPrecision: 0
   m_MSAA: 1
@@ -47,20 +47,21 @@ MonoBehaviour:
   m_AdditionalLightsRenderingMode: 1
   m_AdditionalLightsPerObjectLimit: 4
   m_AdditionalLightShadowsSupported: 1
-  m_AdditionalLightsShadowmapResolution: 2048
+  m_AdditionalLightsShadowmapResolution: 4096
   m_AdditionalLightsShadowResolutionTierLow: 256
   m_AdditionalLightsShadowResolutionTierMedium: 512
   m_AdditionalLightsShadowResolutionTierHigh: 1024
   m_ReflectionProbeBlending: 1
   m_ReflectionProbeBoxProjection: 1
-  m_ShadowDistance: 50
+  m_ReflectionProbeAtlas: 1
+  m_ShadowDistance: 100
   m_ShadowCascadeCount: 4
   m_Cascade2Split: 0.25
-  m_Cascade3Split: {x: 0.1, y: 0.3}
-  m_Cascade4Split: {x: 0.12299999, y: 0.2926, z: 0.53599995}
-  m_CascadeBorder: 0.107758604
+  m_Cascade3Split: {x: 0.14622276, y: 0.54652816}
+  m_Cascade4Split: {x: 0.12531056, y: 0.38468647, z: 0.6367196}
+  m_CascadeBorder: 0.22132492
   m_ShadowDepthBias: 0.1
-  m_ShadowNormalBias: 0.5
+  m_ShadowNormalBias: 0.2
   m_AnyShadowsSupported: 1
   m_SoftShadowsSupported: 1
   m_ConservativeEnclosingSphere: 1
@@ -69,14 +70,14 @@ MonoBehaviour:
   m_AdditionalLightsCookieResolution: 2048
   m_AdditionalLightsCookieFormat: 3
   m_UseSRPBatcher: 1
-  m_SupportsDynamicBatching: 0
+  m_SupportsDynamicBatching: 1
   m_MixedLightingSupported: 1
   m_SupportsLightCookies: 1
   m_SupportsLightLayers: 1
   m_DebugLevel: 0
   m_StoreActionsOptimization: 0
   m_UseAdaptivePerformance: 1
-  m_ColorGradingMode: 0
+  m_ColorGradingMode: 1
   m_ColorGradingLutSize: 32
   m_AllowPostProcessAlphaOutput: 0
   m_UseFastSRGBLinearConversion: 0
@@ -91,7 +92,7 @@ MonoBehaviour:
   m_MaxPixelLights: 0
   m_ShadowAtlasResolution: 256
   m_VolumeFrameworkUpdateMode: 0
-  m_VolumeProfile: {fileID: 11400000, guid: 10fc4df2da32a41aaa32d77bc913491c, type: 2}
+  m_VolumeProfile: {fileID: 11400000, guid: 90a4f559bbc49be4194a532203d585c0, type: 2}
   apvScenesData:
     obsoleteSceneBounds:
       m_Keys: []
@@ -129,6 +130,10 @@ MonoBehaviour:
   m_PrefilterScreenCoord: 1
   m_PrefilterNativeRenderPass: 1
   m_PrefilterUseLegacyLightmaps: 0
+  m_PrefilterBicubicLightmapSampling: 0
+  m_PrefilterReflectionProbeBlending: 0
+  m_PrefilterReflectionProbeBoxProjection: 0
+  m_PrefilterReflectionProbeAtlas: 0
   m_ShaderVariantLogLevel: 0
   m_ShadowCascades: 0
   m_Textures:
