@@ -715,7 +715,7 @@ MonoBehaviour:
   m_Name: ScreenColorVolumeComponent
   m_EditorClassIdentifier: Assembly-CSharp::ScreenColorVolumeComponent
   active: 1
-  screenColorEffect:
+  ScreenColor:
     m_OverrideState: 1
     m_Value: -1
 --- !u!114 &7963339837309064245
