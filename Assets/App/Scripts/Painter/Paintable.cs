@@ -7,9 +7,6 @@ public class Paintable : MonoBehaviour
     
     [Header("References")]
     [SerializeField] private Renderer m_Renderer;
-    
-    [Header("Outputs")]
-    [SerializeField] private RSE_SetupPaintable m_SetupPaintable;
 
     private PaintableData m_PaintableData;
     private MaterialPropertyBlock m_MaterialPropertyBlock;
@@ -68,7 +65,7 @@ public class Paintable : MonoBehaviour
             UvIslands = m_UvIslandsRenderTexture
         };
         
-        m_SetupPaintable.Call(m_PaintableData);
+        PainterManager.Instance?.SetupPaintable(m_PaintableData);
     }
     
     private void OnDestroy()

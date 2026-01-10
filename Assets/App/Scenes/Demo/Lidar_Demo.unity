@@ -33,7 +33,7 @@ RenderSettings:
   m_HaloTexture: {fileID: 0}
   m_SpotCookie: {fileID: 10001, guid: 0000000000000000e000000000000000, type: 0}
   m_DefaultReflectionMode: 0
-  m_DefaultReflectionResolution: 256
+  m_DefaultReflectionResolution: 512
   m_ReflectionBounces: 1
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
@@ -687,7 +687,7 @@ Light:
   m_InnerSpotAngle: 21.80208
   m_CookieSize: 10
   m_Shadows:
-    m_Type: 2
+    m_Type: 0
     m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 1
@@ -1146,7 +1146,7 @@ MonoBehaviour:
   priority: 0
   blendDistance: 0
   weight: 1
-  sharedProfile: {fileID: 11400000, guid: 90a4f559bbc49be4194a532203d585c0, type: 2}
+  sharedProfile: {fileID: 0}
 --- !u!4 &832575519
 Transform:
   m_ObjectHideFlags: 0
@@ -2138,10 +2138,6 @@ PrefabInstance:
     - target: {fileID: 7651797987158489109, guid: ae5def4e90b863a4cb71f44b6e1bf7fe, type: 3}
       propertyPath: m_JumpForce
       value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 8661554489190134345, guid: ae5def4e90b863a4cb71f44b6e1bf7fe, type: 3}
-      propertyPath: m_Antialiasing
-      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 8661554489190134345, guid: ae5def4e90b863a4cb71f44b6e1bf7fe, type: 3}
       propertyPath: m_TaaSettings.m_ContrastAdaptiveSharpening

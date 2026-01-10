@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-public class PainterManager : MonoBehaviour
+public class PainterManager : RegularSingleton<PainterManager>
 {
     
     [Header("Settings")]
@@ -10,10 +10,6 @@ public class PainterManager : MonoBehaviour
     
     [Header("References")]
     [SerializeField] private Shader m_PainterShader;
-        
-    [Header("Input")]
-    [SerializeField] private RSE_SetupPaintable m_SetupPaintable;
-    [SerializeField] private RSE_Paint m_Paint;
     
     private Material m_PainterMaterial;
     private CommandBuffer m_CmdPaint;
@@ -36,18 +32,6 @@ public class PainterManager : MonoBehaviour
         m_CmdPaint = new CommandBuffer { name = $"Command Buffer : {gameObject.name} " };
     }
 
-    private void OnEnable()
-    {
-        m_SetupPaintable.Action += SetupPaintable;
-        m_Paint.Action += Paint;
-    }
-
-    private void OnDisable()
-    {
-        m_SetupPaintable.Action -= SetupPaintable;
-        m_Paint.Action -= Paint;
-    }
-
     private void OnDestroy()
     {
         Destroy(m_PainterMaterial);
@@ -55,7 +39,7 @@ public class PainterManager : MonoBehaviour
     }
 
 
-    private void SetupPaintable(Paintable.PaintableData data)
+    public void SetupPaintable(Paintable.PaintableData data)
     {
         m_PainterMaterial.SetFloat(s_PrepareUvIslandsIdShader, 1);
         m_CmdPaint.SetRenderTarget(data.UvIslands);
@@ -70,7 +54,7 @@ public class PainterManager : MonoBehaviour
     /// </summary>
     /// <param name="target">Data of the paintable target </param>
     /// <param name="settings">Settings of the painter requested the action</param>
-    private void Paint(Paintable.PaintableData target, PainterSettings settings)
+    public void Paint(Paintable.PaintableData target, PainterSettings settings)
     {
         
         if (m_IsVerbose)

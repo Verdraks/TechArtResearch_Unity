@@ -10,12 +10,8 @@ public class MousePainter : MonoBehaviour
     [SerializeField, Range(0f, 1f)] private float m_Hardness = 0.5f;
     [SerializeField, Range(0f, 1f)] private float m_Strength = 1f;
     
-    
     [Header("References")]
     [SerializeField] private Camera m_Camera;
-    
-    [Header("Output")]
-    [SerializeField] private RSE_Paint m_Paint;
     
     private void Update()
     {
@@ -35,7 +31,7 @@ public class MousePainter : MonoBehaviour
                     Strength = m_Strength
                 };
                     
-                m_Paint.Call(paintable.GetData(), settings);
+                PainterManager.Instance?.Paint(paintable.GetData(), settings);
             }
         }
     }

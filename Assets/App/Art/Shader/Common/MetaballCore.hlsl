@@ -30,7 +30,7 @@ float SdfMap_float(float3 p,float k)
         float radius = _MetaballDataBuffer[i].Radius;
         float di = SdfSphere_float(p, center, radius);
 
-        float kScaled = max(k * radius, 1e-6);
+        float kScaled = k * radius;
         
         d = Smin_float(d, di, kScaled);
     }
@@ -47,7 +47,7 @@ float3 NormalSdfMap_float(float3 p,float eps, float k)
     return normal;
 }
 
-void SphereTraceMetaballs_float(float k, float eps, float3 rayOrigin, float3 rayDir, out float3 positionWs,out float3 normalWs, out float3 viewDir, out float alpha)
+void SphereTraceMetaballs_float(int maxSteps, int maxDist,float k, float eps, float3 rayOrigin, float3 rayDir, out float3 positionWs,out float3 normalWs, out float3 viewDir, out float alpha)
 {
     #if defined(SHADERGRAPH_PREVIEW)
     positionWs = float3(0,0,0);
@@ -56,10 +56,8 @@ void SphereTraceMetaballs_float(float k, float eps, float3 rayOrigin, float3 ray
     alpha = 1.0;
     #else
     
-    float maxDist = 100.0;
     float t = 0.0;
     int steps = 0;
-    int maxSteps = 64;
 
     alpha = 0.0;
     

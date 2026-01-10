@@ -13,9 +13,6 @@ public class ParticlePainter : MonoBehaviour
 
     [Header("References")]
     [SerializeField] private ParticleSystem m_ParticleSystem;
-    
-    [Header("Output")]
-    [SerializeField] private RSE_Paint m_Paint;
 
     private readonly List<ParticleCollisionEvent> m_CollisionEvents = new();
     private void OnParticleCollision(GameObject other)
@@ -36,7 +33,7 @@ public class ParticlePainter : MonoBehaviour
                 Strength = m_Strength
             };
                 
-            m_Paint.Call(paintable.GetData(),settings);
+            PainterManager.Instance?.Paint(paintable.GetData(), settings);
         }
     }
 }
