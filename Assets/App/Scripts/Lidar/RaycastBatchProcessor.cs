@@ -3,10 +3,8 @@ using Unity.Collections;
 using Unity.Jobs;
 using UnityEngine;
 
-public class RaycastBatchProcessor : MonoBehaviour
+public class RaycastBatchProcessor : RegularSingleton<RaycastBatchProcessor>
 {
-    public static RaycastBatchProcessor Instance { get; private set; }
-    
     
     private const int k_MaxRaycastBatch = 100000;
     private const int k_MaxHitsPerRaycast = 1;
@@ -14,18 +12,6 @@ public class RaycastBatchProcessor : MonoBehaviour
     NativeArray<RaycastCommand> m_RaycastCommands;
     NativeArray<RaycastHit> m_RaycastHits;
     
-
-    private void Awake()
-    {
-        if (Instance == null)
-        {
-            Instance = this;
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
-    }
     
     public void PerformRaycast(RaycastCommandData raycastCommandData , Action<RaycastHit[]> callbacks)
     {
