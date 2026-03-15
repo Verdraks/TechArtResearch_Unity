@@ -1,0 +1,19 @@
+{
+    "name": "MVsToolkit.Wrapper.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:d25efcd6f14723a49a7393188e9a60de",
+        "GUID:ea5abdf9e6ceec3469b33de9a06a66eb"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

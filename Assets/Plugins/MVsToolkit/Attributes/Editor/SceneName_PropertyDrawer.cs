@@ -1,9 +1,9 @@
-namespace MVsToolkit.Dev
-{
-    using System.Collections.Generic;
-    using UnityEditor;
-    using UnityEngine;
+using System.Collections.Generic;
+using UnityEditor;
+using UnityEngine;
 
+namespace MVsToolkit.Attributes.Editor
+{
     [CustomPropertyDrawer(typeof(SceneNameAttribute))]
     public class SceneName_PropertyDrawer : PropertyDrawer
     {

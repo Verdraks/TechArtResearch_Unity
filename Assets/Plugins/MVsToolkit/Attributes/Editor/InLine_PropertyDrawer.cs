@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace MVsToolkit.Dev
+namespace MVsToolkit.Attributes.Editor
 {
     [CustomPropertyDrawer(typeof(InlineAttribute))]
     public class InLine_PropertyDrawer : PropertyDrawer
@@ -38,7 +38,7 @@ namespace MVsToolkit.Dev
             {
                 float fieldWidth = GetPropertyWidth(c);
 
-                // Si le champ ne tient pas sur la ligne, retour à la ligne suivante
+                // Si le champ ne tient pas sur la ligne, retour ï¿½ la ligne suivante
                 if (fieldWidth > remainingWidth)
                 {
                     y += lineHeight + spacing;

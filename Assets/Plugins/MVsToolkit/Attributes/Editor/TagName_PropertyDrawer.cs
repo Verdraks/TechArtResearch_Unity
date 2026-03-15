@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEditor;
 
-namespace MVsToolkit.Dev
+namespace MVsToolkit.Attributes.Editor
 {
     [CustomPropertyDrawer(typeof(TagNameAttribute))]
     public class TagName_PropertyDrawer : PropertyDrawer
@@ -10,7 +10,7 @@ namespace MVsToolkit.Dev
         {
             if (property.propertyType == SerializedPropertyType.String)
             {
-                // Récupération de tous les tags existants
+                // Rï¿½cupï¿½ration de tous les tags existants
                 string[] tags = UnityEditorInternal.InternalEditorUtility.tags;
 
                 int index = Mathf.Max(0, System.Array.IndexOf(tags, property.stringValue));

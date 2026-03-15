@@ -1,0 +1,20 @@
+{
+    "name": "MVsToolkit.Hierarchy.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:edbe3624c8f32f34fb845d97d742bbca",
+        "GUID:4892358fad653604faeaa67a4d949fb6",
+        "GUID:cb641cfc4fe0f054fac2fda12b55e346"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

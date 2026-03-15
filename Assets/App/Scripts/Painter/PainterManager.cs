@@ -26,8 +26,9 @@ public class PainterManager : RegularSingleton<PainterManager>
     private static readonly int s_UvOffsetIdShader = Shader.PropertyToID("_UvOffset");
 
 
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
         m_PainterMaterial = new Material(m_PainterShader){name = m_PainterShader.name + " (Instance)"};
         m_CmdPaint = new CommandBuffer { name = $"Command Buffer : {gameObject.name} " };
     }

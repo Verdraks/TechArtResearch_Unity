@@ -1,11 +1,11 @@
-﻿namespace MVsToolkit.Dev
-{
-    using UnityEditor;
-    using UnityEngine;
-    using System;
-    using System.Reflection;
-    using System.Collections.Generic;
+﻿using UnityEditor;
+using UnityEngine;
+using System;
+using System.Reflection;
+using System.Collections.Generic;
 
+namespace MVsToolkit.Attributes.Editor
+{
     [CustomPropertyDrawer(typeof(DropdownAttribute))]
     public class Dropdown_PropertyDrawer : PropertyDrawer
     {

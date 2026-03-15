@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace MVsToolkit.SceneBrowser
+namespace MVsToolkit.SceneBrowser.Editor
 {
     public class SceneBrowserDatabase : ScriptableObject
     {

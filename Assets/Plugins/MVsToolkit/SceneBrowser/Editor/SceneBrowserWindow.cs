@@ -1,7 +1,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace MVsToolkit.SceneBrowser
+namespace MVsToolkit.SceneBrowser.Editor
 {
     public class SceneBrowserWindow : EditorWindow
     {
@@ -11,7 +11,7 @@ namespace MVsToolkit.SceneBrowser
 
         string searchTxt;
 
-        [MenuItem("Window/MVsToolkit/Scene Browser")]
+        [MenuItem("Tools/MVsToolkit/Scene Browser")]
         public static void ShowWindow()
         {
             GetWindow<SceneBrowserWindow>("Scene Browser");

@@ -1,9 +1,8 @@
 using System.Reflection;
-using MVsToolkit.Dev;
 using UnityEditor;
 using UnityEngine;
 
-namespace MVsToolkit.Dev
+namespace MVsToolkit.Attributes.Editor
 {
     [CustomPropertyDrawer(typeof(DrawInRectAttribute))]
     public class DrawInRect_PropertyDrawer : PropertyDrawer
@@ -31,7 +30,7 @@ namespace MVsToolkit.Dev
             {
                 EditorGUI.HelpBox(
                     position,
-                    $"Méthode '{attr.methodName}(Rect)' introuvable dans la hiérarchie",
+                    $"Mï¿½thode '{attr.methodName}(Rect)' introuvable dans la hiï¿½rarchie",
                     MessageType.Error
                 );
             }

@@ -1,0 +1,19 @@
+{
+    "name": "MVsToolkit.Attributes.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:8e4e3a960f492df418fe78784042bdc3",
+        "GUID:74235e5f79c24fd45b78173a5505c479"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

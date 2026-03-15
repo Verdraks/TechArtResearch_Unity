@@ -1,9 +1,9 @@
-namespace MVsToolkit.Dev
-{
-    using UnityEditor;
-    using UnityEngine;
-    using System.Reflection;
+using UnityEditor;
+using UnityEngine;
+using System.Reflection;
 
+namespace MVsToolkit.Attributes.Editor
+{
     [CustomPropertyDrawer(typeof(ShowIfAttribute))]
     public class ShowIf_PropertyDrawer : PropertyDrawer
     {
@@ -33,12 +33,12 @@ namespace MVsToolkit.Dev
             if (conditionField == null)
             {
                 Debug.LogWarning($"[ShowIf] Champ '{attr.ConditionField}' introuvable sur {type.Name}");
-                return true; // ne cache pas pour éviter de masquer par erreur
+                return true; // ne cache pas pour ï¿½viter de masquer par erreur
             }
 
             object conditionValue = conditionField.GetValue(target);
 
-            // Gère les bools
+            // Gï¿½re les bools
             if (conditionValue is bool boolVal)
             {
                 if (attr.CompareValue is bool boolCompare)
@@ -48,7 +48,7 @@ namespace MVsToolkit.Dev
                 return true;
             }
 
-            // Gère les enums
+            // Gï¿½re les enums
             if (conditionValue != null && conditionValue.GetType().IsEnum)
             {
                 try
@@ -64,7 +64,7 @@ namespace MVsToolkit.Dev
             }
 
             // Autres types non pris en charge
-            Debug.LogWarning($"[ShowIf] Type non supporté : '{conditionField.Name}' doit être bool ou enum");
+            Debug.LogWarning($"[ShowIf] Type non supportï¿½ : '{conditionField.Name}' doit ï¿½tre bool ou enum");
             return true;
         }
 

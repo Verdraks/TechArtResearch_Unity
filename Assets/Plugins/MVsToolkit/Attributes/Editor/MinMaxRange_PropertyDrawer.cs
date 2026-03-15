@@ -1,7 +1,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace MVsToolkit.Dev
+namespace MVsToolkit.Attributes.Editor
 {
     [CustomPropertyDrawer(typeof(MinMaxRangeAttribute))]
     public class MinMaxRange_PropertyDrawer : PropertyDrawer

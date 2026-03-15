@@ -1,0 +1,18 @@
+{
+    "name": "MVsToolkit.BatchRenamer.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:74235e5f79c24fd45b78173a5505c479"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

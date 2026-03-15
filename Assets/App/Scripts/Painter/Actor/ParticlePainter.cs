@@ -32,7 +32,7 @@ public class ParticlePainter : MonoBehaviour
                 Hardness = m_Hardness,
                 Strength = m_Strength
             };
-                
+            
             PainterManager.Instance?.Paint(paintable.GetData(), settings);
         }
     }

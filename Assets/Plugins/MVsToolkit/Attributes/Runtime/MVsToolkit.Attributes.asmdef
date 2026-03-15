@@ -1,0 +1,16 @@
+{
+    "name": "MVsToolkit.Attributes",
+    "rootNamespace": "",
+    "references": [
+        "GUID:8e4e3a960f492df418fe78784042bdc3"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

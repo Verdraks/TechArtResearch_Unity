@@ -5,12 +5,12 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace MVsToolkit.SceneBrowser
+namespace MVsToolkit.SceneBrowser.Editor
 {
     [InitializeOnLoad]
     public static class SceneBrowserContent
     {
-        static SceneBrowserDatabase db;
+        static List<SceneBrowerData> scenes = new();
 
         const string SaveKey = "SceneBrowser_Data";
         
@@ -23,11 +23,6 @@ namespace MVsToolkit.SceneBrowser
         static float panelHeight;
 
         static Vector2 scrollPos;
-
-        static SceneBrowserContent()
-        {
-            LoadOrCreateDatabase();
-        }
 
         #region Drawing
         public static void DrawContent(Rect rect, string searchQuery, float maxContentHeight)
@@ -71,7 +66,7 @@ namespace MVsToolkit.SceneBrowser
             {
                 if (_scenes[i].asset == null)
                 {
-                    db.scenes.Remove(_scenes[i]);
+                    scenes.Remove(_scenes[i]);
                     continue;
                 }
 
@@ -105,29 +100,36 @@ namespace MVsToolkit.SceneBrowser
                 Rect favoriteRect = new Rect(r.x + r.width - r.height * 2, r.y, r.height * 2, r.height);
 
                 bool favoriteContainMouse = favoriteRect.Contains(e.mousePosition);
-                string favoriteButtonText = "☆";
-
-                if (sceneData.isFavorite || (!sceneData.isFavorite && favoriteContainMouse)) favoriteButtonText = "★";
-                if (!sceneData.isFavorite || (sceneData.isFavorite && favoriteContainMouse)) favoriteButtonText = "☆";
+                string favoriteButtonText = sceneData.isFavorite ? "★" : "☆";
 
                 if (GUI.Button(favoriteRect, favoriteButtonText, favoriteButtonStyle))
                 {
-                    Undo.RecordObject(db, "Toggle Favorite Scene");
                     sceneData.isFavorite = !sceneData.isFavorite;
-                    EditorUtility.SetDirty(db);
-
-                    db.scenes = db.scenes.OrderBy(scenes => !scenes.isFavorite).ToList();
+                    scenes = scenes.OrderBy(scenes => !scenes.isFavorite).ToList();
                     SaveScenesData();
+
+                    e.Use();
                 }
             }
             
-            if (GUI.Button(r, sceneData.asset == null ? sceneData.assetName : sceneData.asset.name, sceneButtonStyle))
+            if (e.type == EventType.MouseUp && e.button == 1 && r.Contains(e.mousePosition) && sceneData.asset != null)
+            {
+                GenericMenu menu = new GenericMenu(); 
+                menu.AddItem(new GUIContent("Ping Asset"), false, () =>
+                    {EditorGUIUtility.PingObject(sceneData.asset);});
+
+                menu.ShowAsContext();
+                e.Use();
+            }
+            else if (GUI.Button(r, sceneData.asset == null ? sceneData.assetName : sceneData.asset.name, sceneButtonStyle))
+            {
+                if (sceneData.asset != null && EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
                 {
-                    if (sceneData.asset != null && EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
-                    {
-                        EditorSceneManager.OpenScene(AssetDatabase.GetAssetPath(sceneData.asset));
-                    }
+                    EditorSceneManager.OpenScene(AssetDatabase.GetAssetPath(sceneData.asset));
                 }
+
+                e.Use();
+            }
         }
 
         public static void CreateNewScene(string sceneName)
@@ -184,52 +186,47 @@ namespace MVsToolkit.SceneBrowser
 
             SceneAsset[] allScenes = GetAllScenesInAssetsRoot();
 
-            foreach (SceneAsset scene in allScenes) // Add new scenes
-                if (db.scenes.Find(s => s.asset == scene) == null)
-                    db.scenes.Add(new SceneBrowerData(scene, false));
-
-            SceneBrowerData[] scenesArray = db.scenes.ToArray();
-            foreach (SceneBrowerData scene in scenesArray) // Remove deleted scenes
+            // Ajouter les nouvelles scènes
+            foreach (SceneAsset scene in allScenes)
             {
-                if (!allScenes.Contains(scene.asset))
-                    db.scenes.Remove(scene);
+                if (!scenes.Any(s => s.assetPath == AssetDatabase.GetAssetPath(scene)))
+                    scenes.Add(new SceneBrowerData(scene, false));
             }
 
-            db.scenes = db.scenes.OrderBy(scenes => !scenes.isFavorite).ToList();
-        }
+            // Supprimer les scènes supprimées
+            scenes.RemoveAll(s => AssetDatabase.LoadAssetAtPath<SceneAsset>(s.assetPath) == null);
 
-        static void LoadOrCreateDatabase()
-        {
-            db = AssetDatabase.LoadAssetAtPath<SceneBrowserDatabase>("Assets/SceneBrowserDatabase.asset");
+            // Recharger les assets
+            foreach (var s in scenes)
+                s.ReloadAsset();
 
-            if (db == null)
-            {
-                db = ScriptableObject.CreateInstance<SceneBrowserDatabase>();
-                AssetDatabase.CreateAsset(db, "Assets/SceneBrowserDatabase.asset");
-                AssetDatabase.SaveAssets();
-            }
+            // Trier favoris
+            scenes = scenes.OrderBy(s => !s.isFavorite).ToList();
         }
 
         public static void SaveScenesData()
         {
-            SceneBrowerDataList list = new SceneBrowerDataList(db.scenes);
+            SceneBrowerDataList list = new SceneBrowerDataList(scenes);
             string json = JsonUtility.ToJson(list, true);
             EditorPrefs.SetString(SaveKey, json);
         }
+
         static void LoadScenesData()
         {
-            if (db == null) LoadOrCreateDatabase();
-            if (db.scenes == null) db.scenes = new List<SceneBrowerData>();
-            
-            db.scenes.Clear();
-            
+            scenes.Clear();
+
             string json = EditorPrefs.GetString(SaveKey, "");
             if (!string.IsNullOrEmpty(json))
             {
                 SceneBrowerDataList list = JsonUtility.FromJson<SceneBrowerDataList>(json);
                 if (list.scenes != null)
-                    foreach (SceneBrowerData scene in list.scenes)
-                        db.scenes.Add(scene);
+                {
+                    foreach (var s in list.scenes)
+                    {
+                        s.ReloadAsset(); // 🔥 recharge l’asset depuis le path
+                        scenes.Add(s);
+                    }
+                }
             }
         }
 
@@ -258,9 +255,11 @@ namespace MVsToolkit.SceneBrowser
         static SceneBrowerData[] GetScenesWithQuery(string query)
         {
             if (string.IsNullOrEmpty(query))
-                return db.scenes.ToArray();
-            else
-                return db.scenes.Where(s => s.asset.name.ToLower().Contains(query.ToLower())).ToArray();
+                return scenes.ToArray();
+
+            return scenes
+                .Where(s => s.assetName.ToLower().Contains(query.ToLower()))
+                .ToArray();
         }
         #endregion
     }
@@ -268,15 +267,24 @@ namespace MVsToolkit.SceneBrowser
     [System.Serializable]
     public class SceneBrowerData
     {
-        public SceneAsset asset;
+        public string assetPath;
         public string assetName;
         public bool isFavorite;
 
+        [System.NonSerialized]
+        public SceneAsset asset;
+
         public SceneBrowerData(SceneAsset scene, bool isFavorite)
         {
-            this.asset = scene;
-            this.assetName = scene.name;
+            asset = scene;
+            assetPath = AssetDatabase.GetAssetPath(scene);
+            assetName = scene.name;
             this.isFavorite = isFavorite;
+        }
+
+        public void ReloadAsset()
+        {
+            asset = AssetDatabase.LoadAssetAtPath<SceneAsset>(assetPath);
         }
     }
 

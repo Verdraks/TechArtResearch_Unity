@@ -1,9 +1,9 @@
-namespace MVsToolkit.Dev
-{
-    using UnityEditor;
-    using UnityEngine;
-    using System.Reflection;
+using UnityEditor;
+using UnityEngine;
+using System.Reflection;
 
+namespace MVsToolkit.Attributes.Editor
+{
     [CustomPropertyDrawer(typeof(HideIfAttribute))]
     public class HideIf_PropertyDrawer : PropertyDrawer
     {
@@ -33,7 +33,7 @@ namespace MVsToolkit.Dev
             if (conditionField == null)
             {
                 Debug.LogWarning($"[HideIf] Champ '{attr.ConditionField}' introuvable sur {type.Name}");
-                return true; // on affiche quand même pour éviter les erreurs
+                return true; // on affiche quand mï¿½me pour ï¿½viter les erreurs
             }
 
             object conditionValue = conditionField.GetValue(target);
@@ -42,7 +42,7 @@ namespace MVsToolkit.Dev
             if (conditionValue is bool boolVal)
             {
                 if (attr.CompareValue is bool boolCompare)
-                    return boolVal != boolCompare; // cache si égaux
+                    return boolVal != boolCompare; // cache si ï¿½gaux
                 Debug.LogWarning($"[HideIf] Mauvais type de comparaison : '{attr.ConditionField}' est bool, mais CompareValue n'est pas bool");
                 return true;
             }
@@ -53,7 +53,7 @@ namespace MVsToolkit.Dev
                 try
                 {
                     object compareEnum = System.Enum.Parse(conditionValue.GetType(), attr.CompareValue.ToString());
-                    return !conditionValue.Equals(compareEnum); // cache si égaux
+                    return !conditionValue.Equals(compareEnum); // cache si ï¿½gaux
                 }
                 catch
                 {
@@ -62,7 +62,7 @@ namespace MVsToolkit.Dev
                 }
             }
 
-            Debug.LogWarning($"[HideIf] Type non supporté : '{conditionField.Name}' doit être bool ou enum");
+            Debug.LogWarning($"[HideIf] Type non supportï¿½ : '{conditionField.Name}' doit ï¿½tre bool ou enum");
             return true;
         }
 

@@ -1,10 +1,10 @@
-namespace MVsToolkit.Dev
-{
-    using System;
-    using System.Collections.Generic;
-    using UnityEditor;
-    using UnityEngine;
+using System;
+using System.Collections.Generic;
+using UnityEditor;
+using UnityEngine;
 
+namespace MVsToolkit.Attributes.Editor
+{
     [CustomPropertyDrawer(typeof(InterfaceReference<>), true)]
     public class InterfaceReference_PropertyDrawer : PropertyDrawer
     {
@@ -52,7 +52,7 @@ namespace MVsToolkit.Dev
                     {
                         if (assignedObj is GameObject go)
                         {
-                            // Autoriser si le GameObject a un composant qui implémente l’interface
+                            // Autoriser si le GameObject a un composant qui implï¿½mente lï¿½interface
                             var comp = go.GetComponent(targetType);
                             if (comp != null)
                                 objProp.objectReferenceValue = comp as UnityEngine.Object;

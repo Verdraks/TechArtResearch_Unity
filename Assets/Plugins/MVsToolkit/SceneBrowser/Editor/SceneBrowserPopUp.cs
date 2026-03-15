@@ -1,8 +1,7 @@
 ﻿using UnityEditor;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
-namespace MVsToolkit.SceneBrowser
+namespace MVsToolkit.SceneBrowser.Editor
 {
     public class SceneBrowserPopUp : PopupWindowContent
     {

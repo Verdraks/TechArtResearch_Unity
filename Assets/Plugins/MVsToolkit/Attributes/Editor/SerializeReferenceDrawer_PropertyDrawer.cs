@@ -5,7 +5,7 @@ using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
-namespace MVsToolkit.Dev
+namespace MVsToolkit.Attributes.Editor
 {
     [CustomPropertyDrawer(typeof(SerializeReferenceDrawerAttribute), true)]
     public class SerializeReferenceDrawer_PropertyDrawer : PropertyDrawer
