@@ -1,0 +1,29 @@
+#pragma kernel CSGrassDataSpawn
+
+struct GrassData
+{
+    float3 position;    
+};
+
+RWStructuredBuffer<GrassData> grassDataBuffer;
+uint grassDataBufferSize;
+
+float3 areaGrassSize;
+float3 areaGrassCenter;
+
+[numthreads(8,8,1)]
+void CSGrassDataSpawn (uint3 id : SV_DispatchThreadID)
+{
+    uint index = id.x + id.y * 8;
+    if (index >= grassDataBufferSize)
+        return;
+
+    GrassData data;
+    data.position = areaGrassCenter + float3(
+        (id.x / 8.0f - 0.5f) * areaGrassSize.x,
+        0,
+        (id.y / 8.0f - 0.5f) * areaGrassSize.z
+    );
+    
+    grassDataBuffer[index] = data;
+}
