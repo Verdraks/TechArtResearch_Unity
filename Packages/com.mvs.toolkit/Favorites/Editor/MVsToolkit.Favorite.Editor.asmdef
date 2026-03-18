@@ -1,0 +1,19 @@
+{
+    "name": "MVsToolkit.Favorite.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:edbe3624c8f32f34fb845d97d742bbca",
+        "GUID:cb641cfc4fe0f054fac2fda12b55e346"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
