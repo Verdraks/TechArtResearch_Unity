@@ -11,19 +11,31 @@ uint grassDataBufferSize;
 float3 areaGrassSize;
 float3 areaGrassCenter;
 
-[numthreads(8,8,1)]
+[numthreads(256,1,1)]
 void CSGrassDataSpawn (uint3 id : SV_DispatchThreadID)
 {
-    uint index = id.x + id.y * 8;
+
+    uint index = id.x;
     if (index >= grassDataBufferSize)
         return;
+    
+    uint gridWidth = sqrt(grassDataBufferSize);
 
+    // Convertir index linéaire en coordonnées 2D
+    uint x = index % gridWidth;
+    uint z = index / gridWidth;
+
+    // Normaliser entre 0 et 1
+    float normalizedX = x / (float)gridWidth;
+    float normalizedZ = z / (float)(grassDataBufferSize / gridWidth);
+
+    // Position = centre + offset scaled par taille
     GrassData data;
     data.position = areaGrassCenter + float3(
-        (id.x / 8.0f - 0.5f) * areaGrassSize.x,
+        (normalizedX - 0.5f) * areaGrassSize.x,
         0,
-        (id.y / 8.0f - 0.5f) * areaGrassSize.z
+        (normalizedZ - 0.5f) * areaGrassSize.z
     );
-    
+
     grassDataBuffer[index] = data;
 }

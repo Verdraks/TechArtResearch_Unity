@@ -1,4 +1,4 @@
-Shader "ExampleShader"
+Shader "Custom/Grass"
 {
     SubShader
     {
@@ -6,15 +6,16 @@ Shader "ExampleShader"
         {
             Tags { "RenderType" = "Opaque" "RenderPipeline" = "UniversalPipeline" }
             
+            Tags { "LightMode" = "UniversalForward" }
             
             ZWrite Off
-            Cull Front
+            Cull Back
             
             HLSLPROGRAM
             #pragma vertex vert
             #pragma fragment frag
             #pragma multi_compile_instancing
-            #pragma  target  2.0
+            #pragma target 3.5
             
             #include  "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 
@@ -22,6 +23,7 @@ Shader "ExampleShader"
             {
                 float4 positionOS   : POSITION;
                 float2 uv : TEXCOORD0;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
             };
             
             struct Varyings
@@ -41,15 +43,20 @@ Shader "ExampleShader"
             {
                 Varyings o;
                 
-                float3 wpos = TransformObjectToWorld(v.positionOS );
+                UNITY_SETUP_INSTANCE_ID(v);
+                
+                // Get grass position from buffer and apply to world position
+                float3 grassPos = grassDataBuffer[instanceID].position;
+                float3 posOS = v.positionOS.xyz + grassPos;
+                float3 wpos = TransformObjectToWorld(posOS);
                 o.positionHCS = TransformWorldToHClip(wpos);
-                o.color = float4(1, 0, 0, 1);
+                o.color = float4(0.2, 0.8, 0.2, 1.0);  // Green color for visibility
                 return o;
             }
 
             float4 frag(Varyings i) : SV_Target
             {
-                return i.color;
+                return float4(1.0, 1.0, 1.0, 1.0);  // White color for visibility
             }
             ENDHLSL
         }

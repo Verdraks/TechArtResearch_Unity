@@ -1,9 +1,9 @@
-using System;
 using System.Runtime.InteropServices;
 using UnityEngine;
 
 namespace GrassSystem
 {
+    [ExecuteInEditMode]
     public class GrassSystemManager : MonoBehaviour
     {
         [Header("Settings")]
@@ -12,7 +12,7 @@ namespace GrassSystem
         [SerializeField] private Mesh m_GrassMesh;
         [SerializeField] private ComputeShader m_GrassComputeShader;
 
-        private const int k_GrassDataBufferSize = 1024;
+        private const int k_GrassDataBufferSize = 2048;
         private static readonly int s_GrassDataStride = Marshal.SizeOf(typeof(GrassData));
         private static readonly int s_GrassDataComputeBuffer = Shader.PropertyToID("grassDataBuffer");
         private static readonly int s_GrassDataShaderBuffer = Shader.PropertyToID("grassDataBuffer");
@@ -25,7 +25,7 @@ namespace GrassSystem
         private int m_GrassDataSpawnKernelID;
 
 
-        private void Awake()
+        private void OnEnable()
         {
             m_GrassDataSpawnKernelID = m_GrassComputeShader.FindKernel("CSGrassDataSpawn");
 
@@ -34,7 +34,7 @@ namespace GrassSystem
 
             m_GrassComputeShader.SetBuffer(m_GrassDataSpawnKernelID, s_GrassDataComputeBuffer, m_GrassDataBuffer);
             m_GrassComputeShader.SetInt("grassDataBufferSize", k_GrassDataBufferSize);
-            m_GrassComputeShader.SetVector("areaGrassSize", new Vector3(10f, 0f, 10f));
+            m_GrassComputeShader.SetVector("areaGrassSize", new Vector3(15f, 0f, 15f));
             m_GrassComputeShader.SetVector("areaGrassCenter", Vector3.zero);
 
             m_ArgsBuffer = new GraphicsBuffer(GraphicsBuffer.Target.IndirectArguments, 1,
@@ -51,21 +51,25 @@ namespace GrassSystem
             };
             m_ArgsBuffer.SetData(m_ArgsBufferData);
 
-            m_RenderParams = new RenderParams(m_GrassMaterial)
+            m_RenderParams = new RenderParams
             {
-                matProps = new MaterialPropertyBlock()
+                matProps = new MaterialPropertyBlock(),
+                worldBounds = new Bounds(Vector3.zero, new Vector3(100f, 100f, 100f)),
+                material = m_GrassMaterial
             };
             m_RenderParams.matProps.SetBuffer(s_GrassDataShaderBuffer, m_GrassDataBuffer);
+            
+            // Exécuter le compute shader une seule fois pour initialiser le buffer
+            m_GrassComputeShader.Dispatch(m_GrassDataSpawnKernelID, Mathf.CeilToInt(k_GrassDataBufferSize / 256f),
+                1, 1);
         }
 
         private void Update()
         {
-            // m_GrassComputeShader.Dispatch(m_GrassDataSpawnKernelID, Mathf.CeilToInt(k_GrassDataBufferSize / 8f),
-            //     Mathf.CeilToInt(k_GrassDataBufferSize / 8f), 1);
             Graphics.RenderMeshIndirect(in m_RenderParams, m_GrassMesh, m_ArgsBuffer);
         }
 
-        private void OnDestroy()
+        private void OnDisable()
         {
             m_GrassDataBuffer.Dispose();
             m_ArgsBuffer.Dispose();
