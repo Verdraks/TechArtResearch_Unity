@@ -1,0 +1,11 @@
+{
+    "DrawFolderIcon": true,
+    "DrawFirstComponentIcon": true,
+    "DrawComponentsIcon": true,
+    "DrawZebraMod": true,
+    "DrawChildLines": true,
+    "ZebraModBlackColor": "#353535",
+    "ZebraModWhiteColor": "#BFBFBF",
+    "PrefabColor": "#8CC7FF",
+    "MissingPrefabColor": "#FF6767"
+}

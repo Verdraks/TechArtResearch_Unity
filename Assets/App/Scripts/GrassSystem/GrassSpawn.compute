@@ -11,7 +11,7 @@ uint grassDataBufferSize;
 float3 areaGrassSize;
 float3 areaGrassCenter;
 
-[numthreads(256,1,1)]
+[numthreads(64,1,1)]
 void CSGrassDataSpawn (uint3 id : SV_DispatchThreadID)
 {
 

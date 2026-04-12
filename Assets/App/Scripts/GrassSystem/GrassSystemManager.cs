@@ -1,3 +1,4 @@
+using System;
 using System.Runtime.InteropServices;
 using UnityEngine;
 
@@ -41,32 +42,35 @@ namespace GrassSystem
                 GraphicsBuffer.IndirectDrawIndexedArgs.size);
 
             m_ArgsBufferData = new GraphicsBuffer.IndirectDrawIndexedArgs[1];
+            
+            
+            // Exécuter le compute shader une seule fois pour initialiser le buffer
+            m_GrassComputeShader.Dispatch(m_GrassDataSpawnKernelID, Mathf.CeilToInt(k_GrassDataBufferSize / 64f),
+                1, 1);
+        }
+
+        private void Update()
+        {
+            // Graphics.DrawMeshInstancedIndirect(m_GrassMesh, 0, m_GrassMaterial, new Bounds(Vector3.zero, new Vector3(100f, 100f, 100f)),
+            //     m_ArgsBuffer);
+            
             m_ArgsBufferData[0] = new GraphicsBuffer.IndirectDrawIndexedArgs
             {
                 indexCountPerInstance = m_GrassMesh.GetIndexCount(0),
-                instanceCount = k_GrassDataBufferSize,
-                baseVertexIndex = 0,
-                startIndex = 0,
-                startInstance = 0
+                instanceCount = k_GrassDataBufferSize
             };
+            
             m_ArgsBuffer.SetData(m_ArgsBufferData);
 
             m_RenderParams = new RenderParams
             {
                 matProps = new MaterialPropertyBlock(),
                 worldBounds = new Bounds(Vector3.zero, new Vector3(100f, 100f, 100f)),
-                material = m_GrassMaterial
+                material = m_GrassMaterial,
             };
-            m_RenderParams.matProps.SetBuffer(s_GrassDataShaderBuffer, m_GrassDataBuffer);
+            // m_RenderParams.matProps.SetBuffer(s_GrassDataShaderBuffer, m_GrassDataBuffer);
             
-            // Exécuter le compute shader une seule fois pour initialiser le buffer
-            m_GrassComputeShader.Dispatch(m_GrassDataSpawnKernelID, Mathf.CeilToInt(k_GrassDataBufferSize / 256f),
-                1, 1);
-        }
-
-        private void Update()
-        {
-            Graphics.RenderMeshIndirect(in m_RenderParams, m_GrassMesh, m_ArgsBuffer);
+            Graphics.RenderMeshIndirect(m_RenderParams, m_GrassMesh, m_ArgsBuffer); 
         }
 
         private void OnDisable()

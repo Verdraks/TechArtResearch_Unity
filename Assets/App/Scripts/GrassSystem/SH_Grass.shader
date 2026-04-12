@@ -4,20 +4,39 @@ Shader "Custom/Grass"
     {
         Pass
         {
-            Tags { "RenderType" = "Opaque" "RenderPipeline" = "UniversalPipeline" }
+            Tags { "RenderType" = "Opaque" "RenderPipeline" = "UniversalPipeline" "UniversalMaterialType" = "Unlit"  "IgnoreProector" = "True" }
             
-            Tags { "LightMode" = "UniversalForward" }
+            ZWrite On
+            Cull Front
             
-            ZWrite Off
-            Cull Back
             
+            HLSLINCLUDE
+            struct GrassData
+            {
+                float3 position;
+            };
+
+            StructuredBuffer<GrassData> grassDataBuffer;
+            ENDHLSL
+
             HLSLPROGRAM
+            
+            #pragma target 4.5
             #pragma vertex vert
             #pragma fragment frag
-            #pragma multi_compile_instancing
-            #pragma target 3.5
             
             #include  "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/RenderingLayers.hlsl"
+
+            #pragma multi_compile_fragment _ DEBUG_DISPLAY
+            
+            #pragma multi_compile_instancing
+            #pragma  instancing_options renderinglayer
+            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
+
+            #define UNITY_INDIRECT_DRAW_ARGS IndirectDrawIndexedArgs
+            #include "UnityIndirect.cginc"
+
 
             struct Attributes
             {
@@ -31,19 +50,16 @@ Shader "Custom/Grass"
                 float4 positionHCS  : SV_POSITION;
                 float4 color : COLOR;
             };
-
-            struct GrassData
+            
+            Varyings vert(Attributes v, uint svInstanceID : SV_InstanceID)
             {
-                float3 position;
-            };
-
-            StructuredBuffer<GrassData> grassDataBuffer;
-
-            Varyings vert(Attributes v, uint instanceID : SV_InstanceID)
-            {
-                Varyings o;
-                
+                InitIndirectDrawArgs(0);
+                Varyings o = (Varyings)0;
                 UNITY_SETUP_INSTANCE_ID(v);
+                UNITY_TRANSFER_INSTANCE_ID(v, o);
+
+                uint instanceID = GetIndirectInstanceID(svInstanceID);
+
                 
                 // Get grass position from buffer and apply to world position
                 float3 grassPos = grassDataBuffer[instanceID].position;
