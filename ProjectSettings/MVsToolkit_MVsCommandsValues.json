@@ -1,0 +1,8 @@
+{
+    "UseCommands": false,
+    "AssemblyNames": [
+        "Assembly-CSharp",
+        "Assembly-CSharp-firstpass",
+        "MVsToolkit.DebugCanvas"
+    ]
+}

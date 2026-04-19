@@ -21,6 +21,22 @@ MonoBehaviour:
       surfaceData: 2
     screenSpaceSettings:
       normalBlend: 0
+--- !u!114 &-5173392705488601623
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac55a553bb6924b0a9a095eab5a3214a, type: 3}
+  m_Name: PathTracer
+  m_EditorClassIdentifier: Assembly-CSharp::PathTracer
+  m_Active: 1
+  m_Settings:
+    pathTracerShader: {fileID: 4800000, guid: 98de7ee8083448e3adcfd497c8e5106f, type: 3}
+    maxDepth: 10
 --- !u!114 &-1498121840346258074
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -74,7 +90,8 @@ MonoBehaviour:
   m_RendererFeatures:
   - {fileID: -7109396151453895663}
   - {fileID: -1498121840346258074}
-  m_RendererFeatureMap: 11b40f11de59569d6625e8a31f9a35eb
+  - {fileID: -5173392705488601623}
+  m_RendererFeatureMap: 11b40f11de59569d6625e8a31f9a35ebe93dc181be6a34b8
   m_UseNativeRenderPass: 1
   xrSystemData: {fileID: 0}
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
