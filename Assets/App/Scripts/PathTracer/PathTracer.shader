@@ -45,10 +45,10 @@ Shader "Hidden/PathTracer"
             float3 CalculateAtmosphereColor(Ray r)
             {
                 float a = 0.5 * (1.0 + r.direction.y);
-                return (1.0 - a) * float3(0.5, 0.7, 1.0) + a * float3(1.0, 0.8, 0.6);
+                return (1.0 - a) * float3(1,1,1) + a * float3(0.5,0.7,1.0);
             }
             
-            HitRecord CalculateHitRecord(Ray r, uint state)
+            HitRecord CalculateHitRecord(Ray r)
             {
                 HitRecord closestHit = (HitRecord)0;
                 closestHit.t = 1.#INF;
@@ -68,26 +68,24 @@ Shader "Hidden/PathTracer"
             
             float3 TraceRay(Ray r, inout uint state)
             {
-                float3 rayColor = 0;
+                float3 attenuation = 1;
                 
                 for (uint i = 0; i < _MaxDepth; i++)
                 {
-                    HitRecord rec = CalculateHitRecord(r, state);
+                    HitRecord rec = CalculateHitRecord(r);
                     if (rec.hit)
                     {
                         r.origin = rec.p;
                         r.direction = RandomHemisphereDirection(rec.normal, state);
-                        rayColor = (rec.material.color) * 0.5;
-                        break;
+                        attenuation *= rec.material.color;
                     }
                     else
                     {
-                        rayColor = CalculateAtmosphereColor(r);
-                        break;
+                        return attenuation * (float3)1;
                     }
                 }
                 
-                return rayColor;
+                return float3(0,0,0);
             }
 
             Varyings VertTris(Attributes input)
@@ -105,20 +103,28 @@ Shader "Hidden/PathTracer"
                 return output;
             }
             
-            float4 Frag(Varyings i, SamplerState blitsampler) : SV_Target
+            float4 Frag(Varyings input, SamplerState blitsampler) : SV_Target
             {
-                uint2 pixelCoord = i.texcoord * _ScreenParams.xy;
-                uint pixelIndex = pixelCoord.x + pixelCoord.y * _ScreenParams.x;
-                uint state = GenerateHashedRandomFloat(pixelIndex);
-
-                float3 viewPointLS = float3(i.texcoord - 0.5f, 1) * float3(_ViewParams.x, _ViewParams.y, _ProjectionParams.y);
+                uint2 pixelCoord = input.texcoord * _ScreenParams.xy;
+                uint pixelIndex = pixelCoord.y * _ScreenParams.x + pixelCoord.x;
+                uint state = pixelIndex;
+                
+                float3 viewPointLS = float3(input.texcoord - 0.5f, 1) * float3(_ViewParams.x, _ViewParams.y, _ProjectionParams.y);
                 float3 viewPointWS = mul(unity_CameraToWorld, float4(viewPointLS, 1.0)).xyz;
 
                 Ray r;
                 r.origin = _WorldSpaceCameraPos;
-                r.direction = normalize(viewPointWS - r.origin);
-
-                float3 color = TraceRay(r, state);
+                    r.direction = normalize(viewPointWS - r.origin);
+                
+                float3 color;
+                
+                for (int i = 0; i < _RaysPerPixel; i++)
+                {
+                    
+                    color += TraceRay(r, state);
+                }
+                
+                color = color/float(_RaysPerPixel);
                 
                 #ifdef _LINEAR_TO_SRGB_CONVERSION
                 color = LinearToSRGB(color);

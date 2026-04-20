@@ -36,7 +36,8 @@ MonoBehaviour:
   m_Active: 1
   m_Settings:
     pathTracerShader: {fileID: 4800000, guid: 98de7ee8083448e3adcfd497c8e5106f, type: 3}
-    maxDepth: 10
+    maxDepth: 100
+    rayPerPixel: 100
 --- !u!114 &-1498121840346258074
 MonoBehaviour:
   m_ObjectHideFlags: 0

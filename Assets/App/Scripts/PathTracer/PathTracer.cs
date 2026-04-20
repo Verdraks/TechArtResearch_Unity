@@ -39,6 +39,7 @@ public class PathTracer : ScriptableRendererFeature
     {
         public Shader pathTracerShader;
         public int maxDepth = 10;
+        [Min(1)]public int rayPerPixel = 1;
     }
     
     private static class ShaderProperties
@@ -47,6 +48,7 @@ public class PathTracer : ScriptableRendererFeature
         public static readonly int MAX_DEPTH_SHADER_ID = Shader.PropertyToID("_MaxDepth");
         public static readonly int SPHERE_BUFFER_SHADER_ID = Shader.PropertyToID("_SpheresBuffer");
         public static readonly int SPHERE_COUNT_SHADER_ID = Shader.PropertyToID("_SpheresCount");
+        public static readonly int RAYS_PER_PIXEL_SHADER_ID = Shader.PropertyToID("_RaysPerPixel");
     }
     
     [StructLayout(LayoutKind.Sequential)]
@@ -130,6 +132,7 @@ public class PathTracer : ScriptableRendererFeature
                 
                 passData.PropertyBlock.SetVector(ShaderProperties.VIEW_PARAM_SHADER_ID, new Vector4(planeWidth, planeHeight, currentCamera.nearClipPlane,0));
                 passData.PropertyBlock.SetInt(ShaderProperties.MAX_DEPTH_SHADER_ID, m_Settings.maxDepth);
+                passData.PropertyBlock.SetInt(ShaderProperties.RAYS_PER_PIXEL_SHADER_ID, m_Settings.rayPerPixel);
                 passData.PropertyBlock.SetInt(ShaderProperties.SPHERE_COUNT_SHADER_ID,m_SphereCount);
                 passData.PropertyBlock.SetBuffer(ShaderProperties.SPHERE_BUFFER_SHADER_ID,m_SphereBuffer);
                 
