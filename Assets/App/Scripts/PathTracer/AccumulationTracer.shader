@@ -16,28 +16,23 @@ Shader "Hidden/AccumulationTracer"
 
             HLSLPROGRAM
             
-
             CBUFFER_START(UnityPerMaterial)
                 Texture2D<float4> _CurrentFrame;
                 Texture2D<float4> _PreviousFrame;
                 uint _FrameIndex;
             CBUFFER_END
 
-
-            sampler sampler_CurrentFrame;
-            sampler sampler_PreviousFrame;
-
             #pragma vertex Vert
             #pragma fragment Frag
 
             float4 Frag (Varyings input) : SV_Target
             {
-                float4 currentColor = _CurrentFrame.Sample(sampler_CurrentFrame, input.texCoord);
-                float4 previousColor = _PreviousFrame.Sample(sampler_PreviousFrame, input.texCoord);
+                float4 previousColor = SAMPLE_TEXTURE2D(_PreviousFrame, sampler_LinearClamp, input.texcoord);
+                float4 currentColor = SAMPLE_TEXTURE2D(_CurrentFrame, sampler_LinearClamp, input.texcoord);
 
-                float weightCurrent = 1.0 / (_FrameIndex + 1);
+                float weight = 1.0 / (_FrameIndex + 1);
 
-                float4 color = lerp(previousColor, currentColor, weightCurrent);
+                float4 color = lerp(previousColor, currentColor, weight);
                 return color;
             }
             

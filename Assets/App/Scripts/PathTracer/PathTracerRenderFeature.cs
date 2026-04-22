@@ -5,38 +5,45 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.Rendering.RenderGraphModule;
-using UnityEngine.Rendering.RenderGraphModule.Util;
 
-public class PathTracer : ScriptableRendererFeature
+public class PathTracerRenderFeature : ScriptableRendererFeature
 {
-	#region Constants
-	private const string PASS_ACCUMULATION_TRACER_NAME = "Accumulation Pass";
-	private const string PASS_PATH_TRACER_NAME = "Path Tracer Pass";
-	#endregion Constants
-
 	#region Fields
-	[SerializeField] private PathTracerSettings m_Settings;
-	private PathTracerPass m_ScriptablePass;
+	#region Serialized
+	[SerializeField] private Settings m_Settings;
+	#endregion Serialized
+	#region Private
+	private PathTracerPass m_PathTracerPass;
+	private AccumulationTracerPath m_AccumulationTracerPass;
+
+	#endregion Private
 	#endregion Fields
 
 	#region Methods
 	public override void Create()
 	{
-		m_ScriptablePass = new PathTracerPass(m_Settings)
+		m_PathTracerPass = new PathTracerPass(m_Settings)
 		{
-			renderPassEvent = RenderPassEvent.AfterRenderingPostProcessing,
+			renderPassEvent = RenderPassEvent.BeforeRenderingPostProcessing,
+			requiresIntermediateTexture = true
+		};
+		
+		m_AccumulationTracerPass = new AccumulationTracerPath(m_Settings)
+		{
+			renderPassEvent = RenderPassEvent.BeforeRenderingPostProcessing,
 			requiresIntermediateTexture = true
 		};
 	}
 
 	protected override void Dispose(bool disposing)
 	{
-		m_ScriptablePass?.Dispose();
+		m_PathTracerPass?.Dispose();
 	}
 
 	public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
 	{
-		renderer.EnqueuePass(m_ScriptablePass);
+		renderer.EnqueuePass(m_PathTracerPass);
+		renderer.EnqueuePass(m_AccumulationTracerPass);
 	}
 	#endregion Methods
 
@@ -50,15 +57,13 @@ public class PathTracer : ScriptableRendererFeature
 		public static readonly int RAYS_PER_PIXEL_SHADER_ID = Shader.PropertyToID("_RaysPerPixel");
 	}
 
-	[Serializable]
-	private class PathTracerSettings
+	[Serializable] private class Settings
 	{
 		public Shader pathTracerShader;
 		public int maxDepth = 10;
 		[Min(1)] public int rayPerPixel = 1;
 	}
-
-
+	
 	[StructLayout(LayoutKind.Sequential)]
 	private struct Sphere
 	{
@@ -67,21 +72,24 @@ public class PathTracer : ScriptableRendererFeature
 		public Mat material;
 	}
 
-
 	private struct Mat
 	{
 		public Vector4 color;
 	}
 	#endregion Intern class
 
+	#region Pass
+
 	class PathTracerPass : ScriptableRenderPass, IDisposable
 	{
-		private readonly PathTracerSettings m_Settings;
+		private const string PASS_NAME = "Path Tracer Pass";
+		
+		private readonly Settings m_Settings;
 		private readonly Material m_Material;
 		private readonly GraphicsBuffer m_SphereBuffer;
 		private readonly int m_SphereCount = 10;
 
-		public PathTracerPass(PathTracerSettings settings)
+		public PathTracerPass(Settings settings)
 		{
 			m_Settings = settings;
 			m_Material = CoreUtils.CreateEngineMaterial(settings.pathTracerShader);
@@ -92,7 +100,7 @@ public class PathTracer : ScriptableRendererFeature
 			{
 				center = new Vector3(0, -100.5f, 0),
 				radius = 100f,
-				material = new Mat { color = Color.green }
+				material = new Mat { color = Color.grey }
 			};
 
 			for (int i = 1; i < m_SphereCount; i++)
@@ -109,25 +117,24 @@ public class PathTracer : ScriptableRendererFeature
 			m_SphereBuffer.SetData(spheres);
 		}
 
-		private class PassRasterData
+		private class PassData
 		{
 			public ProfilerMarker Marker;
 			public Material BlitMaterial;
 			public MaterialPropertyBlock PropertyBlock;
 		}
 
-		static void ExecutePass(PassRasterData data, RasterGraphContext context)
+		static void ExecutePass(PassData data, RasterGraphContext context)
 		{
 			CoreUtils.DrawFullScreen(context.cmd, data.BlitMaterial, data.PropertyBlock);
 		}
 
 		public override void RecordRenderGraph(RenderGraph renderGraph, ContextContainer frameData)
 		{
-
 			UniversalResourceData resourceData = frameData.Get<UniversalResourceData>();
 			UniversalCameraData cameraData = frameData.Get<UniversalCameraData>();
 
-			using (var builder = renderGraph.AddRasterRenderPass<PassRasterData>(PASS_PATH_TRACER_NAME, out var passData))
+			using (var builder = renderGraph.AddRasterRenderPass<PassData>(PASS_NAME, out var passData))
 			{
 				passData.BlitMaterial = m_Material;
 				passData.PropertyBlock = new MaterialPropertyBlock();
@@ -146,7 +153,7 @@ public class PathTracer : ScriptableRendererFeature
 				builder.AllowPassCulling(false);
 				builder.SetRenderAttachment(resourceData.activeColorTexture, 0);
 
-				builder.SetRenderFunc((PassRasterData data, RasterGraphContext context) => ExecutePass(data, context));
+				builder.SetRenderFunc((PassData data, RasterGraphContext context) => ExecutePass(data, context));
 			}
 
 
@@ -170,4 +177,29 @@ public class PathTracer : ScriptableRendererFeature
 			m_SphereBuffer?.Release();
 		}
 	}
+
+	class AccumulationTracerPath : ScriptableRenderPass
+	{
+		private const string PASS_NAME = "Accumulation Tracer Pass";
+		
+		private readonly Settings m_Settings;
+		public AccumulationTracerPath(Settings settings)
+		{
+			m_Settings = settings;
+		}
+
+		static void ExecutePass(ScriptableRenderContext context, RenderTextureDescriptor descriptor)
+		{
+			
+		}
+
+		public override void RecordRenderGraph(RenderGraph renderGraph, ContextContainer frameData)
+		{
+			base.RecordRenderGraph(renderGraph, frameData);
+		}
+	}
+
+	#endregion Pass
+	
+	
 }
