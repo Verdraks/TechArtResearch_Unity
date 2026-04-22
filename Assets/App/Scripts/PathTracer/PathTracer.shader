@@ -1,3 +1,4 @@
+
 Shader "Hidden/PathTracer"
 {
     HLSLINCLUDE
