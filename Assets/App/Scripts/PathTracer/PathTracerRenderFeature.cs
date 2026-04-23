@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.Rendering.RenderGraphModule;
+using UnityEngine.Rendering.RenderGraphModule.Util;
 
 public class PathTracerRenderFeature : ScriptableRendererFeature
 {
@@ -22,22 +23,13 @@ public class PathTracerRenderFeature : ScriptableRendererFeature
 	#region Methods
 	public override void Create()
 	{
-		m_PathTracerPass = new PathTracerPass(m_Settings)
-		{
-			renderPassEvent = RenderPassEvent.BeforeRenderingPostProcessing,
-			requiresIntermediateTexture = true
-		};
-		
-		m_AccumulationTracerPass = new AccumulationTracerPath(m_Settings)
-		{
-			renderPassEvent = RenderPassEvent.BeforeRenderingPostProcessing,
-			requiresIntermediateTexture = true
-		};
+		m_PathTracerPass = new PathTracerPass(m_Settings);
+		m_AccumulationTracerPass = new AccumulationTracerPath(m_Settings);
 	}
 
 	protected override void Dispose(bool disposing)
 	{
-		m_PathTracerPass?.Dispose();
+		m_PathTracerPass.Dispose();
 	}
 
 	public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
@@ -48,18 +40,10 @@ public class PathTracerRenderFeature : ScriptableRendererFeature
 	#endregion Methods
 
 	#region Intern class
-	private static class ShaderProperties
-	{
-		public static readonly int VIEW_PARAM_SHADER_ID = Shader.PropertyToID("_ViewParams");
-		public static readonly int MAX_DEPTH_SHADER_ID = Shader.PropertyToID("_MaxDepth");
-		public static readonly int SPHERE_BUFFER_SHADER_ID = Shader.PropertyToID("_SpheresBuffer");
-		public static readonly int SPHERE_COUNT_SHADER_ID = Shader.PropertyToID("_SpheresCount");
-		public static readonly int RAYS_PER_PIXEL_SHADER_ID = Shader.PropertyToID("_RaysPerPixel");
-	}
-
 	[Serializable] private class Settings
 	{
 		public Shader pathTracerShader;
+		public Shader accumulationTracerShader;
 		public int maxDepth = 10;
 		[Min(1)] public int rayPerPixel = 1;
 	}
@@ -79,9 +63,17 @@ public class PathTracerRenderFeature : ScriptableRendererFeature
 	#endregion Intern class
 
 	#region Pass
-
 	class PathTracerPass : ScriptableRenderPass, IDisposable
 	{
+		private static class ShaderProperties
+		{
+			public static readonly int VIEW_PARAM_SHADER_ID = Shader.PropertyToID("_ViewParams");
+			public static readonly int MAX_DEPTH_SHADER_ID = Shader.PropertyToID("_MaxDepth");
+			public static readonly int SPHERE_BUFFER_SHADER_ID = Shader.PropertyToID("_SpheresBuffer");
+			public static readonly int SPHERE_COUNT_SHADER_ID = Shader.PropertyToID("_SpheresCount");
+			public static readonly int RAYS_PER_PIXEL_SHADER_ID = Shader.PropertyToID("_RaysPerPixel");
+		}
+
 		private const string PASS_NAME = "Path Tracer Pass";
 		
 		private readonly Settings m_Settings;
@@ -89,8 +81,13 @@ public class PathTracerRenderFeature : ScriptableRendererFeature
 		private readonly GraphicsBuffer m_SphereBuffer;
 		private readonly int m_SphereCount = 10;
 
+		private readonly TextureHandle m_TargetRender;
+
 		public PathTracerPass(Settings settings)
 		{
+			renderPassEvent = RenderPassEvent.BeforeRenderingPostProcessing;
+			requiresIntermediateTexture = true;
+
 			m_Settings = settings;
 			m_Material = CoreUtils.CreateEngineMaterial(settings.pathTracerShader);
 			m_SphereBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, m_SphereCount, Marshal.SizeOf(typeof(Sphere)));
@@ -133,6 +130,10 @@ public class PathTracerRenderFeature : ScriptableRendererFeature
 		{
 			UniversalResourceData resourceData = frameData.Get<UniversalResourceData>();
 			UniversalCameraData cameraData = frameData.Get<UniversalCameraData>();
+
+			renderGraph.ImportBuffer(m_SphereBuffer);
+
+
 
 			using (var builder = renderGraph.AddRasterRenderPass<PassData>(PASS_NAME, out var passData))
 			{
@@ -183,23 +184,28 @@ public class PathTracerRenderFeature : ScriptableRendererFeature
 		private const string PASS_NAME = "Accumulation Tracer Pass";
 		
 		private readonly Settings m_Settings;
+		private readonly Material m_Material;
+
 		public AccumulationTracerPath(Settings settings)
 		{
-			m_Settings = settings;
-		}
+			renderPassEvent = RenderPassEvent.BeforeRenderingPostProcessing;
 
-		static void ExecutePass(ScriptableRenderContext context, RenderTextureDescriptor descriptor)
-		{
-			
+			m_Settings = settings;
+			m_Material = CoreUtils.CreateEngineMaterial(settings.pathTracerShader);
 		}
 
 		public override void RecordRenderGraph(RenderGraph renderGraph, ContextContainer frameData)
 		{
-			base.RecordRenderGraph(renderGraph, frameData);
+
+			RenderGraphUtils.BlitMaterialParameters blitMaterialParameters = new RenderGraphUtils.BlitMaterialParameters()
+			{
+				material = m_Material,
+				destination = frameData.Get<UniversalResourceData>().activeColorTexture,
+			};
+
+			//renderGraph.AddBlitPass(blitMaterialParameters, passName: PASS_NAME);
 		}
 	}
 
 	#endregion Pass
-	
-	
 }
