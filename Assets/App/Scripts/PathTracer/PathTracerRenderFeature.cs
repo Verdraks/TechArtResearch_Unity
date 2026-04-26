@@ -2,6 +2,7 @@ using System;
 using System.Runtime.InteropServices;
 using Unity.Profiling;
 using UnityEngine;
+using UnityEngine.LowLevelPhysics2D;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.Rendering.RenderGraphModule;
@@ -86,7 +87,6 @@ public class PathTracerRenderFeature : ScriptableRendererFeature
 		public PathTracerPass(Settings settings)
 		{
 			renderPassEvent = RenderPassEvent.BeforeRenderingPostProcessing;
-			requiresIntermediateTexture = true;
 
 			m_Settings = settings;
 			m_Material = CoreUtils.CreateEngineMaterial(settings.pathTracerShader);
@@ -117,27 +117,23 @@ public class PathTracerRenderFeature : ScriptableRendererFeature
 		private class PassData
 		{
 			public ProfilerMarker Marker;
-			public Material BlitMaterial;
+			public Material Material;
 			public MaterialPropertyBlock PropertyBlock;
 		}
 
 		static void ExecutePass(PassData data, RasterGraphContext context)
 		{
-			CoreUtils.DrawFullScreen(context.cmd, data.BlitMaterial, data.PropertyBlock);
+			CoreUtils.DrawFullScreen(context.cmd, data.Material, data.PropertyBlock);
 		}
 
 		public override void RecordRenderGraph(RenderGraph renderGraph, ContextContainer frameData)
 		{
 			UniversalResourceData resourceData = frameData.Get<UniversalResourceData>();
 			UniversalCameraData cameraData = frameData.Get<UniversalCameraData>();
-
-			renderGraph.ImportBuffer(m_SphereBuffer);
-
-
-
+			
 			using (var builder = renderGraph.AddRasterRenderPass<PassData>(PASS_NAME, out var passData))
 			{
-				passData.BlitMaterial = m_Material;
+				passData.Material = m_Material;
 				passData.PropertyBlock = new MaterialPropertyBlock();
 
 				Camera currentCamera = cameraData.camera;
@@ -156,21 +152,6 @@ public class PathTracerRenderFeature : ScriptableRendererFeature
 
 				builder.SetRenderFunc((PassData data, RasterGraphContext context) => ExecutePass(data, context));
 			}
-
-
-
-
-
-			//RenderGraphUtils.BlitMaterialParameters blitParam = new RenderGraphUtils.BlitMaterialParameters()
-			//{
-			//	destination = resourceData.activeColorTexture,
-			//};
-
-			//using (var builder = renderGraph.AddBlitPass(blitParam, passName: PASS_ACCUMULATION_TRACER_NAME))
-			//{
-			
-			//}
-
 		}
 
 		public void Dispose()
@@ -181,29 +162,76 @@ public class PathTracerRenderFeature : ScriptableRendererFeature
 
 	class AccumulationTracerPath : ScriptableRenderPass
 	{
+		private static class ShaderProperties
+		{
+			public static readonly int TEXTURE_CURRENT_FRAME_SHADER_ID = Shader.PropertyToID("_CurrentFrame");
+			public static readonly int TEXTURE_PREVIOUS_FRAME_SHADER_ID = Shader.PropertyToID("_PreviousFrame");
+			public static readonly int FRAME_INDEX_SHADER_ID = Shader.PropertyToID("_FrameIndex");
+		}
+
 		private const string PASS_NAME = "Accumulation Tracer Pass";
-		
-		private readonly Settings m_Settings;
 		private readonly Material m_Material;
+
+		private class PassData
+		{
+			public Material Material;
+			public TextureHandle CurrentFrame;
+			public RawColorHistory RawColorHistory;
+		}
 
 		public AccumulationTracerPath(Settings settings)
 		{
 			renderPassEvent = RenderPassEvent.BeforeRenderingPostProcessing;
+			requiresIntermediateTexture = true;
 
-			m_Settings = settings;
-			m_Material = CoreUtils.CreateEngineMaterial(settings.pathTracerShader);
+			m_Material = CoreUtils.CreateEngineMaterial(settings.accumulationTracerShader);
+		}
+
+		private static void ExecutePass(PassData data, RasterGraphContext context)
+		{
+			RTHandle previousFrameHandle = data.RawColorHistory.GetPreviousTexture(0);
+			
+			MaterialPropertyBlock propertyBlock = context.renderGraphPool.GetTempMaterialPropertyBlock();
+			propertyBlock.SetTexture(ShaderProperties.TEXTURE_PREVIOUS_FRAME_SHADER_ID, previousFrameHandle);
+			propertyBlock.SetTexture(ShaderProperties.TEXTURE_CURRENT_FRAME_SHADER_ID, data.CurrentFrame);
+			propertyBlock.SetInt(ShaderProperties.TEXTURE_PREVIOUS_FRAME_SHADER_ID, Time.renderedFrameCount);
+			
+			CoreUtils.DrawFullScreen(context.cmd, data.Material, propertyBlock);
 		}
 
 		public override void RecordRenderGraph(RenderGraph renderGraph, ContextContainer frameData)
 		{
+			UniversalResourceData resourceData = frameData.Get<UniversalResourceData>();
+			UniversalCameraData cameraData = frameData.Get<UniversalCameraData>();
 
-			RenderGraphUtils.BlitMaterialParameters blitMaterialParameters = new RenderGraphUtils.BlitMaterialParameters()
+			//TODO: history manager is always null
+			if (resourceData.isActiveTargetBackBuffer || cameraData.historyManager == null)
 			{
-				material = m_Material,
-				destination = frameData.Get<UniversalResourceData>().activeColorTexture,
-			};
+				return;
+			}
 
-			//renderGraph.AddBlitPass(blitMaterialParameters, passName: PASS_NAME);
+			cameraData.historyManager.RequestAccess<RawColorHistory>();
+
+			TextureHandle source = resourceData.activeColorTexture;
+			TextureDesc destinationDesc = renderGraph.GetTextureDesc(source);
+			destinationDesc.name = $"CameraColor-{PASS_NAME}";
+			destinationDesc.clearBuffer = true;
+			TextureHandle targetPass = renderGraph.CreateTexture(destinationDesc);
+			
+			using (var builder = renderGraph.AddRasterRenderPass<PassData>(PASS_NAME, out var passData))
+			{
+				passData.Material = m_Material;
+				passData.CurrentFrame = source;
+				passData.RawColorHistory = cameraData.historyManager.GetHistoryForWrite<RawColorHistory>();
+
+				builder.AllowPassCulling(false);
+				builder.UseTexture(source, AccessFlags.Read);
+				builder.SetRenderAttachment(targetPass, 0);
+
+				builder.SetRenderFunc((PassData data, RasterGraphContext context) => ExecutePass(data, context));
+			}
+
+			resourceData.cameraColor = targetPass;
 		}
 	}
 
