@@ -9,7 +9,7 @@ Shader "Hidden/AccumulationTracer"
 
         Tags { "RenderType"="Opaque" }
         LOD 100
-        ZWrite Off Cull Off
+        ZWrite Off Cull Off ZTest Always
         Pass
         {
             Name "AccumulationTracer"
@@ -22,14 +22,29 @@ Shader "Hidden/AccumulationTracer"
                 uint _FrameIndex;
             CBUFFER_END
 
-            #pragma vertex Vert
+            #pragma vertex VertTris
             #pragma fragment Frag
 
+            Varyings VertTris(Attributes input)
+            {
+                Varyings output;
+                UNITY_SETUP_INSTANCE_ID(input);
+                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
+
+                float4 pos = GetFullScreenTriangleVertexPosition(input.vertexID);
+                float2 uv = GetFullScreenTriangleTexCoord(input.vertexID);
+
+                output.positionCS = pos;
+                output.texcoord = uv;
+
+                return output;
+            }
+            
             float4 Frag (Varyings input) : SV_Target
             {
                 float4 previousColor = SAMPLE_TEXTURE2D(_PreviousFrame, sampler_LinearClamp, input.texcoord);
                 float4 currentColor = SAMPLE_TEXTURE2D(_CurrentFrame, sampler_LinearClamp, input.texcoord);
-
+                
                 float weight = 1.0 / (_FrameIndex + 1);
 
                 float4 color = lerp(previousColor, currentColor, weight);

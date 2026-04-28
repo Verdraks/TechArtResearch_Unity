@@ -36,7 +36,8 @@ Shader "Hidden/PathTracer"
 
             CBUFFER_START(UnityPerMaterial)
                 float4 _ViewParams; // xy: near plane size
-                float _RaysPerPixel;
+                uint _FrameIndex;
+                uint _RaysPerPixel;
                 uint _MaxDepth;
                 uint _SpheresCount;
                 StructuredBuffer<Sphere> _SpheresBuffer;
@@ -78,7 +79,7 @@ Shader "Hidden/PathTracer"
                     {
                         r.origin = rec.p;
                         r.direction = RandomHemisphereDirection(rec.normal, state);
-                        attenuation *= rec.material.color;
+                        attenuation *= rec.material.color.xyz;
                     }
                     else
                     {
@@ -104,24 +105,23 @@ Shader "Hidden/PathTracer"
                 return output;
             }
             
-            float4 Frag(Varyings input, SamplerState blitsampler) : SV_Target
+            float4 Frag(Varyings input) : SV_Target
             {
                 uint2 pixelCoord = input.texcoord * _ScreenParams.xy;
                 uint pixelIndex = pixelCoord.y * _ScreenParams.x + pixelCoord.x;
-                uint state = pixelIndex;
+                uint state = pixelIndex + _FrameIndex;
                 
                 float3 viewPointLS = float3(input.texcoord - 0.5f, 1) * float3(_ViewParams.x, _ViewParams.y, _ProjectionParams.y);
                 float3 viewPointWS = mul(unity_CameraToWorld, float4(viewPointLS, 1.0)).xyz;
 
                 Ray r;
                 r.origin = _WorldSpaceCameraPos;
-                    r.direction = normalize(viewPointWS - r.origin);
+                r.direction = normalize(viewPointWS - r.origin);
                 
                 float3 color;
                 
                 for (int i = 0; i < _RaysPerPixel; i++)
                 {
-                    
                     color += TraceRay(r, state);
                 }
                 

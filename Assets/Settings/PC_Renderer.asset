@@ -37,8 +37,8 @@ MonoBehaviour:
   m_Settings:
     pathTracerShader: {fileID: 4800000, guid: 98de7ee8083448e3adcfd497c8e5106f, type: 3}
     accumulationTracerShader: {fileID: 4800000, guid: a5df6462abec0734993913d86bc0d4fd, type: 3}
-    maxDepth: 10
-    rayPerPixel: 10
+    maxDepth: 100
+    rayPerPixel: 100
 --- !u!114 &-1498121840346258074
 MonoBehaviour:
   m_ObjectHideFlags: 0
