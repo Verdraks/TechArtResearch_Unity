@@ -67,6 +67,7 @@ MonoBehaviour:
   - {fileID: 3636266688625395197}
   - {fileID: 2844254182503209177}
   - {fileID: 1254273944766131497}
+  - {fileID: 3140589369309160965}
 --- !u!114 &1254273944766131497
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -123,6 +124,19 @@ MonoBehaviour:
   maxNits:
     m_OverrideState: 0
     m_Value: 1000
+--- !u!114 &3140589369309160965
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5400a636731f4852a71cb31f65591876, type: 3}
+  m_Name: RayTracingVolumeComponent
+  m_EditorClassIdentifier: RayTracing.Runtime::RayTracing.Runtime.RayTracingVolumeComponent
+  active: 1
 --- !u!114 &3636266688625395197
 MonoBehaviour:
   m_ObjectHideFlags: 3
