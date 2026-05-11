@@ -150,10 +150,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: PathTracing.Runtime::PathTracer.PathTracingSphereRenderer
   m_Data:
     material:
-      albedo: {r: 0.4284861, g: 0.3764706, b: 0.7137255, a: 1}
-      emissive: {x: 0, y: 0, z: 0}
+      albedo: {x: 1, y: 1, z: 1}
       emissiveStrength: 0
-    center: {x: 1.365, y: 1.08, z: 0.71}
+      emissive: {x: 0, y: 0, z: 0}
+      metallicFuzz: 0.407
+      refractiveIndex: 1.5
+      materialType: 2
+    center: {x: 1.365, y: 1.08, z: 1.68}
     radius: 1
 --- !u!4 &277013074
 Transform:
@@ -164,7 +167,7 @@ Transform:
   m_GameObject: {fileID: 277013072}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.365, y: 1.08, z: 0.71}
+  m_LocalPosition: {x: 1.365, y: 1.08, z: 1.68}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -226,9 +229,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: RayTracing.Runtime::RayTracing.Runtime.RayTracingMeshRenderer
   m_Data:
-    albedo: {r: 0.77145875, g: 0.6995758, b: 0.058854964, a: 0}
-    emissive: {x: 0, y: 0, z: 0}
+    albedo: {x: 0, y: 0, z: 0}
     emissiveStrength: 0
+    emissive: {x: 0, y: 0, z: 0}
+    metallicFuzz: 0
+    refractiveIndex: 0
+    materialType: 0
   m_MeshFilter: {fileID: 554545386}
 --- !u!4 &554545388
 Transform:
@@ -276,9 +282,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: PathTracing.Runtime::PathTracer.PathTracingSphereRenderer
   m_Data:
     material:
-      albedo: {r: 0.2342502, g: 0.7642811, b: 0.08367333, a: 0}
-      emissive: {x: 0, y: 0, z: 0}
+      albedo: {x: 0, y: 1, z: 0}
       emissiveStrength: 0
+      emissive: {x: 0, y: 0, z: 0}
+      metallicFuzz: 0
+      refractiveIndex: 0
+      materialType: 0
     center: {x: 0, y: -100, z: 0}
     radius: 100
 --- !u!4 &635050707
@@ -408,7 +417,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1316057397
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -423,9 +432,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: PathTracing.Runtime::PathTracer.PathTracingSphereRenderer
   m_Data:
     material:
-      albedo: {r: 1, g: 1, b: 1, a: 0}
-      emissive: {x: 1, y: 1, z: 1}
+      albedo: {x: 0, y: 0, z: 0}
       emissiveStrength: 5.12
+      emissive: {x: 1, y: 1, z: 1}
+      metallicFuzz: 0
+      refractiveIndex: 0
+      materialType: 0
     center: {x: 2.36, y: 5.05, z: 0}
     radius: 1.81
 --- !u!4 &1316057398
@@ -474,9 +486,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: PathTracing.Runtime::PathTracer.PathTracingSphereRenderer
   m_Data:
     material:
-      albedo: {r: 1, g: 0, b: 0.0930233, a: 1}
-      emissive: {x: 0, y: 0, z: 0}
+      albedo: {x: 1, y: 1, z: 1}
       emissiveStrength: 0
+      emissive: {x: 0, y: 0, z: 0}
+      metallicFuzz: 0
+      refractiveIndex: 0
+      materialType: 0
     center: {x: 2.41, y: 1.08, z: -2.04}
     radius: 1
 --- !u!4 &1567050337
@@ -525,10 +540,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: PathTracing.Runtime::PathTracer.PathTracingSphereRenderer
   m_Data:
     material:
-      albedo: {r: 0.9695608, g: 1, b: 0.9609133, a: 0}
-      emissive: {x: 0, y: 0, z: 0}
+      albedo: {x: 1, y: 1, z: 0}
       emissiveStrength: 0
-    center: {x: 0, y: 1.008, z: 0}
+      emissive: {x: 0, y: 0, z: 0}
+      metallicFuzz: 0
+      refractiveIndex: 0
+      materialType: 0
+    center: {x: -2.19, y: 1.008, z: 0}
     radius: 1
 --- !u!4 &1761818832
 Transform:
@@ -539,7 +557,7 @@ Transform:
   m_GameObject: {fileID: 1761818830}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.008, z: 0}
+  m_LocalPosition: {x: -2.19, y: 1.008, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

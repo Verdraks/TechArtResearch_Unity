@@ -14,6 +14,7 @@ Shader "RayTracing/PathTracer"
     #include "./Common/Random.hlsl"
     #include "./Common/Interval.hlsl"
     #include "./Common/MeshInfo.hlsl"
+    #include "./Common/BRDF.hlsl"
     ENDHLSL
 
     SubShader
@@ -101,22 +102,32 @@ Shader "RayTracing/PathTracer"
                     HitRecord rec = CalculateHitRecord(r, interval);
                     if (rec.hit)
                     {
-                        r.origin = rec.p;
-                        r.direction = rec.normal + RandomDirection(state);
-                        
-                        float3 emittedLight = rec.material.emissive * rec.material.emissiveStrength;
-                        emission += emittedLight * rayColor;
-                        rayColor *= rec.material.albedo.xyz;
-                        
-                        // If the ray color is closed to black, we can consider it not gonna hit anything else
-                        if (RandomValue(state) >= max(rayColor.x, max(rayColor.y, rayColor.z) ))
+                        Ray scattered;
+                        float3 attenuation;
+                        if (Scatter(state, r, rec,  attenuation, scattered))
                         {
+                            r.origin = scattered.origin;
+                            r.direction = scattered.direction;
+                            
+                            emission += rec.material.GetEmissive() * rayColor;
+                            rayColor *= attenuation;
+                            
+                            // If the ray color is closed to black, we can consider it not gonna hit anything else
+                            if (RandomValue(state) >= max(rayColor.x, max(rayColor.y, rayColor.z) ))
+                            {
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            emission = (float3)0;
+                            rayColor = (float3)0;
                             break;
                         }
                     }
                     else
                     {
-                        // emission += rayColor * CalculateAtmosphereColor(r);
+                        emission += rayColor * CalculateAtmosphereColor(r);
                         break;
                     }
                 }
@@ -145,7 +156,7 @@ Shader "RayTracing/PathTracer"
                 uint pixelIndex = pixelCoord.y * _ScreenParams.x + pixelCoord.x;
                 uint state = pixelIndex + _FrameIndex * 719393;
                 
-                float3 viewPointLS = float3(input.texcoord - 0.5f, 1) * float3(_ViewParams.x, _ViewParams.y, _ProjectionParams.y);
+                float3 viewPointLS = float3(input.texcoord - 0.5f, 1) * float3(_ViewParams.x, _ViewParams.y, _ViewParams.z);
                 float3 viewPointWS = mul(unity_CameraToWorld, float4(viewPointLS, 1.0)).xyz;
 
                 float3 camRight = unity_CameraToWorld._m00_m10_m20;
@@ -170,7 +181,6 @@ Shader "RayTracing/PathTracer"
                 }
                 
                 color = color/float(_RaysPerPixel);
-                // color = SafeNormalize(color);
                 
                 return float4(color,1);
             }
