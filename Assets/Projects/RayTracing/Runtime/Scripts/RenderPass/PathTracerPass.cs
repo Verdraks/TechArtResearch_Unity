@@ -105,7 +105,7 @@ namespace RayTracing.Runtime
 			RenderTextureDescriptor historyDesc = cameraData.cameraTargetDescriptor;
 			historyDesc.depthBufferBits = 0;
 			historyDesc.msaaSamples = 1;
-			historyDesc.colorFormat = RenderTextureFormat.ARGBHalf;
+			historyDesc.colorFormat = RenderTextureFormat.ARGBFloat;
 			return historyDesc;
 		}
 
@@ -115,7 +115,7 @@ namespace RayTracing.Runtime
 			support.name = PATH_TRACER_TEXTURE_NAME;
 			support.depthBufferBits = 0;
 			support.msaaSamples =  MSAASamples.None;
-			support.format = GraphicsFormat.R16G16B16A16_SFloat;
+			support.format = GraphicsFormat.R32G32B32A32_SFloat;
 			support.clearBuffer = false;
 			 return support;
 		}
@@ -208,7 +208,7 @@ namespace RayTracing.Runtime
 
 			TextureDesc desc = GetTextureFormatDescription(renderGraph, resourceData);
 			TextureHandle pathTracerTexture = renderGraph.CreateTexture(desc);
-
+			
 			pathTracerData.frameIndex = frameIndex;
 			pathTracerData.pathTracerTexture = pathTracerTexture;
 

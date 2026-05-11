@@ -39,8 +39,8 @@ MonoBehaviour:
     accumulationTracerShader: {fileID: 4800000, guid: a5df6462abec0734993913d86bc0d4fd, type: 3}
     maxDepth: 100
     rayPerPixel: 100
-    defocusStrength: 0
-    divergeStrength: 0
+    defocusStrength: 0.1
+    divergeStrength: 0.1
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0

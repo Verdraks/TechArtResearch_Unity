@@ -16,8 +16,9 @@ namespace RayTracing.Runtime
 			public Shader accumulationTracerShader;
 			[Space] [Min(1)] public int maxDepth = 10;
 			[Min(1)] public int rayPerPixel = 1;
-			[Space] [Min(0)] public float defocusStrength = 0.0f;
-			[Min(0)] public float divergeStrength = 0.0f;
+			[Space] 
+			[Min(0.1f)] public float defocusStrength = 0.1f;
+			[Min(0.1f)] public float divergeStrength = 0.1f;
 		}
 		#endregion Intern class
 
