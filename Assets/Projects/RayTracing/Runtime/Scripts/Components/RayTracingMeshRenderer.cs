@@ -83,14 +83,22 @@ namespace RayTracing.Runtime
         private void OnEnable()
         {
             Elements.Add(this);
+            OnValidate();
         }
 
         private void OnValidate()
         {
-            m_TrianglesCount = m_MeshFilter.sharedMesh.triangles.Length/3;
+            m_TrianglesCount = Mathf.RoundToInt(m_MeshFilter.sharedMesh.triangles.Length/3.0f);
         }
 
         private void OnDisable()
+        {
+            Elements.Remove(this);
+            m_LocalTriangles = null;
+            m_WorldTriangles = null;
+        }
+
+        private void OnDestroy()
         {
             Elements.Remove(this);
             m_LocalTriangles = null;

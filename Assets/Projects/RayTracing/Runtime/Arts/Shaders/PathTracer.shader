@@ -127,7 +127,7 @@ Shader "RayTracing/PathTracer"
                     }
                     else
                     {
-                        emission += rayColor * CalculateAtmosphereColor(r);
+                        // emission += rayColor * CalculateAtmosphereColor(r);
                         break;
                     }
                 }

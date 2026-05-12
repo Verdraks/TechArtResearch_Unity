@@ -139,7 +139,7 @@ namespace RayTracing.Runtime
 			for (int i = 0; i < meshesInfos.Length; i++)
 			{
 				meshesInfos[i] = RayTracingMeshRenderer.Elements[i].MeshInfo;
-				meshesInfos[i].firstTriangleIndex = i <= 0 ? 0 : meshesInfos[i - 1].trianglesCount - 1;
+				meshesInfos[i].firstTriangleIndex = i <= 0 ? 0 : meshesInfos[i - 1].firstTriangleIndex + meshesInfos[i-1].trianglesCount;
 
 				Triangle[] meshTriangles = RayTracingMeshRenderer.Elements[i].Triangles;
 

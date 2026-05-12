@@ -17,8 +17,8 @@ namespace RayTracing.Runtime
 			[Space] [Min(1)] public int maxDepth = 10;
 			[Min(1)] public int rayPerPixel = 1;
 			[Space] 
-			[Min(0.1f)] public float defocusStrength = 0.1f;
-			[Min(0.1f)] public float divergeStrength = 0.1f;
+			[Min(0.0f)] public float defocusStrength = 0.1f;
+			[Min(0.0f)] public float divergeStrength = 0.1f;
 		}
 		#endregion Intern class
 
