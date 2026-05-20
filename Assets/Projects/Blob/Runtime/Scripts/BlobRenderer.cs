@@ -25,7 +25,7 @@ namespace Blob.Runtime
     [System.Serializable, StructLayout(LayoutKind.Sequential)]
     public struct BlobData
     {
-        public Vector3 position;
+        [HideInInspector]public Vector3 position;
         public Vector3 color;
     }
 }
