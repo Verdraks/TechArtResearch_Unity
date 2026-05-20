@@ -14,7 +14,7 @@ namespace Blob.Runtime
 		{
 			internal static readonly int BlobBuffer = Shader.PropertyToID("_BlobBuffer");
 			internal static readonly int BlobCount = Shader.PropertyToID("_BlobCount");
-			internal static readonly int blitScaleBias = Shader.PropertyToID("ShaderProperties");
+			internal static readonly int blitScaleBias = Shader.PropertyToID("_BlitScaleBias");
 		}
 
 		private class PassData
@@ -70,7 +70,6 @@ namespace Blob.Runtime
 
 			propertyBlock.SetBuffer(ShaderProperties.BlobBuffer, data.BlobBuffer);
 			propertyBlock.SetInteger(ShaderProperties.BlobCount, data.BlobCount);
-			propertyBlock.SetVector(ShaderProperties.blitScaleBias, new Vector4(1, 1, 0, 0));
 
 			CoreUtils.DrawFullScreen(context.cmd, data.Material, propertyBlock);
 		}
