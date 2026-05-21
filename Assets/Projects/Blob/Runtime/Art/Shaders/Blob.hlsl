@@ -1,6 +1,8 @@
 #ifndef BLOB_INCLUDED
 #define BLOB_INCLUDED
 
+#include "Packages/com.unity.shadergraph/ShaderGraphLibrary/Functions.hlsl"
+
 struct BlobData
 {
     float3 position;
@@ -13,6 +15,17 @@ int _BlobCount;
 float SDF_Sphere(float3 p, float3 center, float radius)
 {
     return length(p - center) - radius;
+}
+
+float GetMaxDepth(float4 screenPosition, float3 ray, float3 viewDir)
+{
+    float4 screenUV = (float4)1;
+    float sceneDepth = SHADERGRAPH_SAMPLE_SCENE_DEPTH(screenUV);
+    
+    ray = ray/dot(ray,viewDir);
+    float3 maxRay = sceneDepth * ray;
+    float maxDepth = length(maxRay);
+    return maxDepth;
 }
 
 void SDF_Scene(float3 p, out float dist)
@@ -30,25 +43,27 @@ void SDF_Scene(float3 p, out float dist)
     }
 }
 
-void BlobTrace_float(float3 viewDir, float3 viewPos, float maxDepth, float maxDistance, float eps, out float3 color, out bool hit)
+void BlobTrace_float(float3 viewDir, float3 viewPos, float maxStep, float maxDistance, float eps, out float3 color, out bool hit)
 {
+    float maxDepth = GetMaxDepth(float4(0,0,0,0), viewPos, viewDir);
+    
     #if defined(SHADERGRAPH_PREVIEW)
     color = float3(0, 0, 0);
     hit = false;
     return;
     #endif
     
-    float t = 0;
+    float distance = 0;
     hit = false;
     color = float3(0, 0, 0);
     int steps = 0;
     
-    while (steps < maxDepth && t < maxDistance)
+    while (steps < maxStep && distance < maxDistance)
     {
-        float3 pos = viewPos + t * viewDir;
+        float3 pos = viewPos + distance * viewDir;
         float dist;
         SDF_Scene(pos, dist);
-        t += dist;
+        distance += dist;
         
         if (dist <= eps)
         {
