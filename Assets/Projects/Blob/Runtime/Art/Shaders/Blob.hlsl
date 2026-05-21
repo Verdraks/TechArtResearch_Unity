@@ -1,8 +1,6 @@
 #ifndef BLOB_INCLUDED
 #define BLOB_INCLUDED
 
-#include "Packages/com.unity.shadergraph/ShaderGraphLibrary/Functions.hlsl"
-
 struct BlobData
 {
     float3 position;
@@ -12,41 +10,35 @@ struct BlobData
 StructuredBuffer<BlobData> _BlobBuffer;
 int _BlobCount;
 
+float SMin_float(float a, float b, float k)
+{
+    k *= 1.0 / (1.0 - sqrt(0.5));
+    float h = max(k - abs(a - b), 0.0) / k;
+    const float b2 = 13.0 / 4.0 - 4.0 * sqrt(0.5);
+    const float b3 = 3.0 / 4.0 - 1.0 * sqrt(0.5);
+    return min(a, b) - k * h * h * (h * b3 * (h - 4.0) + b2);
+}
+
 float SDF_Sphere(float3 p, float3 center, float radius)
 {
     return length(p - center) - radius;
 }
 
-float GetMaxDepth(float4 screenPosition, float3 ray, float3 viewDir)
-{
-    float4 screenUV = (float4)1;
-    float sceneDepth = SHADERGRAPH_SAMPLE_SCENE_DEPTH(screenUV);
-    
-    ray = ray/dot(ray,viewDir);
-    float3 maxRay = sceneDepth * ray;
-    float maxDepth = length(maxRay);
-    return maxDepth;
-}
-
 void SDF_Scene(float3 p, out float dist)
 {
-    dist = 1e9;
+    dist = 1.#INF;
     
     for (int i = 0; i < _BlobCount; i++)
     {
         BlobData data = _BlobBuffer[i];
         float d = SDF_Sphere(p, data.position, 1);
-        if (d < dist)
-        {
-            dist = d;
-        }
+        dist = SMin_float(dist, d, 0.1);
     }
 }
 
-void BlobTrace_float(float3 viewDir, float3 viewPos, float maxStep, float maxDistance, float eps, out float3 color, out bool hit)
+/// @param maxDepth Depth in LinearEye
+void BlobTrace_float(float3 viewDir, float3 viewPos, float maxDepth, float maxStep, float maxDistance, float eps, out float3 color, out bool hit)
 {
-    float maxDepth = GetMaxDepth(float4(0,0,0,0), viewPos, viewDir);
-    
     #if defined(SHADERGRAPH_PREVIEW)
     color = float3(0, 0, 0);
     hit = false;
@@ -58,7 +50,7 @@ void BlobTrace_float(float3 viewDir, float3 viewPos, float maxStep, float maxDis
     color = float3(0, 0, 0);
     int steps = 0;
     
-    while (steps < maxStep && distance < maxDistance)
+    while (steps < maxStep && distance < maxDistance && distance < maxDepth)
     {
         float3 pos = viewPos + distance * viewDir;
         float dist;
@@ -74,6 +66,4 @@ void BlobTrace_float(float3 viewDir, float3 viewPos, float maxStep, float maxDis
         steps++;
     }
 }
-
-
 #endif
