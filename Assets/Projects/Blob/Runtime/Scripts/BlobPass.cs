@@ -30,12 +30,17 @@ namespace Blob.Runtime
 
 		public BlobPass(Shader shader)
 		{
-			renderPassEvent = RenderPassEvent.BeforeRenderingTransparents;
+			renderPassEvent = RenderPassEvent.AfterRenderingTransparents;
+			
 			_material = CoreUtils.CreateEngineMaterial(shader);
-
 			_bufferBlob = new GraphicsBuffer(GraphicsBuffer.Target.Structured, 1024, Marshal.SizeOf<BlobData>());
 		}
 
+		public ScriptableRenderPassInput GetRequiredInput()
+		{
+			return ScriptableRenderPassInput.Depth;
+		}
+		
 		public override void RecordRenderGraph(RenderGraph renderGraph, ContextContainer frameData)
 		{
 			UniversalResourceData ressource = frameData.Get<UniversalResourceData>();
@@ -54,6 +59,7 @@ namespace Blob.Runtime
 
 				BufferHandle blobBuffer = renderGraph.ImportBuffer(_bufferBlob);
 				builder.UseBuffer(blobBuffer, AccessFlags.Read);
+				builder.UseTexture(ressource.activeDepthTexture, AccessFlags.Read);
 
 				passData.BlobBuffer = blobBuffer;
 				passData.BlobCount = blobsData.Length;

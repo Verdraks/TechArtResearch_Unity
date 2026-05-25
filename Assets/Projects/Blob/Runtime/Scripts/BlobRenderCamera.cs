@@ -13,7 +13,6 @@ namespace Blob.Runtime
     {
         [Header("References")]
         [SerializeField] private Shader _blobFullscreenShader;
-
         private BlobPass _pass;
 
         private void OnEnable()
@@ -22,9 +21,10 @@ namespace Blob.Runtime
             _pass = new BlobPass(_blobFullscreenShader);
 		}
 
-		private void InjectPass(ScriptableRenderContext context, Camera camera)
+		private void InjectPass(ScriptableRenderContext context, Camera cam)
 		{
-			camera.GetUniversalAdditionalCameraData().scriptableRenderer.EnqueuePass(_pass);
+			_pass.ConfigureInput(_pass.GetRequiredInput());
+			cam.GetUniversalAdditionalCameraData().scriptableRenderer.EnqueuePass(_pass);
 		}
 
         private void OnDisable()
