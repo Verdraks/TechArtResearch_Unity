@@ -51,7 +51,7 @@ void BlobTrace_float(float3 viewDir, float3 viewPos, float maxStep, float2 range
     color = float3(0, 0, 0);
     int steps = 0;
     
-    while (steps < maxStep && distance < rangeView.y)
+    while (steps < maxStep && distance <= rangeView.y)
     {
         float3 pos = viewPos + distance * viewDir;
         float dist;
