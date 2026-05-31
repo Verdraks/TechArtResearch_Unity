@@ -24,7 +24,7 @@ float SDF_Sphere(float3 p, float3 center, float radius)
     return length(p - center) - radius;
 }
 
-void SDF_Scene(float3 p, out float dist)
+void SDF_Scene(float3 p, float k, out float dist)
 {
     dist = 1.#INF;
     
@@ -32,12 +32,12 @@ void SDF_Scene(float3 p, out float dist)
     {
         BlobData data = _BlobBuffer[i];
         float d = SDF_Sphere(p, data.position, 1);
-        dist = SMin_float(dist, d, 0.1);
+        dist = SMin_float(dist, d, k );
     }
 }
 
 /// @param maxDepth Depth in LinearEye
-void BlobTrace_float(float3 viewDir, float3 viewPos, float maxStep, float2 rangeView, float eps, out float3 color, out bool hit, out float t)
+void BlobTrace_float(in float3 viewDir, in float3 viewPos, in float maxStep, in float2 rangeView, in float eps, in float k, out float3 color, out bool hit, out float t)
 {
     #if defined(SHADERGRAPH_PREVIEW)
     color = float3(0, 0, 0);
@@ -48,14 +48,14 @@ void BlobTrace_float(float3 viewDir, float3 viewPos, float maxStep, float2 range
     
     float distance = rangeView.x;
     hit = false;
-    color = float3(0, 0, 0);
+    color = float3(1, 1, 1);
     int steps = 0;
     
     while (steps < maxStep && distance <= rangeView.y)
     {
         float3 pos = viewPos + distance * viewDir;
         float dist;
-        SDF_Scene(pos, dist);
+        SDF_Scene(pos, k, dist);
         distance += dist;
         
         if (dist <= eps)

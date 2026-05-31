@@ -12,17 +12,39 @@ namespace Blob.Runtime
 	public class BlobRenderCamera : MonoBehaviour
     {
         [Header("References")]
-        [SerializeField] private Shader _blobFullscreenShader;
+        [SerializeField] private Material  _blobFullscreenMat;
         private BlobPass _pass;
+
+        private void OnValidate()
+        {
+	        OnDisable();
+	        OnEnable();
+        }
 
         private void OnEnable()
         {
             RenderPipelineManager.beginCameraRendering += InjectPass;
-            _pass = new BlobPass(_blobFullscreenShader);
+            _pass = CreatePass();
 		}
 
+        private BlobPass CreatePass()
+        {
+	        if (_blobFullscreenMat == null)
+	        {
+		        return null;
+	        }
+	        
+	        BlobPass pass  = new BlobPass(_blobFullscreenMat);
+	        return pass;
+        }
+        
 		private void InjectPass(ScriptableRenderContext context, Camera cam)
 		{
+			if (_pass == null)
+			{
+				return;
+			}
+
 			_pass.ConfigureInput(_pass.GetRequiredInput());
 			cam.GetUniversalAdditionalCameraData().scriptableRenderer.EnqueuePass(_pass);
 		}
@@ -30,6 +52,7 @@ namespace Blob.Runtime
         private void OnDisable()
         {
             _pass?.Dispose();
+            _pass = null;
 			RenderPipelineManager.beginCameraRendering -= InjectPass;
 		}
     }
