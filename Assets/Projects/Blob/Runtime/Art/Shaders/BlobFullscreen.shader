@@ -10,6 +10,7 @@ Shader "Custom/BlobFullscreen"
     {
         HLSLINCLUDE
         #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+        #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
         #include  "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareDepthTexture.hlsl"
         #include "Packages/com.unity.render-pipelines.core/Runtime/Utilities/Blit.hlsl"
         ENDHLSL
@@ -63,7 +64,7 @@ Shader "Custom/BlobFullscreen"
                 return length(p - center) - radius;
             }
 
-            void SDF_Scene(float3 p, out float dist)
+            void SDF_Scene(in float3 p, out float dist)
             {
                 dist = FLT_MAX;
 
@@ -75,16 +76,58 @@ Shader "Custom/BlobFullscreen"
                 }
             }
 
-            void BlobTrace(in float3 viewDir, in float3 viewPos, in float2 tMinMax, out float3 color, out float3 normal, out float hit,
-                           out float t)
+            void SDF_Normal_Tetraedre(in float3 p, out float3 normal)
+            {
+                float h = max(FLT_EPS, _Eps * 1.5f);
+
+                float3 e1 = float3(h, -h, -h);
+                float3 e2 = float3(-h, -h, h);
+                float3 e3 = float3(-h, h, -h);
+                float3 e4 = float3(h, h, h);
+
+                float de1, de2, de3, de4;
+
+                SDF_Scene(p + e1, de1);
+                SDF_Scene(p + e2, de2);
+                SDF_Scene(p + e3, de3);
+                SDF_Scene(p + e4, de4);
+
+                float ddx = de1 - de2 - de3 + de4;
+                float ddy = -de1 - de2 + de3 + de4;
+                float ddz = -de1 + de2 - de3 + de4;
+
+                normal = normalize(float3(ddx, ddy, ddz));
+            }
+
+            void SDF_Normal_Octaedre(in float3 p, out float3 normal)
+            {
+                float h = max(FLT_EPS, _Eps * 1.5f);
+
+                float d_right, d_left, d_up, d_down, d_front, d_back;
+                SDF_Scene(p + float3(h, 0, 0), d_right);
+                SDF_Scene(p + float3(-h, 0, 0), d_left);
+                SDF_Scene(p + float3(0, h, 0), d_up);
+                SDF_Scene(p + float3(0, -h, 0), d_down);
+                SDF_Scene(p + float3(0, 0, h), d_front);
+                SDF_Scene(p + float3(0, 0, -h), d_back);
+
+                float pente_x = (d_right - d_left) / (2 * h);
+                float pente_y = (d_up - d_down) / (2 * h);
+                float pente_z = (d_front - d_back) / (2 * h);
+                normal = normalize(float3(pente_x, pente_y, pente_z));
+            }
+
+            void BlobTrace(in float3 viewDir, in float3 viewPos, in float2 tMinMax, out float3 color, out float3 normal,
+                               out float hit,
+                               out float t)
             {
                 hit = 0;
                 color = float3(1, 1, 1);
                 normal = 0;
-                
+
                 float distance = tMinMax.x;
-                
-                
+
+
                 UNITY_LOOP
                 for (int steps = 0; steps < _MaxSteps; steps++)
                 {
@@ -92,21 +135,16 @@ Shader "Custom/BlobFullscreen"
                     float dist;
                     SDF_Scene(pos, dist);
                     distance += dist;
-                    
+
                     if (distance > tMinMax.y)
                     {
                         break;
                     }
-                    
+
                     if (dist <= _Eps)
                     {
                         hit = 1;
-                        
-                        float distX = ddx(distance);
-                        float distY = ddy(distance);
-                        float distZ = cross(distX,distY);
-                        
-                        normal = float3(distX,distY,distZ);
+                        SDF_Normal_Tetraedre(pos, normal);
                         break;
                     }
                 }
@@ -129,7 +167,7 @@ Shader "Custom/BlobFullscreen"
 
                 return tMinMax;
             }
-            
+
             float3 ComputeWorldSpacePosition(float2 uv)
             {
                 float2 ndc = uv * 2.0f - 1.0f;
@@ -137,14 +175,14 @@ Shader "Custom/BlobFullscreen"
                 #if UNITY_UV_STARTS_AT_TOP
                 clip.y = -clip.y;
                 #endif
-                
+
                 return ComputeWorldSpacePosition(clip, unity_MatrixInvVP);
             }
 
             float4 Frag(Varyings input) : SV_Target
             {
-                float3 fragPosWS = ComputeWorldSpacePosition(input.texcoord); 
-                
+                float3 fragPosWS = ComputeWorldSpacePosition(input.texcoord);
+
                 float3 viewDirectionWS = GetWorldSpaceNormalizeViewDir(fragPosWS) * -1.0f;
                 float3 camPosWS = GetCameraPositionWS();
                 float2 tMinMax = GetTMinMax(input);
@@ -156,7 +194,11 @@ Shader "Custom/BlobFullscreen"
 
                 BlobTrace(viewDirectionWS, camPosWS, tMinMax, color, normal, hit, t);
 
-                return float4(color,hit);
+                Light mainLight = GetMainLight();
+                half3 attenuation = LightingLambert(mainLight.color, mainLight.direction, normal);
+                half3 specular = LightingSpecular(mainLight.color, mainLight.direction, normal, GetViewForwardDir() * -1,0.5,0.5f);
+
+                return float4(color * attenuation + specular, hit);
             }
             ENDHLSL
         }
