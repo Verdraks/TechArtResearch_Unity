@@ -75,28 +75,40 @@ Shader "Custom/BlobFullscreen"
                 }
             }
 
-            void BlobTrace(in float3 viewDir, in float3 viewPos, in float2 tMinMax, out float3 color, out float hit,
+            void BlobTrace(in float3 viewDir, in float3 viewPos, in float2 tMinMax, out float3 color, out float3 normal, out float hit,
                            out float t)
             {
-                float distance = tMinMax.x;
                 hit = 0;
                 color = float3(1, 1, 1);
-                int steps = 0;
-
-                while (steps < _MaxSteps && distance <= tMinMax.y)
+                normal = 0;
+                
+                float distance = tMinMax.x;
+                
+                
+                UNITY_LOOP
+                for (int steps = 0; steps < _MaxSteps; steps++)
                 {
                     float3 pos = viewPos + distance * viewDir;
                     float dist;
                     SDF_Scene(pos, dist);
                     distance += dist;
-
+                    
+                    if (distance > tMinMax.y)
+                    {
+                        break;
+                    }
+                    
                     if (dist <= _Eps)
                     {
                         hit = 1;
+                        
+                        float distX = ddx(distance);
+                        float distY = ddy(distance);
+                        float distZ = cross(distX,distY);
+                        
+                        normal = float3(distX,distY,distZ);
                         break;
                     }
-
-                    steps++;
                 }
 
                 t = distance;
@@ -140,8 +152,9 @@ Shader "Custom/BlobFullscreen"
                 float hit = false;
                 float t = 0.0f;
                 float3 color = 0;
+                float3 normal = 0;
 
-                BlobTrace(viewDirectionWS, camPosWS, tMinMax, color, hit, t);
+                BlobTrace(viewDirectionWS, camPosWS, tMinMax, color, normal, hit, t);
 
                 return float4(color,hit);
             }
