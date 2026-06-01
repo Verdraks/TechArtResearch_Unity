@@ -49,31 +49,54 @@ Shader "Custom/BlobFullscreen"
             StructuredBuffer<BlobData> _BlobBuffer;
             int _BlobCount;
 
-            float SMin_float(float a, float b, float k)
+
+            struct BlobTraceResult
+            {
+                float3 color;
+                float3 normal;
+                float smoothMask;
+                float distance;
+                float hit;
+            };
+            
+            void Smin_Circular(in float a, in float b, in float k, out float d, out float h)
             {
                 const float b2 = 13.0 / 4.0 - 4.0 * sqrt(0.5);
                 const float b3 = 3.0 / 4.0 - 1.0 * sqrt(0.5);
 
                 k *= 1.0 / (1.0 - sqrt(0.5));
-                float h = max(k - abs(a - b), 0.0) / k;
-                return min(a, b) - k * h * h * (h * b3 * (h - 4.0) + b2);
+                h = max(k - abs(a - b), 0.0) / k;
+                d =  min(a, b) - k * h * h * (h * b3 * (h - 4.0) + b2);
             }
-
+            
+            void Smin_Circular(in float a, in float b, in float k, out float d)
+            {
+                float h = 0.0f;
+                Smin_Circular(a,b,k,d,h);
+            }
+            
             float SDF_Sphere(float3 p, float3 center, float radius)
             {
                 return length(p - center) - radius;
             }
 
-            void SDF_Scene(in float3 p, out float dist)
+            void SDF_Scene(in float3 p, out float dist, out float mask)
             {
                 dist = FLT_MAX;
+                mask = FLT_MAX;
 
                 for (int i = 0; i < _BlobCount; i++)
                 {
                     BlobData data = _BlobBuffer[i];
                     float d = SDF_Sphere(p, data.position, 1);
-                    dist = SMin_float(dist, d, _K);
+                    Smin_Circular(dist, d, _K, dist, mask);
                 }
+            }
+            
+            void SDF_Scene(in float3 p ,out float dist)
+            {
+                float mask = 0.0f;
+                SDF_Scene(p,dist,mask);
             }
 
             void SDF_Normal_Tetraedre(in float3 p, out float3 normal)
@@ -117,39 +140,35 @@ Shader "Custom/BlobFullscreen"
                 normal = normalize(float3(pente_x, pente_y, pente_z));
             }
 
-            void BlobTrace(in float3 viewDir, in float3 viewPos, in float2 tMinMax, out float3 color, out float3 normal,
-                               out float hit,
-                               out float t)
+            void BlobTrace(in float3 viewDir, in float3 viewPos, in float2 tMinMax, out BlobTraceResult data)
             {
-                hit = 0;
-                color = float3(1, 1, 1);
-                normal = 0;
+                data = (BlobTraceResult)0;
 
-                float distance = tMinMax.x;
-
-
+                float dist;
+                float distanceMarched = tMinMax.x;
+                
                 UNITY_LOOP
                 for (int steps = 0; steps < _MaxSteps; steps++)
                 {
-                    float3 pos = viewPos + distance * viewDir;
-                    float dist;
-                    SDF_Scene(pos, dist);
-                    distance += dist;
+                    float3 pos = viewPos + distanceMarched * viewDir;
+                    
+                    SDF_Scene(pos, dist, data.smoothMask);
+                    distanceMarched += dist;
 
-                    if (distance > tMinMax.y)
+                    if (distanceMarched > tMinMax.y)
                     {
                         break;
                     }
 
                     if (dist <= _Eps)
                     {
-                        hit = 1;
-                        SDF_Normal_Tetraedre(pos, normal);
+                        data.hit = 1;
+                        SDF_Normal_Tetraedre(pos, data.normal);
                         break;
                     }
                 }
 
-                t = distance;
+                data.distance = distanceMarched;
             }
 
             float2 GetTMinMax(Varyings input)
@@ -187,18 +206,11 @@ Shader "Custom/BlobFullscreen"
                 float3 camPosWS = GetCameraPositionWS();
                 float2 tMinMax = GetTMinMax(input);
 
-                float hit = false;
-                float t = 0.0f;
-                float3 color = 0;
-                float3 normal = 0;
+                BlobTraceResult result;
 
-                BlobTrace(viewDirectionWS, camPosWS, tMinMax, color, normal, hit, t);
+                BlobTrace(viewDirectionWS, camPosWS, tMinMax, result);
 
-                Light mainLight = GetMainLight();
-                half3 attenuation = LightingLambert(mainLight.color, mainLight.direction, normal);
-                half3 specular = LightingSpecular(mainLight.color, mainLight.direction, normal, GetViewForwardDir() * -1,0.5,0.5f);
-
-                return float4(color * attenuation + specular, hit);
+                return float4((float3)result.smoothMask, result.hit);
             }
             ENDHLSL
         }

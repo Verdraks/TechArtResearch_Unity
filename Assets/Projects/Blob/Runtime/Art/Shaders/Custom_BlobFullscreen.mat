@@ -25,9 +25,9 @@ Material:
     m_TexEnvs: []
     m_Ints: []
     m_Floats:
-    - _Eps: 0.001
-    - _K: 0.246
-    - _MaxSteps: 200
+    - _Eps: 0.01
+    - _K: 0.374
+    - _MaxSteps: 100
     m_Colors: []
   m_BuildTextureStacks: []
   m_AllowLocking: 1
