@@ -4,7 +4,7 @@ Shader "Custom/BlobFullscreen"
     {
         _MaxSteps("MaxSteps", Int) = 100
         _Eps("Precision", Range(0.000001, 0.1)) = 0.001
-        _K("Thickness", Range(0.0001, 0.5)) = 0.01
+        _K("Thickness", Float) = 0.01
     }
     SubShader
     {
@@ -58,7 +58,7 @@ Shader "Custom/BlobFullscreen"
                 float distance;
                 float hit;
             };
-            
+
             void Smin_Circular(in float a, in float b, in float k, out float d, out float h)
             {
                 const float b2 = 13.0 / 4.0 - 4.0 * sqrt(0.5);
@@ -66,15 +66,64 @@ Shader "Custom/BlobFullscreen"
 
                 k *= 1.0 / (1.0 - sqrt(0.5));
                 h = max(k - abs(a - b), 0.0) / k;
-                d =  min(a, b) - k * h * h * (h * b3 * (h - 4.0) + b2);
+                d = min(a, b) - k * h * h * (h * b3 * (h - 4.0) + b2);
             }
-            
-            void Smin_Circular(in float a, in float b, in float k, out float d)
+
+            void Smin_Polynomial(in float a, in float b, in float k, out float d, out float h)
             {
-                float h = 0.0f;
-                Smin_Circular(a,b,k,d,h);
+                h = clamp(0.5 + 0.5 * (b - a) / k, 0.0, 1.0);
+                d = lerp(b, a, h) - k * h * (1.0 - h);
             }
-            
+
+            void Smin_Clamped(in float a, in float b, in float k, out float d, out float h)
+            {
+                d = abs(a - b);
+                if (d > k)
+                {
+                    d = min(a, b);
+                    return;
+                }
+
+                h = 0.5 + 0.5 * (b - a) / k;
+                h = clamp(h, 0.0, 1.0);
+                d = lerp(b, a, h) - k * h * (1.0 - h);
+            }
+
+            void Smin_Contact(in float a, in float b, in float k, out float d, out float h)
+            {
+                const float r = 1.0f;
+                float m = min(a, b);
+                d = abs(a - b);
+
+                if (d > r)
+                {
+                    d = m;
+                    return;
+                }
+
+                h = clamp(0.5 + 0.5 * (b - a) / k, 0.0, 1.0);
+                float s = lerp(b, a, h) - k * h * (1.0 - h);
+
+                d = min(m, s);
+            }
+
+            void Smin_Custom(in float a, in float b, in float k, out float d, out float h)
+            {
+                const float threshold = 1.0f;
+                d = abs(a - b);
+
+                if (d > threshold)
+                {
+                    d = min(a, b);
+                    return;
+                }
+
+                h = clamp(0.5 + 0.5 * (b - a) / k, 0.0, 1.0);
+                float s = lerp(b, a, h) - k * h * (1.0 - h);
+
+                d = s - threshold * 0.5;
+            }
+
             float SDF_Sphere(float3 p, float3 center, float radius)
             {
                 return length(p - center) - radius;
@@ -83,7 +132,7 @@ Shader "Custom/BlobFullscreen"
             void SDF_Scene(in float3 p, out float dist, out float mask)
             {
                 dist = FLT_MAX;
-                mask = FLT_MAX;
+                mask = 0.0f;
 
                 for (int i = 0; i < _BlobCount; i++)
                 {
@@ -92,11 +141,11 @@ Shader "Custom/BlobFullscreen"
                     Smin_Circular(dist, d, _K, dist, mask);
                 }
             }
-            
-            void SDF_Scene(in float3 p ,out float dist)
+
+            void SDF_Scene(in float3 p, out float dist)
             {
                 float mask = 0.0f;
-                SDF_Scene(p,dist,mask);
+                SDF_Scene(p, dist, mask);
             }
 
             void SDF_Normal_Tetraedre(in float3 p, out float3 normal)
@@ -146,12 +195,12 @@ Shader "Custom/BlobFullscreen"
 
                 float dist;
                 float distanceMarched = tMinMax.x;
-                
+
                 UNITY_LOOP
                 for (int steps = 0; steps < _MaxSteps; steps++)
                 {
                     float3 pos = viewPos + distanceMarched * viewDir;
-                    
+
                     SDF_Scene(pos, dist, data.smoothMask);
                     distanceMarched += dist;
 
@@ -210,7 +259,7 @@ Shader "Custom/BlobFullscreen"
 
                 BlobTrace(viewDirectionWS, camPosWS, tMinMax, result);
 
-                return float4((float3)result.smoothMask, result.hit);
+                return float4((float3)result.normal, result.hit);
             }
             ENDHLSL
         }
