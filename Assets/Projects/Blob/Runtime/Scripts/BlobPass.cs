@@ -49,7 +49,7 @@ namespace Blob.Runtime
 
         public ScriptableRenderPassInput GetRequiredInput()
         {
-            return ScriptableRenderPassInput.Depth;
+            return ScriptableRenderPassInput.Depth | ScriptableRenderPassInput.Normal;
         }
 
         public override void RecordRenderGraph(RenderGraph renderGraph, ContextContainer frameData)

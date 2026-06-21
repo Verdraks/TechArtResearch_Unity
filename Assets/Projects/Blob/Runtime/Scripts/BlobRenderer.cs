@@ -1,9 +1,12 @@
+using System;
+using System.Buffers;
 using System.Runtime.InteropServices;
+using UnityEditor;
 using UnityEngine;
 
 namespace Blob.Runtime
 {
-    [ExecuteInEditMode]
+    [ExecuteInEditMode, SelectionBase]
     public class BlobRenderer : MonoBehaviour
     {
         [SerializeField] private BlobData _blobData;
@@ -15,10 +18,17 @@ namespace Blob.Runtime
                 BlobData blobData = new BlobData
                 {
                     color = _blobData.color,
-                    position = transform.position
+                    position = transform.position,
+                    size = Mathf.Max(transform.localScale.x, transform.localScale.y, transform.localScale.z) * 0.5f
                 };
                 return blobData;
             }
+        }
+        
+        private void OnDrawGizmos()
+        {
+            Gizmos.color = Color.crimson;
+            Gizmos.DrawSphere(transform.position, 0.5f);
         }
     }
     
@@ -27,5 +37,6 @@ namespace Blob.Runtime
     {
         [HideInInspector]public Vector3 position;
         public Vector3 color;
+        [HideInInspector] public float size;
     }
 }

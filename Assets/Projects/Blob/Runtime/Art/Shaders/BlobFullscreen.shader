@@ -3,7 +3,7 @@ Shader "Custom/BlobFullscreen"
     Properties
     {
         _MaxSteps("MaxSteps", Int) = 100
-        _Eps("Precision", Range(0.000001, 0.1)) = 0.001
+        _Eps("Precision", Range(0.00001, 0.1)) = 0.001
         _K("Thickness", Float) = 0.01
     }
     SubShader
@@ -13,6 +13,8 @@ Shader "Custom/BlobFullscreen"
         #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
         #include  "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareDepthTexture.hlsl"
         #include "Packages/com.unity.render-pipelines.core/Runtime/Utilities/Blit.hlsl"
+        
+        
         ENDHLSL
 
         Tags
@@ -20,16 +22,33 @@ Shader "Custom/BlobFullscreen"
             "RenderPipeline"="UniversalPipeline" "RenderType"="Transparent"
         }
 
-        ZWrite Off ZTest Off Cull Off
+        ZWrite On ZTest Off Cull Off
         Blend SrcAlpha OneMinusSrcAlpha, One OneMinusSrcAlpha
 
         Pass
         {
             Name "BlobFullscreen"
 
+            Tags
+            {
+                "LightMode" = "UniversalForward"
+            }
+            
             HLSLPROGRAM
             #pragma vertex Vert
             #pragma fragment Frag
+            
+            // Universal Pipeline keywords
+            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
+            #pragma multi_compile _ _ADDITIONAL_LIGHTS
+            #pragma multi_compile _ EVALUATE_SH_MIXED EVALUATE_SH_VERTEX
+            #pragma multi_compile_fragment _ _ADDITIONAL_LIGHT_SHADOWS
+            #pragma multi_compile_fragment _ _SHADOWS_SOFT _SHADOWS_SOFT_LOW _SHADOWS_SOFT_MEDIUM _SHADOWS_SOFT_HIGH
+            #pragma multi_compile_fragment _ _LIGHT_COOKIES
+            #pragma multi_compile _ _CLUSTER_LIGHT_LOOP
+            
+            // Unity defined keywords
+            #pragma multi_compile_fragment _ DEBUG_DISPLAY
 
             #pragma enable_cbuffer
             #pragma editor_sync_compilation
@@ -38,6 +57,7 @@ Shader "Custom/BlobFullscreen"
             {
                 float3 position;
                 float3 color;
+                float size;
             };
 
             CBUFFER_START(UnityPerMaterial)
@@ -53,7 +73,8 @@ Shader "Custom/BlobFullscreen"
             struct BlobTraceResult
             {
                 float3 color;
-                float3 normal;
+                float3 normalWS;
+                float3 positionWS;
                 float smoothMask;
                 float distance;
                 float hit;
@@ -75,76 +96,29 @@ Shader "Custom/BlobFullscreen"
                 d = lerp(b, a, h) - k * h * (1.0 - h);
             }
 
-            void Smin_Clamped(in float a, in float b, in float k, out float d, out float h)
-            {
-                d = abs(a - b);
-                if (d > k)
-                {
-                    d = min(a, b);
-                    return;
-                }
-
-                h = 0.5 + 0.5 * (b - a) / k;
-                h = clamp(h, 0.0, 1.0);
-                d = lerp(b, a, h) - k * h * (1.0 - h);
-            }
-
-            void Smin_Contact(in float a, in float b, in float k, out float d, out float h)
-            {
-                const float r = 1.0f;
-                float m = min(a, b);
-                d = abs(a - b);
-
-                if (d > r)
-                {
-                    d = m;
-                    return;
-                }
-
-                h = clamp(0.5 + 0.5 * (b - a) / k, 0.0, 1.0);
-                float s = lerp(b, a, h) - k * h * (1.0 - h);
-
-                d = min(m, s);
-            }
-
-            void Smin_Custom(in float a, in float b, in float k, out float d, out float h)
-            {
-                const float threshold = 1.0f;
-                d = abs(a - b);
-
-                if (d > threshold)
-                {
-                    d = min(a, b);
-                    return;
-                }
-
-                h = clamp(0.5 + 0.5 * (b - a) / k, 0.0, 1.0);
-                float s = lerp(b, a, h) - k * h * (1.0 - h);
-
-                d = s - threshold * 0.5;
-            }
-
             float SDF_Sphere(float3 p, float3 center, float radius)
             {
                 return length(p - center) - radius;
             }
 
-            void SDF_Scene(in float3 p, out float dist, out float mask)
+            void SDF_Scene(in float3 p, inout float dist, out float mask)
             {
-                dist = FLT_MAX;
                 mask = 0.0f;
 
                 for (int i = 0; i < _BlobCount; i++)
                 {
                     BlobData data = _BlobBuffer[i];
-                    float d = SDF_Sphere(p, data.position, 1);
-                    Smin_Circular(dist, d, _K, dist, mask);
+                    float d = SDF_Sphere(p, data.position, data.size);
+                    float m;
+                    Smin_Circular(dist, d, _K, dist, m);
+                    mask = max(m, mask);
                 }
             }
 
             void SDF_Scene(in float3 p, out float dist)
             {
                 float mask = 0.0f;
+                dist = FLT_MAX;
                 SDF_Scene(p, dist, mask);
             }
 
@@ -173,7 +147,7 @@ Shader "Custom/BlobFullscreen"
 
             void SDF_Normal_Octaedre(in float3 p, out float3 normal)
             {
-                float h = max(FLT_EPS, _Eps * 1.5f);
+                float h = max(FLT_EPS, _Eps*1.5f);
 
                 float d_right, d_left, d_up, d_down, d_front, d_back;
                 SDF_Scene(p + float3(h, 0, 0), d_right);
@@ -200,7 +174,8 @@ Shader "Custom/BlobFullscreen"
                 for (int steps = 0; steps < _MaxSteps; steps++)
                 {
                     float3 pos = viewPos + distanceMarched * viewDir;
-
+                    data.positionWS = pos;
+                    dist = tMinMax.y;
                     SDF_Scene(pos, dist, data.smoothMask);
                     distanceMarched += dist;
 
@@ -212,7 +187,8 @@ Shader "Custom/BlobFullscreen"
                     if (dist <= _Eps)
                     {
                         data.hit = 1;
-                        SDF_Normal_Tetraedre(pos, data.normal);
+                        data.color = float3(1, 1, 1);
+                        SDF_Normal_Octaedre(pos, data.normalWS);
                         break;
                     }
                 }
@@ -247,7 +223,7 @@ Shader "Custom/BlobFullscreen"
                 return ComputeWorldSpacePosition(clip, unity_MatrixInvVP);
             }
 
-            float4 Frag(Varyings input) : SV_Target
+            half4 Frag(Varyings input, out float depth : SV_Depth) : SV_Target
             {
                 float3 fragPosWS = ComputeWorldSpacePosition(input.texcoord);
 
@@ -259,7 +235,45 @@ Shader "Custom/BlobFullscreen"
 
                 BlobTrace(viewDirectionWS, camPosWS, tMinMax, result);
 
-                return float4((float3)result.normal, result.hit);
+
+                if (result.hit == 0)
+                {
+                    depth = 0;
+                    return 0;
+                }
+
+                float4 positionCS = TransformWorldToHClip(result.positionWS);
+                depth = positionCS.z / positionCS.w;
+                
+                InputData inputData = (InputData)0;
+                SurfaceData surfaceData = (SurfaceData)0;
+
+                inputData.positionWS = result.positionWS;
+                inputData.normalWS = NormalizeNormalPerPixel(result.normalWS);
+                inputData.viewDirectionWS = viewDirectionWS * -1;
+                inputData.fogCoord = 0;
+                inputData.vertexLighting = 0;
+                inputData.normalizedScreenSpaceUV = GetNormalizedScreenSpaceUV(positionCS);
+                inputData.shadowMask = SAMPLE_SHADOWMASK(inputData.normalizedScreenSpaceUV.xy * unity_DynamicLightmapST.xy + unity_DynamicLightmapST.zw)
+                inputData.shadowCoord = TransformWorldToShadowCoord(result.positionWS);
+                inputData.bakedGI = SampleSH(result.normalWS);
+                
+                surfaceData.normalTS = half3(0,0,1);
+                surfaceData.albedo = half3(1, 1, 1);
+                surfaceData.emission = 0.0;
+                surfaceData.metallic = 1.0;
+                surfaceData.specular = 0.0;
+                surfaceData.smoothness = 1.0;
+                surfaceData.occlusion = 1.0;
+                surfaceData.alpha = 1;
+                
+                half4 color = 0;
+                color = UniversalFragmentBlinnPhong(inputData, surfaceData);
+                
+                // color = lerp(color, 1, result.smoothMask);
+                
+                // half4 color = UniversalFragmentPBR(inputData, surfaceData);
+                return color;
             }
             ENDHLSL
         }

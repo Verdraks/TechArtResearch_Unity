@@ -14,7 +14,7 @@ Material:
   m_ValidKeywords: []
   m_InvalidKeywords: []
   m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
+  m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
   stringTagMap: {}
@@ -25,9 +25,9 @@ Material:
     m_TexEnvs: []
     m_Ints: []
     m_Floats:
-    - _Eps: 0.00001
-    - _K: 1
-    - _MaxSteps: 1000
+    - _Eps: 0.0001
+    - _K: 0.0001
+    - _MaxSteps: 200
     m_Colors: []
   m_BuildTextureStacks: []
   m_AllowLocking: 1
