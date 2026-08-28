@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: BlobFullscreen
+  m_Name: Blob
   m_Shader: {fileID: 4800000, guid: 3671472fe74698c36bca74f8770bc198, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -16,7 +16,7 @@ Material:
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
+  m_CustomRenderQueue: 3000
   stringTagMap: {}
   disabledShaderPasses: []
   m_LockedProperties: 
@@ -25,9 +25,17 @@ Material:
     m_TexEnvs: []
     m_Ints: []
     m_Floats:
-    - _Eps: 0.0001
-    - _K: 0.0001
+    - _Cull: 0
+    - _Distortion: -0.03
+    - _Eps: 0.01
+    - _K: 0.15
     - _MaxSteps: 200
-    m_Colors: []
+    - _Metallic: 0
+    - _Power: 4
+    - _Scale: 1
+    - _Smoothness: 0
+    m_Colors:
+    - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
+    - _SpecColor: {r: 0, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

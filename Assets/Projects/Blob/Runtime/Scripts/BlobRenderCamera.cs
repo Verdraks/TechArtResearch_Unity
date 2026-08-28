@@ -45,7 +45,7 @@ namespace Blob.Runtime
 				return;
 			}
 
-			_pass.ConfigureInput(_pass.GetRequiredInput());
+			// _pass.ConfigureInput(_pass.GetRequiredInput());
 			cam.GetUniversalAdditionalCameraData().scriptableRenderer.EnqueuePass(_pass);
 		}
 

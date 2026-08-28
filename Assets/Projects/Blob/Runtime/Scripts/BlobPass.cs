@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.RenderGraphModule;
 using UnityEngine.Rendering.Universal;
+using Object = UnityEngine.Object;
 
 namespace Blob.Runtime
 {
@@ -19,13 +20,14 @@ namespace Blob.Runtime
 
         private class PassData
         {
-            public Material Material;
+            public MeshRenderer BlobRenderer;
             public BufferHandle BlobBuffer;
             public int BlobCount;
         }
 
-        private Material _material = null;
+        private readonly Material _material = null;
         private GraphicsBuffer _bufferBlob = null;
+        private GameObject _hook = null;
         private const string PASS_NAME = "Blob Pass";
 
         public BlobPass(Shader shader)
@@ -42,61 +44,73 @@ namespace Blob.Runtime
 
         private void BlobPass_Internal()
         {
-            renderPassEvent = RenderPassEvent.AfterRenderingTransparents;
+            renderPassEvent = RenderPassEvent.BeforeRendering;
 
             _bufferBlob = new GraphicsBuffer(GraphicsBuffer.Target.Structured, 1024, Marshal.SizeOf<BlobData>());
+
+            CreateHook();
         }
 
-        public ScriptableRenderPassInput GetRequiredInput()
+        private void CreateHook()
         {
-            return ScriptableRenderPassInput.Depth | ScriptableRenderPassInput.Normal;
+            _hook = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            _hook.name = PASS_NAME;
+            _hook.hideFlags = HideFlags.HideAndDontSave;
+            
+            MeshRenderer renderer = _hook.GetComponent<MeshRenderer>();
+            
+            renderer.receiveShadows = false;
+            renderer.sharedMaterial = _material;
         }
 
         public override void RecordRenderGraph(RenderGraph renderGraph, ContextContainer frameData)
         {
-            UniversalResourceData ressource = frameData.Get<UniversalResourceData>();
-
-            if (ressource.isActiveTargetBackBuffer)
+            using (IUnsafeRenderGraphBuilder builder = renderGraph.AddUnsafePass(PASS_NAME, out PassData passData))
             {
-                return;
-            }
-
-            using (IRasterRenderGraphBuilder
-                   builder = renderGraph.AddRasterRenderPass(PASS_NAME, out PassData passData))
-            {
-                passData.Material = _material;
-
-                BlobData[] blobsData = UnityEngine.Object.FindObjectsByType<BlobRenderer>(FindObjectsSortMode.None)
+                builder.AllowPassCulling(false);
+                
+                BlobData[] blobsData = Object.FindObjectsByType<BlobRenderer>(FindObjectsInactive.Exclude ,FindObjectsSortMode.None)
                     .Select(o => o.BlobData).ToArray();
                 _bufferBlob.SetData(blobsData);
-
+                
                 BufferHandle blobBuffer = renderGraph.ImportBuffer(_bufferBlob);
                 builder.UseBuffer(blobBuffer, AccessFlags.Read);
-                builder.UseTexture(ressource.activeDepthTexture, AccessFlags.Read);
-
+                
                 passData.BlobBuffer = blobBuffer;
                 passData.BlobCount = blobsData.Length;
+                passData.BlobRenderer = _hook.GetComponent<MeshRenderer>();
 
-                builder.SetRenderAttachment(ressource.activeColorTexture, 0, AccessFlags.Write);
-                builder.AllowPassCulling(false);
-                builder.SetRenderFunc((PassData data, RasterGraphContext ctx) => ExecutePass(data, ctx));
+                Bounds bound = new Bounds();
+                    
+                for (int i = 0; i < blobsData.Length; i++)
+                {
+                    bound.Encapsulate(blobsData[i].position - Vector3 .one * blobsData[i].radius);
+                    bound.Encapsulate(blobsData[i].position + Vector3.one * blobsData[i].radius);
+                }
+                
+                _hook.transform.position = bound.center;
+                _hook.transform.localScale = bound.size;
+                
+                builder.SetRenderFunc(static (PassData data, UnsafeGraphContext ctx) => ExecutePass(data, ctx));
             }
         }
 
-        private static void ExecutePass(PassData data, RasterGraphContext context)
+        private static void ExecutePass(PassData data, UnsafeGraphContext context)
         {
             MaterialPropertyBlock propertyBlock = context.renderGraphPool.GetTempMaterialPropertyBlock();
-
             propertyBlock.SetBuffer(ShaderProperties.BlobBuffer, data.BlobBuffer);
             propertyBlock.SetInteger(ShaderProperties.BlobCount, data.BlobCount);
-            propertyBlock.SetVector(ShaderProperties.BlitScaleBias, new Vector4(1,1,0,0));
-
-            CoreUtils.DrawFullScreen(context.cmd, data.Material, propertyBlock);
+            data.BlobRenderer.SetPropertyBlock(propertyBlock);
         }
 
         public void Dispose()
         {
             _bufferBlob?.Dispose();
+#if UNITY_EDITOR
+            Object.DestroyImmediate(_hook);
+#else
+            Object.Destroy(hook);
+#endif
         }
     }
 }

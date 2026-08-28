@@ -19,7 +19,7 @@ namespace Blob.Runtime
                 {
                     color = _blobData.color,
                     position = transform.position,
-                    size = Mathf.Max(transform.localScale.x, transform.localScale.y, transform.localScale.z) * 0.5f
+                    radius = Mathf.Max(transform.localScale.x, transform.localScale.y, transform.localScale.z) * 0.5f
                 };
                 return blobData;
             }
@@ -37,6 +37,6 @@ namespace Blob.Runtime
     {
         [HideInInspector]public Vector3 position;
         public Vector3 color;
-        [HideInInspector] public float size;
+        [HideInInspector] public float radius;
     }
 }
